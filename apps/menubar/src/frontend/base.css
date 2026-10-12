@@ -166,6 +166,8 @@ body[data-view="loading"] .toolbar { display: none; }
 .glyph[data-g="info"] { --glyph: var(--i-info); }
 .glyph[data-g="heart"] { --glyph: var(--i-heart); }
 .glyph[data-g="github"] { --glyph: var(--i-github); }
+.glyph[data-g="view-list"] { --glyph: var(--i-view-list); }
+.glyph[data-g="view-grid"] { --glyph: var(--i-view-grid); }
 
 /* ---------- botões ---------- */
 
@@ -264,6 +266,25 @@ input:focus { outline: var(--focus-ring); outline-offset: 1px; }
   border-radius: var(--list-radius);
 }
 body:not(.has-devices) .list { display: none; }
+
+/* grade: dois cartões por linha, ícone e selo no topo */
+.list[data-layout="grid"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+.list[data-layout="grid"] .device {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "icon" "name" "meta" "badge";
+  align-items: start;
+  gap: 4px;
+  padding: 10px;
+}
+.list[data-layout="grid"] .device-icon { margin-bottom: 4px; }
+.list[data-layout="grid"] .device-meta {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 2.8em;
+}
+.list[data-layout="grid"] .device .badge { justify-self: start; margin-top: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
 .device {
   display: grid;

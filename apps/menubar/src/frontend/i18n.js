@@ -25,6 +25,8 @@ window.I18N = (() => {
       'action.next': 'Próximo',
       'action.skip': 'Pular',
       'action.send': 'Enviar',
+      'action.layoutGrid': 'Ver em grade',
+      'action.layoutList': 'Ver em lista',
 
       'ob.1.title': 'Sua casa na barra de tarefas',
       'ob.1.body': 'Ligue luzes, tomadas e o ar-condicionado Tuya/Smart Life direto daqui — conversando com os aparelhos <b>pela sua rede</b>, sem esperar a nuvem.',
@@ -134,6 +136,8 @@ window.I18N = (() => {
       'action.next': 'Next',
       'action.skip': 'Skip',
       'action.send': 'Send',
+      'action.layoutGrid': 'Grid view',
+      'action.layoutList': 'List view',
 
       'ob.1.title': 'Your home in the menu bar',
       'ob.1.body': 'Switch Tuya/Smart Life lights, plugs and air conditioners right from here — talking to them <b>over your own network</b>, no cloud round-trip.',

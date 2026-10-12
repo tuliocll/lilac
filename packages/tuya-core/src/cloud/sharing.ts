@@ -141,6 +141,8 @@ export interface CloudDevice {
   /** mapa dpId → spec; vazio se o produto não suporta controle local */
   dps: DpSpec[];
   supportLocal: boolean;
+  /** a lista de DPs graváveis veio da nuvem (se false, `writable` é desconhecido) */
+  writableKnown: boolean;
 }
 
 export interface SharingClientOptions {
@@ -274,9 +276,13 @@ export class SharingClient {
       const worker = async () => {
         for (let d = queue.shift(); d; d = queue.shift()) {
           let spec = { dps: [] as DpSpec[], supportLocal: false };
+          let writableKnown = false;
           try {
             spec = await this.dpSpecs(d.id);
-            const writable = await this.writableCodes(d.id).catch(() => new Set<string>());
+            const writable = await this.writableCodes(d.id).then(
+              (w) => ((writableKnown = true), w),
+              () => new Set<string>(),
+            );
             for (const dp of spec.dps) dp.writable = writable.has(dp.code);
           } catch {
             // sem spec: aparece na lista, mas sem controle local por enquanto
@@ -298,6 +304,7 @@ export class SharingClient {
             status,
             dps: spec.dps,
             supportLocal: spec.supportLocal,
+            writableKnown,
           });
         }
       };

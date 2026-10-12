@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import type { DpSpec } from '@tuyabar/core';
-import { COMMON, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
+import { COMMON, onlySupported, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
 
 const LANGS = ['pt-BR', 'en'];
 const TONES = ['sun', 'sky', 'mint', 'peach', 'lilac', 'pink', 'neutral'];
@@ -78,4 +78,29 @@ test('disjuntor (tdq) usa o perfil switch com leituras de energia', () => {
   assert.equal(g.profile.id, 'switch');
   assert.equal(g.controls.find((c) => c.code === 'switch_1')!.type, 'power');
   assert.equal(g.controls.filter((c) => c.slot === 'readouts').length, 2);
+});
+
+test('dois ares diferentes: cada um só ganha os controles dos seus DPs', () => {
+  const base = [dp(1, 'switch', 'Boolean'), dp(2, 'temp_set', 'Integer', { min: 16, max: 30 }), dp(4, 'mode', 'Enum', { range: ['cold', 'wind'] })];
+  const simples = resolve({ category: 'kt', dps: base });
+  const completo = resolve({
+    category: 'kt',
+    dps: [...base, dp(5, 'windspeed', 'Enum', { range: ['low', 'high'] }), dp(8, 'sleep', 'Boolean'), dp(20, 'eco', 'Boolean')],
+  });
+  assert.deepEqual(simples.controls.map((c) => c.code).sort(), ['mode', 'switch', 'temp_set']);
+  assert.deepEqual(completo.controls.map((c) => c.code).sort(), ['eco', 'mode', 'sleep', 'switch', 'temp_set', 'windspeed']);
+  // as opções também são as do aparelho, não uma lista genérica
+  assert.deepEqual(simples.controls.find((c) => c.code === 'mode')!.options!.map((o) => o.value), ['cold', 'wind']);
+});
+
+test('onlySupported remove DPs que o modelo declara mas este aparelho nunca reportou', () => {
+  const g = resolve({ category: 'kt', dps: [dp(1, 'switch', 'Boolean'), dp(8, 'sleep', 'Boolean'), dp(20, 'eco', 'Boolean')] });
+  assert.deepEqual(onlySupported(g, ['switch', 'sleep']).controls.map((c) => c.code), ['switch', 'sleep']);
+  assert.equal(onlySupported(g, []).controls.length, 3, 'sem nada visto ainda, não filtra');
+});
+
+test('sem lista de graváveis: perfil tenta escrever, extras ficam só leitura', () => {
+  const g = resolve({ category: 'kt', writableKnown: false, dps: [dp(1, 'switch', 'Boolean', {}, false), dp(99, 'mystery', 'Boolean', {}, false)] });
+  assert.equal(g.controls.find((c) => c.code === 'switch')!.type, 'power');
+  assert.equal(g.controls.find((c) => c.code === 'mystery')!.type, 'readout');
 });

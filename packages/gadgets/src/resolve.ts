@@ -71,12 +71,14 @@ function autoType(spec: DpSpec, writable: boolean): ControlType | null {
 export function resolveGadget(
   profiles: GadgetProfile[],
   common: CommonLabels,
-  device: { category?: string; dps: DpSpec[] },
+  device: { category?: string; dps: DpSpec[]; writableKnown?: boolean },
 ): ResolvedGadget {
   const byCode = new Map(device.dps.map((d) => [d.code, d]));
   const profile = pickProfile(profiles, device.category, new Set(byCode.keys()));
-  // sem especificação de escrita (nuvem falhou?), tenta tudo como gravável
-  const assumeWritable = device.dps.length > 0 && device.dps.every((d) => !d.writable);
+  // Sem a lista de DPs graváveis (a nuvem falhou), só os controles que o perfil
+  // declara são tentados como graváveis; os automáticos ficam como leitura.
+  const writableKnown = device.writableKnown ?? device.dps.some((d) => d.writable);
+  const assumeWritable = !writableKnown && device.dps.length > 0;
   const used = new Set<string>();
   const controls: ResolvedControl[] = [];
 
@@ -91,15 +93,27 @@ export function resolveGadget(
 
   for (const spec of device.dps) {
     if (used.has(spec.code)) continue;
-    const writable = spec.writable || assumeWritable;
-    const type = autoType(spec, writable);
+    const type = autoType(spec, spec.writable);
     if (!type) continue;
     const label = common.codes[spec.code] ?? { 'pt-BR': prettifyCode(spec.code), en: prettifyCode(spec.code) };
-    controls.push(bind(spec, type, 'advanced', label, common, {}, assumeWritable));
+    controls.push(bind(spec, type, 'advanced', label, common, {}, false));
   }
 
   const { id, name, tone, layout, note } = profile;
   return { profile: { id, name, tone, layout, note }, controls };
+}
+
+/**
+ * Mantém só os controles cujo DP este aparelho realmente reporta.
+ *
+ * A especificação da nuvem é por *modelo*; alguns aparelhos (ou firmwares)
+ * declaram DPs que nunca usam. `seen` = códigos que apareceram no status da
+ * nuvem e/ou na leitura local. Se nada foi visto ainda, não filtra.
+ */
+export function onlySupported(g: ResolvedGadget, seen: Iterable<string>): ResolvedGadget {
+  const set = new Set(seen);
+  if (!set.size) return g;
+  return { ...g, controls: g.controls.filter((c) => set.has(c.code)) };
 }
 
 // --------------------------------------------------------------- valores

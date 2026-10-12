@@ -157,6 +157,26 @@ function renderDevices() {
   document.body.classList.toggle('has-devices', devices.length > 0);
 }
 
+// layout da lista: 'list' (uma coluna) ou 'grid' (dois por linha) — lembrado entre aberturas
+let deviceLayout = 'list';
+
+function renderLayoutToggle() {
+  $('list').dataset.layout = deviceLayout;
+  const next = deviceLayout === 'list' ? 'grid' : 'list';
+  const btn = $('layout-toggle');
+  btn.querySelector('.glyph').dataset.g = next === 'grid' ? 'view-grid' : 'view-list';
+  btn.title = t(next === 'grid' ? 'action.layoutGrid' : 'action.layoutList');
+  btn.setAttribute('aria-label', btn.title);
+}
+
+$('layout-toggle').addEventListener('click', async () => {
+  deviceLayout = deviceLayout === 'list' ? 'grid' : 'list';
+  renderLayoutToggle();
+  try {
+    await tiny.store.set('deviceLayout', deviceLayout);
+  } catch {}
+});
+
 // ---------------------------------------------------------------- página do gadget
 
 let currentDevice = null;
@@ -491,6 +511,7 @@ tiny.api.on('warn', (msg) => {
 
 I18N.onChange(() => {
   renderTitle();
+  renderLayoutToggle();
   renderDevices();
   renderAccount();
   renderThemes();
@@ -546,6 +567,10 @@ $('quit').addEventListener('click', () => tiny.api.call('quit'));
   await Promise.all([Themes.init(), I18N.init()]); // antes de mostrar a janela: sem "piscar"
   tiny.win.setSize(W, H);
   renderAbout();
+  try {
+    deviceLayout = (await tiny.store.get('deviceLayout')) === 'grid' ? 'grid' : 'list';
+  } catch {}
+  renderLayoutToggle();
   const vault = await readVault();
   const { loggedIn } = await tiny.api.call('restore', vault);
   let onboarded = false;

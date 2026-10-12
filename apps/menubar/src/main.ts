@@ -22,7 +22,7 @@ import {
   type DiscoveredDevice,
   type SharingSession,
 } from '@tuyabar/core';
-import { profileFor, resolve, toDisplay, toRaw, type ResolvedControl, type ResolvedGadget } from '@tuyabar/gadgets';
+import { onlySupported, profileFor, resolve, toDisplay, toRaw, type ResolvedControl, type ResolvedGadget } from '@tuyabar/gadgets';
 import { createTxikiTransport } from '@tuyabar/transport-txiki';
 import qrcode from 'qrcode-generator';
 
@@ -147,7 +147,11 @@ async function openDevice(app: App, id: string) {
   const l = discovered.get(id);
   const deviceView = view().find((x) => x.id === id);
   if (!d) return { device: deviceView, gadget: null, values: {}, local: false, reason: 'unknown' };
-  const gadget = resolve({ category: d.category, dps: d.dps });
+  // controles = DPs do *modelo* (nuvem) ∩ DPs que *este aparelho* já reportou
+  const full = resolve({ category: d.category, dps: d.dps, writableKnown: d.writableKnown });
+  const seen = new Set(Object.keys(d.status));
+  const supported = () => onlySupported(full, seen);
+  let gadget = supported();
   const base = { device: deviceView, gadget, values: cloudValues(gadget, d) };
 
   if (!l) return { ...base, local: false, reason: d.sub ? 'sub' : 'offline' };
@@ -157,7 +161,7 @@ async function openDevice(app: App, id: string) {
   let s = sessions.get(id);
   if (!s) {
     const dev = new TuyaLocalDevice({ id, ip: l.ip, localKey: d.localKey, version: l.version, transport, timeoutMs: 4000 });
-    s = { dev, gadget, values: base.values };
+    s = { dev, gadget: full, values: base.values };
     const sess = s;
     dev.onStatus((dps) => {
       Object.assign(sess.values, dpsToValues(sess.gadget, dps));
@@ -169,7 +173,13 @@ async function openDevice(app: App, id: string) {
   if (s.idle) clearTimeout(s.idle);
   try {
     const dps = await s.dev.status();
-    Object.assign(s.values, dpsToValues(gadget, dps));
+    for (const k of Object.keys(dps)) {
+      const code = d.dps.find((x) => String(x.dpId) === k)?.code;
+      if (code) seen.add(code);
+    }
+    gadget = supported();
+    s.gadget = gadget;
+    Object.assign(s.values, dpsToValues(full, dps));
     return { device: deviceView, gadget, values: s.values, local: true };
   } catch (e) {
     sessions.delete(id);

@@ -3,11 +3,11 @@ import { COMMON, PROFILES } from './registry.gen.ts';
 import { resolveGadget } from './resolve.ts';
 
 export * from './types.ts';
-export { pickProfile, prettifyCode, toDisplay, toRaw, pickText } from './resolve.ts';
+export { onlySupported, pickProfile, prettifyCode, toDisplay, toRaw, pickText } from './resolve.ts';
 export { COMMON, PROFILES };
 
 /** Atalho com o registro embutido. */
-export function resolve(device: { category?: string; dps: DpSpec[] }) {
+export function resolve(device: { category?: string; dps: DpSpec[]; writableKnown?: boolean }) {
   return resolveGadget(PROFILES, COMMON, device);
 }
 
