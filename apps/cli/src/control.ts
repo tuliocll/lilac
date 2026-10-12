@@ -6,6 +6,7 @@
  *   npm run control -- "Luz garagem" switch_1=true (escreve por código…)
  *   npm run control -- "Luz garagem" 1=false       (…ou por número do DP)
  *   npm run control -- "Ar escritório" temp=23 --cloud   (força a nuvem)
+ *   npm run control -- "IR Escritório" --inspect         (respostas cruas da nuvem, para diagnóstico)
  */
 import {
   createLocalDevice,
@@ -20,7 +21,8 @@ import {
 import { createNodeTransport } from '@tuyabar/transport-node';
 import { flag, load, save } from './store.ts';
 
-const forceCloud = flag('cloud');
+const inspect = flag('inspect');
+const forceCloud = flag('cloud') || inspect;
 const [query, ...assignments] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 
 const inventory = await load<CloudDevice[]>('inventory.json');
@@ -69,12 +71,35 @@ async function runLocal(ip: string, version: string) {
 async function runCloud() {
   const session = await load<SharingSession>('session.json');
   if (!session) throw new Error('não está na rede local e não há sessão da nuvem (npm run login)');
-  console.log('Pela nuvem (o aparelho não está acessível pela rede local).');
+  console.log(forceCloud ? 'Pela nuvem (forçado).' : 'Pela nuvem (o aparelho não está acessível pela rede local).');
   const cloud = createSharingClient(session, { app: HOME_ASSISTANT_CREDENTIALS, onSessionUpdate: (s) => void save('session.json', s) });
+  if (inspect) return printRaw(cloud);
   if (changes.length) await cloud.sendCommands(device!.id, changes.map(({ code, value }) => ({ code, value })));
   const { [device!.id]: current } = await cloud.statusOf([device!.id]);
   console.table(current?.status ?? {});
 }
+
+/** Despeja o que a nuvem diz do aparelho, sem filtro — para entender aparelhos fora do padrão (IR, gateways…). */
+async function printRaw(cloud: ReturnType<typeof createSharingClient>) {
+  const id = device!.id;
+  const endpoints: [string, string, object?][] = [
+    ['detalhe', '/v1.0/m/life/ha/devices/detail', { devIds: id }],
+    ['estratégia local', `/v1.0/m/life/devices/${id}/status`],
+    ['especificação', `/v1.1/m/life/${id}/specifications`],
+  ];
+  console.log(`categoria: ${device!.category}  produto: ${device!.productName ?? '?'} (${device!.productId ?? '?'})`);
+  for (const [label, path, params] of endpoints) {
+    console.log(`\n=== ${label}  ${path}`);
+    try {
+      console.log(JSON.stringify((await cloud.request('GET', path, params)).result, hideKeys, 2));
+    } catch (error) {
+      console.log(`erro: ${(error as Error).message}`);
+    }
+  }
+}
+
+/** Não imprime chaves locais, mesmo no modo de diagnóstico. */
+const hideKeys = (key: string, value: unknown) => (key === 'local_key' || key === 'localKey' ? '***' : value);
 
 function findDevice(list: CloudDevice[], text: string) {
   const lower = text.toLowerCase();
