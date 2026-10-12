@@ -173,6 +173,7 @@ body[data-view="loading"] .toolbar { display: none; }
 .glyph[data-g="palette"] { --glyph: var(--i-palette); }
 .glyph[data-g="arrow-up"] { --glyph: var(--i-arrow-up); }
 .glyph[data-g="arrow-down"] { --glyph: var(--i-arrow-down); }
+.glyph[data-g="quick"] { --glyph: var(--i-quick); }
 
 /* ---------- botões ---------- */
 
@@ -293,7 +294,7 @@ body:not(.has-devices) .list { display: none; }
 
 .device {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(96px, 1fr) auto;
   grid-template-areas: "icon name badge" "icon meta badge";
   align-items: center;
   gap: 0 10px;
@@ -684,3 +685,44 @@ body.has-devices .empty { display: none; }
 .move-buttons { grid-area: badge; display: flex; gap: 4px; }
 .list[data-layout="grid"] .move-buttons { justify-self: start; margin-top: 4px; }
 .list.arranging .device:not(.away):hover { background: var(--surface-bg); }
+
+/* ---------- conexão (pontinho no ícone) ---------- */
+
+.device-icon { position: relative; }
+.device-icon[data-link]::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--link-dot);
+  border: 2px solid var(--link-ring);
+}
+.device-icon[data-link="local"] { --link-dot: var(--link-local); }
+.device-icon[data-link="cloud"] { --link-dot: var(--link-cloud); }
+
+/* ---------- item da lista: abrir + ações rápidas ---------- */
+
+.device-name { text-align: left; font: inherit; font-weight: 600; color: inherit; }
+.quick-actions { grid-area: badge; display: flex; gap: 4px; align-items: center; }
+.list[data-layout="grid"] .quick-actions { justify-self: start; margin-top: 6px; flex-wrap: wrap; }
+.quick {
+  height: var(--quick-size);
+  min-width: var(--quick-size);
+  padding: 0 7px;
+  gap: 4px;
+  font-size: 0.85em;
+}
+.quick .glyph { width: 15px; height: 15px; }
+.quick .text { max-width: 48px; overflow: hidden; text-overflow: ellipsis; }
+.device-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick[aria-pressed="true"],
+.quick[aria-pressed="true"]:hover:not(:disabled) { background: var(--power-on-bg); color: var(--power-on-fg); }
+
+/* ---------- editor de ações rápidas (página do aparelho) ---------- */
+
+.quick-editor { display: grid; gap: 6px; }
+.quick-editor .hint { margin: 0; color: var(--muted); font-size: 0.92em; }
+.quick-editor .setting-row { padding: 6px 2px; }

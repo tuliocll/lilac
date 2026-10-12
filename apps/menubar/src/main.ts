@@ -12,7 +12,9 @@
 import * as account from './backend/account.ts';
 import { push, setApp, type TinyApp } from './backend/app.ts';
 import * as control from './backend/control.ts';
+import { findDevice } from './backend/account.ts';
 import { loadFavorites, reorderFavorites, toggleFavorite } from './backend/favorites.ts';
+import { loadQuickActions, MAX_QUICK_ACTIONS, quickActionsFor, quickModeFor, saveQuickActions, type QuickAction } from './backend/quick-actions.ts';
 import { readText } from './backend/files.ts';
 import { onNetworkChange, restartListening, startListening } from './backend/network.ts';
 import { FAVORITE_PREFIX, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
@@ -22,15 +24,26 @@ import { deviceList } from './backend/view.ts';
 const warn = (message: string) => push('warn', message);
 const pushDevices = () => push('devices', deviceList());
 
+/** Muitas mudanças em sequência (vários STATUS) viram uma atualização só da lista. */
+let pushTimer: ReturnType<typeof setTimeout> | undefined;
+const pushDevicesSoon = () => {
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushDevices, 150);
+};
+
 /** Inicia uma vez só; chamadas simultâneas esperam a mesma inicialização. */
 let starting: Promise<void> | null = null;
 function start(app: TinyApp) {
   setApp(app);
   starting ??= (async () => {
     app.setHideOnClose(true);
-    await loadFavorites();
+    await Promise.all([loadFavorites(), loadQuickActions()]);
     renderTray();
     onNetworkChange(pushDevices);
+    control.onValuesChange(() => {
+      pushDevicesSoon();
+      renderTray();
+    });
     account.onInventoryChange(() => {
       pushDevices();
       renderTray();
@@ -94,6 +107,32 @@ export const api = {
     pushDevices();
     renderTray();
     return { order: ids };
+  }),
+
+  // ---- ações rápidas
+  /** O que dá para virar ação rápida neste aparelho, e o que já está escolhido. */
+  quickActionOptions: withStart(({ id }: Id) => {
+    const device = findDevice(id);
+    if (!device) return { chosen: [], candidates: [], max: 0 };
+    const gadget = control.supportedGadget(device);
+    const candidates = gadget.controls.flatMap((c) => {
+      const mode = quickModeFor(c);
+      return mode ? [{ code: c.code, mode, control: c }] : [];
+    });
+    return { chosen: quickActionsFor(id, gadget), candidates, max: MAX_QUICK_ACTIONS };
+  }),
+  setQuickActions: withStart(async ({ id, actions }: Id & { actions: QuickAction[] }) => {
+    const device = findDevice(id);
+    if (!device) return { actions: [] };
+    const saved = await saveQuickActions(id, Array.isArray(actions) ? actions : [], control.supportedGadget(device));
+    pushDevices();
+    return { actions: saved };
+  }),
+  runQuickAction: withStart(async ({ id, index }: Id & { index: number }) => {
+    const action = deviceList().find((d) => d.id === id)?.quick[index];
+    if (!action) throw new Error('ação rápida não encontrada');
+    await control.runAction(id, action);
+    pushDevices();
   }),
 
   // ---- interface

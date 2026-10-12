@@ -117,6 +117,10 @@
   --scrollbar-border: 2px solid var(--ink);
 
   --qr-frame: var(--paper);
+  --link-local: var(--mint);
+  --link-cloud: var(--sky);
+  --link-ring: var(--ink);
+  --quick-size: 30px;
   --swatch-border: 2px solid var(--ink);
 
   --tone-sun: var(--sun);

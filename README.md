@@ -29,6 +29,7 @@
 - 🏠 **Controls devices locally** over TCP 6668 — once the keys are fetched, it works even with the internet down.
 - ☁️ **Falls back to the cloud** for what can't be reached locally (Zigbee sub-devices behind a gateway, IR air conditioners,
   unsupported protocol versions), clearly labelled “via cloud”.
+- ⚡ **Quick actions**: up to 3 one-click buttons per device right in the list (toggle power, or pin a value like “Cool” or “22 °C”), chosen on the device page.
 - ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even opening the panel. Optional global hotkey
   (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan chips, a breaker gets a power

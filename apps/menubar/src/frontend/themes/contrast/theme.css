@@ -150,6 +150,10 @@
   --scrollbar-border: 2px solid var(--ink);
 
   --qr-frame: var(--paper);
+  --link-local: var(--go);
+  --link-cloud: var(--paper);
+  --link-ring: var(--ink);
+  --quick-size: 32px;
   --swatch-border: 2px solid var(--paper);
 
   color-scheme: dark;

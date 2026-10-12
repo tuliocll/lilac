@@ -57,6 +57,7 @@ const sessions = new Map<string, Session>();
 const opening = new Map<string, Promise<OpenResult>>();
 /** último valor conhecido de cada aparelho (para a bandeja) */
 const lastKnown = new Map<string, Values>();
+const valueListeners = new Set<(id: string) => void>();
 
 // ============================================================== API do módulo
 
@@ -139,21 +140,50 @@ export function releaseDevice(id: string) {
   session.timers.idle = setTimeout(() => dispose(session), IDLE_CLOSE_MS);
 }
 
-/** Liga/desliga pelo controle principal de energia (usado pela bandeja). */
-export async function togglePower(id: string): Promise<boolean | undefined> {
-  const opened = await openDevice(id, { watch: false });
-  const power = opened.gadget?.controls.find((c) => c.type === 'power');
-  if (!opened.route || !power) {
-    releaseDevice(id);
-    return undefined;
-  }
-  const next = !opened.values[power.code];
+/**
+ * Executa uma ação de um clique (ação rápida da lista, favorito da bandeja)
+ * sem a página aberta. `toggle` lê o estado atual antes de inverter.
+ */
+export async function runAction(id: string, action: { code: string; mode: 'toggle' | 'set'; value?: unknown }): Promise<Values> {
   try {
-    const values = await setControl(id, power.code, next);
-    return Boolean(values[power.code]);
+    const opened = await openDevice(id, { watch: false });
+    if (!opened.route) throw new Error(opened.error ?? `aparelho indisponível (${opened.reason})`);
+    const value = action.mode === 'toggle' ? !opened.values[action.code] : action.value;
+    return await setControl(id, action.code, value);
   } finally {
     releaseDevice(id);
   }
+}
+
+/** Liga/desliga pelo controle principal de energia (favoritos na bandeja). */
+export async function togglePower(id: string): Promise<boolean | undefined> {
+  const device = findDevice(id);
+  const power = device && resolveDevice(device).controls.find((c) => c.type === 'power');
+  if (!power) return undefined;
+  const values = await runAction(id, { code: power.code, mode: 'toggle' });
+  return Boolean(values[power.code]);
+}
+
+/** Avisa quando valores de um aparelho mudam (a lista mostra o estado nas ações rápidas). */
+export function onValuesChange(listener: (id: string) => void) {
+  valueListeners.add(listener);
+  return () => valueListeners.delete(listener);
+}
+
+/** Últimos valores conhecidos (sessão, ou o status que a nuvem mandou no inventário). */
+export function currentValues(device: CloudDevice): Values {
+  return lastKnown.get(device.id) ?? cloudValues(resolveDevice(device), device.status);
+}
+
+/** Controles que este aparelho reporta (para lista, ações rápidas e bandeja). */
+export function supportedGadget(device: CloudDevice): ResolvedGadget {
+  const seen = new Set([...Object.keys(device.status), ...Object.keys(lastKnown.get(device.id) ?? {})]);
+  return onlySupported(resolveDevice(device), seen);
+}
+
+/** Todos os controles do modelo do aparelho. */
+export function resolveDevice(device: CloudDevice): ResolvedGadget {
+  return resolve({ category: device.category, dps: device.dps, writableKnown: device.writableKnown });
 }
 
 /** Fecha tudo — depois de re-sincronizar, as chaves e IPs podem ter mudado. */
@@ -164,10 +194,9 @@ export function closeAllDevices() {
 export function knownPower(id: string): boolean | undefined {
   const device = findDevice(id);
   if (!device) return undefined;
-  const values = lastKnown.get(id) ?? device.status;
-  const full = resolve({ category: device.category, dps: device.dps });
-  const power = full.controls.find((c) => c.type === 'power');
-  return power && typeof values[power.code] === 'boolean' ? (values[power.code] as boolean) : undefined;
+  const power = resolveDevice(device).controls.find((c) => c.type === 'power');
+  const value = power && currentValues(device)[power.code];
+  return typeof value === 'boolean' ? value : undefined;
 }
 
 /**
@@ -212,7 +241,7 @@ async function refresh(session: Session): Promise<Outcome> {
 }
 
 function createSession(device: CloudDevice, route: Route, watched: boolean): Session {
-  const full = resolve({ category: device.category, dps: device.dps, writableKnown: device.writableKnown });
+  const full = resolveDevice(device);
   const seen = new Set(Object.keys(device.status));
   const session: Session = {
     device,
@@ -236,8 +265,7 @@ function describe(session: Session): OpenResult {
 
 /** Sem rota de controle: mostra o último estado conhecido pela nuvem. */
 function readOnly(device: CloudDevice, reason?: Reason, version?: string, error?: string): OpenResult {
-  const full = resolve({ category: device.category, dps: device.dps, writableKnown: device.writableKnown });
-  const gadget = onlySupported(full, Object.keys(device.status));
+  const gadget = onlySupported(resolveDevice(device), Object.keys(device.status));
   return { gadget, values: cloudValues(gadget, device.status), route: null, reason, version, error };
 }
 
@@ -326,6 +354,7 @@ function applyValues(session: Session, values: Values) {
   Object.assign(session.values, values);
   lastKnown.set(session.device.id, { ...session.values });
   push('state', { id: session.device.id, values: session.values });
+  for (const listener of valueListeners) listener(session.device.id);
 }
 
 function cloudValues(gadget: ResolvedGadget, status: Values): Values {

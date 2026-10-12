@@ -2,10 +2,12 @@
  * O que a lista de aparelhos mostra: inventário + presença na rede + favoritos.
  */
 import { categoryKind, categoryLabel, type DeviceKind, type DiscoveredDevice } from '@tuyabar/core';
-import { profileFor } from '@tuyabar/gadgets';
+import { profileFor, type ResolvedControl } from '@tuyabar/gadgets';
+import type { CloudDevice } from '@tuyabar/core';
 import { devices } from './account.ts';
-import { chooseRoute, type Reason, type Route } from './control.ts';
+import { chooseRoute, currentValues, supportedGadget, type Reason, type Route } from './control.ts';
 import { favorites } from './favorites.ts';
+import { quickActionsFor, type QuickAction } from './quick-actions.ts';
 import { locate, presentDevices } from './network.ts';
 
 export interface DeviceView {
@@ -28,6 +30,15 @@ export interface DeviceView {
   favorite: boolean;
   /** está na conta (ou foi importado); false = só visto na rede */
   known: boolean;
+  /** botões de um clique na lista */
+  quick: QuickActionView[];
+}
+
+export interface QuickActionView extends QuickAction {
+  /** o controle por trás da ação (rótulo, ícone, opções, unidade — para a página formatar) */
+  control: ResolvedControl;
+  /** a ação está "acesa" agora: toggle ligado, ou o valor fixado é o atual */
+  active?: boolean;
 }
 
 export function deviceList(): DeviceView[] {
@@ -53,6 +64,7 @@ export function deviceList(): DeviceView[] {
       experimental: choice.route === 'local' && !device.supportLocal,
       favorite: favs.has(device.id),
       known: true,
+      quick: quickActionViews(device),
     };
   });
 
@@ -82,5 +94,17 @@ function stranger(seen: DiscoveredDevice): DeviceView {
     experimental: false,
     favorite: false,
     known: false,
+    quick: [],
   };
+}
+
+function quickActionViews(device: CloudDevice): QuickActionView[] {
+  const gadget = supportedGadget(device);
+  const values = currentValues(device);
+  return quickActionsFor(device.id, gadget).map((action) => {
+    const control = gadget.controls.find((c) => c.code === action.code)!;
+    const current = values[action.code];
+    const active = current === undefined ? undefined : action.mode === 'toggle' ? current === true : current === action.value;
+    return { ...action, control, active };
+  });
 }

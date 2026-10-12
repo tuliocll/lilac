@@ -17,7 +17,7 @@ const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '');
 
 const tokens = Object.keys(JSON.parse(read('themes/tokens.json')).tokens);
 // variáveis internas (não são do tema)
-const INTERNAL = [/^--glyph$/, /^--tone$/, /^--fill$/, /^--i-/];
+const INTERNAL = [/^--glyph$/, /^--tone$/, /^--fill$/, /^--link-dot$/, /^--i-/];
 
 const themeDirs = readdirSync(join(front, 'themes')).filter((d) => existsSync(join(front, 'themes', d, 'theme.css')));
 

@@ -21,7 +21,7 @@
     TuyaBar.nav.go('device', { title: device.name });
     const container = $('device-page');
     container.replaceChildren(h('p', 'muted center', t('device.connecting')));
-    $('device-header').replaceChildren(favoriteButton(device));
+    $('device-header').replaceChildren(quickButton(), favoriteButton(device));
 
     const done = status.busy();
     try {
@@ -49,7 +49,7 @@
     container.replaceChildren(header(device, gadget), ...notes(result));
     container.dataset.layout = gadget?.profile.layout ?? 'generic';
     container.classList.toggle('locked', !route);
-    $('device-header').replaceChildren(favoriteButton(device));
+    $('device-header').replaceChildren(quickButton(), favoriteButton(device));
 
     page.values = { ...result.values };
     page.controls = (gadget?.controls ?? []).map((control) => ({
@@ -79,10 +79,12 @@
     refresh();
   }
 
+  /** Nome, tipo e — aqui, onde interessa — como está conectado e o IP. */
   function header(device, gadget) {
     const titles = h('div', 'titles');
     const type = gadget ? pick(gadget.profile.name) : device.type;
-    titles.append(h('div', 'name', device.name), h('div', 'sub', [type, device.ip].filter(Boolean).join(' · ')));
+    const link = [TuyaBar.devices.linkText(device), device.ip].filter(Boolean).join(' · ');
+    titles.append(h('div', 'name', device.name), h('div', 'sub', type), h('div', 'sub', link));
     const el = h('div', 'dp-head');
     el.append(gadgetIcon(gadget?.profile.id ?? device.gadget, gadget?.profile.tone ?? device.tone), titles);
     return el;
@@ -129,6 +131,79 @@
       render(favorite);
     });
     return b;
+  }
+
+  // ------------------------------------------------------------ ações rápidas
+
+  function quickButton() {
+    const b = button('btn btn-icon');
+    b.append(glyph('quick'));
+    b.title = t('quick.edit');
+    b.setAttribute('aria-label', b.title);
+    b.addEventListener('click', toggleQuickEditor);
+    return b;
+  }
+
+  async function toggleQuickEditor() {
+    const container = $('device-page');
+    const open = container.querySelector('.quick-editor');
+    if (open) return open.remove();
+    const options = await tiny.api.call('quickActionOptions', { id: page.device.id }).catch(logError('quickActionOptions'));
+    if (!options || !page) return;
+    container.querySelector('.dp-head')?.after(quickEditor(options));
+  }
+
+  /**
+   * Lista de controles que podem virar botão na lista de aparelhos.
+   * Liga/desliga vira "alternar"; os demais fixam o valor atual
+   * (ex.: escolha "Frio" no modo e marque — o botão fica "Frio").
+   */
+  function quickEditor({ chosen, candidates, max }) {
+    const box = h('div', 'card quick-editor');
+    let actions = [...chosen];
+
+    const describe = (candidate, saved) => {
+      const label = pick(candidate.control.label);
+      if (candidate.mode === 'toggle') return label;
+      const value = saved ? saved.value : page.values[candidate.code];
+      return `${label}: ${TuyaBar.controls.format(candidate.control, value)}`;
+    };
+
+    async function toggle(candidate) {
+      const index = actions.findIndex((a) => a.code === candidate.code);
+      if (index >= 0) {
+        actions.splice(index, 1);
+      } else if (actions.length >= max) {
+        return status.show('quick.max', { max }, { warn: true });
+      } else {
+        const value = candidate.mode === 'set' ? page.values[candidate.code] : undefined;
+        actions.push({ code: candidate.code, mode: candidate.mode, value });
+      }
+      const result = await tiny.api.call('setQuickActions', { id: page.device.id, actions }).catch(logError('setQuickActions'));
+      if (result) actions = result.actions;
+      render();
+    }
+
+    function render() {
+      const rows = candidates.map((candidate) => {
+        const saved = actions.find((a) => a.code === candidate.code);
+        const unknownValue = candidate.mode === 'set' && !saved && page.values[candidate.code] === undefined;
+        const sw = button('switch');
+        sw.setAttribute('role', 'switch');
+        sw.setAttribute('aria-checked', String(Boolean(saved)));
+        sw.disabled = unknownValue || (!saved && actions.length >= max);
+        const text = describe(candidate, saved);
+        sw.setAttribute('aria-label', text);
+        sw.addEventListener('click', () => toggle(candidate));
+        const row = h('div', 'setting-row');
+        row.append(h('span', '', text), sw);
+        return row;
+      });
+      box.replaceChildren(h('h2', 'section-title', t('quick.title')), h('p', 'hint', t('quick.hint', { max })), ...rows);
+    }
+
+    render();
+    return box;
   }
 
   // ------------------------------------------------------------ valores

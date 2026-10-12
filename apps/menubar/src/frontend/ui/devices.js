@@ -3,7 +3,7 @@
 // escolher no modo "Organizar" (setas ↑ ↓ — funcionam com teclado e mouse).
 (() => {
   const { $, h, button, glyph, gadgetIcon, logError } = TuyaBar.dom;
-  const { t } = TuyaBar.i18n;
+  const { t, pick } = TuyaBar.i18n;
 
   let devices = [];
   let layout = 'list';
@@ -11,46 +11,84 @@
   /** ids já mostrados: só aparelhos novos ganham a animação de entrada */
   const shown = new Set();
 
-  /** Selo de cada aparelho: [texto, tom] */
-  function badge(d) {
-    if (!d.known) return [t('badge.stranger', { version: d.version }), ''];
-    if (d.route === 'local') return [t('badge.local', { version: d.version }), d.experimental ? 'warn' : 'ok'];
-    if (d.route === 'cloud') return [t('badge.cloud'), ''];
-    if (d.reason === 'nokey') return [t('badge.nokey'), 'warn'];
-    if (d.reason === 'version') return [t('badge.unsupported', { version: d.version }), 'warn'];
-    if (d.reason === 'sub') return [t('badge.sub'), ''];
-    return [t('badge.away'), ''];
+  /** Como o aparelho está conectado, em texto (tooltip e cabeçalho da página). */
+  function linkText(d) {
+    if (!d.known) return t('link.stranger', { version: d.version });
+    if (d.route === 'local') return t(d.experimental ? 'link.experimental' : 'link.local', { version: d.version });
+    if (d.route === 'cloud') return t('link.cloud');
+    return t('link.none');
   }
 
-  /** Um aparelho. Com `move`, mostra as setas de organizar no lugar do selo. */
+  /**
+   * Um aparelho: ícone (com o pontinho de conexão), nome, tipo e até 3
+   * ações rápidas. Com `move`, as setas de organizar ocupam o lugar delas.
+   * O nome é o botão de abrir (teclado); clicar no ícone, no tipo ou no
+   * fundo do item também abre.
+   */
   function item(d, move) {
     const li = h('li', d.route ? 'device' : 'device away');
     if (!shown.has(d.id)) li.classList.add('entering');
     shown.add(d.id);
-    li.title = d.id;
     li.dataset.id = d.id;
+    li.title = [linkText(d), d.ip].filter(Boolean).join(' · ');
 
-    const name = h('span', 'device-name');
+    const icon = gadgetIcon(d.gadget, d.tone);
+    if (d.route) icon.dataset.link = d.route;
+
+    const name = button('device-name');
     if (d.favorite) name.append(glyph('star-fill'), ' ');
     name.append(d.name);
-    const meta = h('span', 'device-meta', [d.known ? d.type : t('type.unknown'), d.ip].filter(Boolean).join(' · ') || d.id);
-    li.append(gadgetIcon(d.gadget, d.tone), name, meta, move ? moveButtons(d, move) : badgeOf(d));
+    const meta = h('span', 'device-meta', d.known ? d.type : t('type.unknown'));
 
+    li.append(icon, name, meta, move ? moveButtons(d, move) : quickActions(d));
     if (!move) {
-      li.tabIndex = 0;
-      li.setAttribute('role', 'button');
       const open = () => TuyaBar.devicePage.open(d);
-      li.addEventListener('click', open);
-      li.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && open());
+      name.addEventListener('click', open);
+      li.addEventListener('click', (e) => e.target === li && open());
+      for (const part of [icon, meta]) part.addEventListener('click', open);
     }
     return li;
   }
 
-  function badgeOf(d) {
-    const [label, tone] = badge(d);
-    const chip = h('span', 'badge', label);
-    if (tone) chip.dataset.tone = tone;
-    return chip;
+  // ---- ações rápidas
+
+  function quickActions(d) {
+    const box = h('span', 'quick-actions');
+    d.quick.forEach((action, index) => box.append(quickButton(d, action, index)));
+    return box;
+  }
+
+  function quickButton(d, action, index) {
+    const { control } = action;
+    const label = pick(control.label);
+    const b = button('btn quick');
+    b.disabled = !d.route;
+
+    if (action.mode === 'toggle') {
+      b.append(glyph(control.type === 'power' ? 'power' : control.icon || 'power'));
+      if (action.active !== undefined) b.setAttribute('aria-pressed', String(action.active));
+      b.setAttribute('aria-label', `${label}: ${t(action.active ? 'device.on' : 'device.off')}`);
+    } else {
+      const value = TuyaBar.controls.format(control, action.value);
+      if (control.icon) b.append(glyph(control.icon));
+      b.append(h('span', 'text', value));
+      b.setAttribute('aria-pressed', String(Boolean(action.active)));
+      b.setAttribute('aria-label', `${label}: ${value}`);
+    }
+    b.title = b.getAttribute('aria-label');
+
+    b.addEventListener('click', async (e) => {
+      e.stopPropagation(); // não abre a página
+      b.setAttribute('aria-busy', 'true');
+      try {
+        await tiny.api.call('runQuickAction', { id: d.id, index });
+      } catch (error) {
+        TuyaBar.status.show('quick.failed', { error: error.message ?? error }, { warn: true });
+      } finally {
+        b.removeAttribute('aria-busy');
+      }
+    });
+    return b;
   }
 
   function moveButtons(d, { index, count }) {
@@ -159,5 +197,5 @@
   });
   TuyaBar.i18n.onChange(render);
 
-  TuyaBar.devices = { init, all: () => devices };
+  TuyaBar.devices = { init, all: () => devices, linkText };
 })();

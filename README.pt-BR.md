@@ -29,6 +29,7 @@
 - 🏠 **Controla os aparelhos localmente** (TCP 6668) — depois de buscar as chaves, funciona até sem internet.
 - ☁️ **Usa a nuvem quando a rede local não alcança** (sub-dispositivos de gateway, ares por infravermelho, protocolos ainda não
   suportados), sempre marcado como “via nuvem”.
+- ⚡ **Ações rápidas**: até 3 botões de um clique por aparelho direto na lista (liga/desliga, ou um valor fixado como “Frio” ou “22 °C”), escolhidos na página do aparelho.
 - ⭐ **Favoritos** no topo da lista, na ordem que você escolher (Organizar ↑↓), e no menu da bandeja: liga a luz sem nem abrir o painel. Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>)
   e abrir com o sistema.
 - 🔑 **Sem conta? Importe as chaves** do `devices.json` do tinytuya.

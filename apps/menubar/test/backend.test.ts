@@ -168,3 +168,35 @@ test('favoritos: aparecem primeiro, na ordem escolhida, na lista e na bandeja', 
   assert.deepEqual(trayFavorites, ['wrongkey', 'away', 'dev34']);
   assert.deepEqual([...store.get('favorites') as string[]], ['wrongkey', 'away', 'dev34'], 'ordem salva');
 });
+
+test('ações rápidas: padrão é o liga/desliga; dá para fixar valores e executar da lista', async () => {
+  const { loadQuickActions, saveQuickActions, quickActionsFor } = await import('../src/backend/quick-actions.ts');
+  await loadQuickActions();
+  const device = account.findDevice('dev34')!;
+  const gadget = control.supportedGadget(device);
+
+  const before = deviceList().find((d) => d.id === 'dev34')!;
+  assert.deepEqual(before.quick.map((q) => [q.code, q.mode]), [['switch_1', 'toggle']], 'padrão: liga/desliga');
+
+  // controle somente leitura e código inexistente são descartados; no máximo 3
+  const saved = await saveQuickActions(
+    'dev34',
+    [
+      { code: 'switch_1', mode: 'toggle' },
+      { code: 'cur_power', mode: 'set', value: 1 },
+      { code: 'nao_existe', mode: 'toggle' },
+    ],
+    gadget,
+  );
+  assert.deepEqual(saved, [{ code: 'switch_1', mode: 'toggle' }]);
+  assert.deepEqual(quickActionsFor('dev34', gadget).length, 1);
+
+  const was = fake34.dps['1'];
+  await control.runAction('dev34', { code: 'switch_1', mode: 'toggle' });
+  assert.equal(fake34.dps['1'], !was, 'executou pela rede local');
+  const after = deviceList().find((d) => d.id === 'dev34')!;
+  assert.equal(after.quick[0]!.active, !was, 'a lista mostra o estado novo');
+
+  await saveQuickActions('dev34', [], gadget);
+  assert.deepEqual(deviceList().find((d) => d.id === 'dev34')!.quick, [], 'lista vazia é respeitada');
+});

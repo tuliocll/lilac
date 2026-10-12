@@ -103,6 +103,10 @@
   --scrollbar-border: 0;
 
   --qr-frame: #ffffff;
+  --link-local: #7bd389;
+  --link-cloud: #8fb8ff;
+  --link-ring: #121212;
+  --quick-size: 30px;
   --swatch-border: 2px solid #121212;
 
   --tone-sun: #2f2b22;
