@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TuyaBar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header data-tiny-drag>
+        <div class="brand">
+          <span class="dot" aria-hidden="true"></span>
+          <span>Dispositivos</span>
+        </div>
+        <button id="scan" class="pill" type="button">Procurar</button>
+      </header>
+
+      <ul id="list" class="list" aria-live="polite"></ul>
+
+      <div id="empty" class="empty">
+        <p class="big">Nada por aqui ainda</p>
+        <p>Clique em <b>Procurar</b> para escutar os anúncios Tuya na sua rede.</p>
+      </div>
+
+      <footer>
+        <span id="status" class="status">Pronto</span>
+        <button id="quit" class="ghost" type="button" title="Sair">Sair</button>
+      </footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

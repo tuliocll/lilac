@@ -1,0 +1,13 @@
+{
+  "name": "tuyabar",
+  "title": "TuyaBar",
+  "id": "dev.tuliocalil.tuyabar",
+  "version": "0.0.1",
+  "size": "360x480",
+  "backend": "src/main.ts",
+  "frontend": { "dir": "src/frontend" },
+  "activation": "accessory",
+  "chrome": { "frame": false, "windowControls": false },
+  "macos": { "chrome": { "vibrancy": "hud" } },
+  "debug": true
+}

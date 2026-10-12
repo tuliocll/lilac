@@ -1,0 +1,14 @@
+{
+  "name": "@tuyabar/menubar",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "tinyjs dev",
+    "build": "tinyjs build"
+  },
+  "dependencies": {
+    "@tuyabar/core": "0.0.1",
+    "@tuyabar/transport-txiki": "0.0.1"
+  }
+}

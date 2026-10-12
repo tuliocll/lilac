@@ -1,0 +1,12 @@
+{
+  "name": "@tuyabar/transport-txiki",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@tuyabar/core": "0.0.1"
+  },
+  "license": "MIT"
+}
