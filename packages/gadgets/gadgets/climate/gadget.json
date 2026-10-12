@@ -1,0 +1,80 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "climate",
+  "name": {
+    "pt-BR": "Ar-condicionado",
+    "en": "Air conditioner"
+  },
+  "tone": "sky",
+  "layout": "climate",
+  "match": {
+    "categories": [
+      "kt",
+      "ktkzq",
+      "qn",
+      "cs",
+      "jsq",
+      "kj"
+    ]
+  },
+  "controls": [
+    {
+      "code": "switch",
+      "type": "power",
+      "slot": "header"
+    },
+    {
+      "code": "temp_set",
+      "type": "setpoint",
+      "slot": "hero",
+      "unit": "°C"
+    },
+    {
+      "code": [
+        "temp_current"
+      ],
+      "type": "readout",
+      "slot": "aside",
+      "icon": "thermo",
+      "unit": "°C"
+    },
+    {
+      "code": "mode",
+      "type": "select",
+      "slot": "chips",
+      "icon": "mode"
+    },
+    {
+      "code": [
+        "fan_speed_enum",
+        "windspeed",
+        "fan_speed"
+      ],
+      "type": "select",
+      "slot": "chips",
+      "icon": "fan"
+    },
+    {
+      "code": "sleep",
+      "type": "toggle",
+      "slot": "chips",
+      "icon": "sleep"
+    },
+    {
+      "code": [
+        "switch_vertical",
+        "windshake",
+        "swing"
+      ],
+      "type": "toggle",
+      "slot": "chips",
+      "icon": "swing"
+    },
+    {
+      "code": "eco",
+      "type": "toggle",
+      "slot": "chips",
+      "icon": "eco"
+    }
+  ]
+}

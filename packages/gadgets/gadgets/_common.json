@@ -1,0 +1,315 @@
+{
+  "$comment": "Rótulos compartilhados: DPs e opções que aparecem em vários tipos de gadget.",
+  "codes": {
+    "switch": {
+      "pt-BR": "Ligado",
+      "en": "Power"
+    },
+    "switch_1": {
+      "pt-BR": "Ligado",
+      "en": "Power"
+    },
+    "switch_2": {
+      "pt-BR": "Canal 2",
+      "en": "Channel 2"
+    },
+    "switch_3": {
+      "pt-BR": "Canal 3",
+      "en": "Channel 3"
+    },
+    "switch_4": {
+      "pt-BR": "Canal 4",
+      "en": "Channel 4"
+    },
+    "switch_led": {
+      "pt-BR": "Luz",
+      "en": "Light"
+    },
+    "countdown_1": {
+      "pt-BR": "Temporizador",
+      "en": "Timer"
+    },
+    "countdown": {
+      "pt-BR": "Temporizador",
+      "en": "Timer"
+    },
+    "cur_power": {
+      "pt-BR": "Potência",
+      "en": "Power draw"
+    },
+    "cur_voltage": {
+      "pt-BR": "Tensão",
+      "en": "Voltage"
+    },
+    "cur_current": {
+      "pt-BR": "Corrente",
+      "en": "Current"
+    },
+    "add_ele": {
+      "pt-BR": "Consumo",
+      "en": "Energy"
+    },
+    "relay_status": {
+      "pt-BR": "Ao religar a energia",
+      "en": "After power loss"
+    },
+    "child_lock": {
+      "pt-BR": "Trava infantil",
+      "en": "Child lock"
+    },
+    "light_mode": {
+      "pt-BR": "Indicador",
+      "en": "Indicator light"
+    },
+    "battery_percentage": {
+      "pt-BR": "Bateria",
+      "en": "Battery"
+    },
+    "battery_state": {
+      "pt-BR": "Bateria",
+      "en": "Battery"
+    },
+    "temp_current": {
+      "pt-BR": "Ambiente",
+      "en": "Room"
+    },
+    "va_temperature": {
+      "pt-BR": "Temperatura",
+      "en": "Temperature"
+    },
+    "va_humidity": {
+      "pt-BR": "Umidade",
+      "en": "Humidity"
+    },
+    "humidity_value": {
+      "pt-BR": "Umidade",
+      "en": "Humidity"
+    },
+    "temp_set": {
+      "pt-BR": "Temperatura",
+      "en": "Temperature"
+    },
+    "mode": {
+      "pt-BR": "Modo",
+      "en": "Mode"
+    },
+    "work_mode": {
+      "pt-BR": "Modo",
+      "en": "Mode"
+    },
+    "bright_value": {
+      "pt-BR": "Brilho",
+      "en": "Brightness"
+    },
+    "bright_value_v2": {
+      "pt-BR": "Brilho",
+      "en": "Brightness"
+    },
+    "temp_value": {
+      "pt-BR": "Tom de branco",
+      "en": "White tone"
+    },
+    "temp_value_v2": {
+      "pt-BR": "Tom de branco",
+      "en": "White tone"
+    },
+    "fan_speed_enum": {
+      "pt-BR": "Ventilação",
+      "en": "Fan speed"
+    },
+    "windspeed": {
+      "pt-BR": "Ventilação",
+      "en": "Fan speed"
+    },
+    "fan_speed": {
+      "pt-BR": "Ventilação",
+      "en": "Fan speed"
+    },
+    "sleep": {
+      "pt-BR": "Sono",
+      "en": "Sleep"
+    },
+    "eco": {
+      "pt-BR": "Eco",
+      "en": "Eco"
+    },
+    "switch_vertical": {
+      "pt-BR": "Oscilar",
+      "en": "Swing"
+    },
+    "windshake": {
+      "pt-BR": "Oscilar",
+      "en": "Swing"
+    },
+    "doorcontact_state": {
+      "pt-BR": "Porta",
+      "en": "Door"
+    },
+    "pir": {
+      "pt-BR": "Movimento",
+      "en": "Motion"
+    },
+    "control": {
+      "pt-BR": "Controle",
+      "en": "Control"
+    },
+    "percent_control": {
+      "pt-BR": "Abertura",
+      "en": "Position"
+    },
+    "percent_state": {
+      "pt-BR": "Posição",
+      "en": "Position"
+    },
+    "temp_unit_convert": {
+      "pt-BR": "Unidade",
+      "en": "Unit"
+    },
+    "fault": {
+      "pt-BR": "Falha",
+      "en": "Fault"
+    }
+  },
+  "options": {
+    "cold": {
+      "pt-BR": "Frio",
+      "en": "Cool"
+    },
+    "hot": {
+      "pt-BR": "Quente",
+      "en": "Heat"
+    },
+    "heat": {
+      "pt-BR": "Quente",
+      "en": "Heat"
+    },
+    "auto": {
+      "pt-BR": "Auto",
+      "en": "Auto"
+    },
+    "wind": {
+      "pt-BR": "Ventilar",
+      "en": "Fan"
+    },
+    "fan": {
+      "pt-BR": "Ventilar",
+      "en": "Fan"
+    },
+    "wet": {
+      "pt-BR": "Desumidificar",
+      "en": "Dry"
+    },
+    "dehumidification": {
+      "pt-BR": "Desumidificar",
+      "en": "Dry"
+    },
+    "low": {
+      "pt-BR": "Baixa",
+      "en": "Low"
+    },
+    "middle": {
+      "pt-BR": "Média",
+      "en": "Medium"
+    },
+    "mid": {
+      "pt-BR": "Média",
+      "en": "Medium"
+    },
+    "high": {
+      "pt-BR": "Alta",
+      "en": "High"
+    },
+    "strong": {
+      "pt-BR": "Turbo",
+      "en": "Turbo"
+    },
+    "mute": {
+      "pt-BR": "Silencioso",
+      "en": "Quiet"
+    },
+    "on": {
+      "pt-BR": "Ligar",
+      "en": "On"
+    },
+    "off": {
+      "pt-BR": "Desligar",
+      "en": "Off"
+    },
+    "memory": {
+      "pt-BR": "Lembrar",
+      "en": "Remember"
+    },
+    "power_on": {
+      "pt-BR": "Ligar",
+      "en": "On"
+    },
+    "power_off": {
+      "pt-BR": "Desligar",
+      "en": "Off"
+    },
+    "last": {
+      "pt-BR": "Lembrar",
+      "en": "Remember"
+    },
+    "white": {
+      "pt-BR": "Branco",
+      "en": "White"
+    },
+    "colour": {
+      "pt-BR": "Cor",
+      "en": "Colour"
+    },
+    "scene": {
+      "pt-BR": "Cena",
+      "en": "Scene"
+    },
+    "music": {
+      "pt-BR": "Música",
+      "en": "Music"
+    },
+    "open": {
+      "pt-BR": "Abrir",
+      "en": "Open"
+    },
+    "close": {
+      "pt-BR": "Fechar",
+      "en": "Close"
+    },
+    "stop": {
+      "pt-BR": "Parar",
+      "en": "Stop"
+    },
+    "continue": {
+      "pt-BR": "Continuar",
+      "en": "Continue"
+    },
+    "none": {
+      "pt-BR": "Nenhum",
+      "en": "None"
+    },
+    "relay": {
+      "pt-BR": "Seguir relé",
+      "en": "Follow relay"
+    },
+    "pos": {
+      "pt-BR": "Localizador",
+      "en": "Locator"
+    },
+    "c": {
+      "pt-BR": "°C",
+      "en": "°C"
+    },
+    "f": {
+      "pt-BR": "°F",
+      "en": "°F"
+    },
+    "true": {
+      "pt-BR": "Sim",
+      "en": "Yes"
+    },
+    "false": {
+      "pt-BR": "Não",
+      "en": "No"
+    }
+  }
+}

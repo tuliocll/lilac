@@ -1,0 +1,67 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "light",
+  "name": {
+    "pt-BR": "Lâmpada",
+    "en": "Light"
+  },
+  "tone": "sun",
+  "layout": "light",
+  "match": {
+    "categories": [
+      "dj",
+      "dd",
+      "xdd",
+      "fwd",
+      "dc"
+    ]
+  },
+  "controls": [
+    {
+      "code": [
+        "switch_led",
+        "switch_1"
+      ],
+      "type": "power",
+      "slot": "hero"
+    },
+    {
+      "code": [
+        "bright_value_v2",
+        "bright_value"
+      ],
+      "type": "slider",
+      "slot": "main",
+      "icon": "sun",
+      "display": "percent"
+    },
+    {
+      "code": [
+        "temp_value_v2",
+        "temp_value"
+      ],
+      "type": "slider",
+      "slot": "main",
+      "icon": "thermo",
+      "showWhen": {
+        "work_mode": "white"
+      },
+      "display": "percent"
+    },
+    {
+      "code": "work_mode",
+      "type": "select",
+      "slot": "chips",
+      "icon": "mode"
+    },
+    {
+      "code": [
+        "countdown_1",
+        "countdown"
+      ],
+      "type": "stepper",
+      "slot": "main",
+      "icon": "timer"
+    }
+  ]
+}

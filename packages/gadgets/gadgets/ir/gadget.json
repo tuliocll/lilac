@@ -1,0 +1,20 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "ir",
+  "name": {
+    "pt-BR": "Controle infravermelho",
+    "en": "IR blaster"
+  },
+  "tone": "lilac",
+  "layout": "hub",
+  "match": {
+    "categories": [
+      "wnykq"
+    ]
+  },
+  "note": {
+    "pt-BR": "Este controle comanda aparelhos por infravermelho (como os ares “via gateway”). Enviar comandos IR pela rede local ainda não é suportado.",
+    "en": "This blaster drives appliances over infrared (like the “via gateway” air conditioners). Sending IR commands locally isn't supported yet."
+  },
+  "controls": []
+}

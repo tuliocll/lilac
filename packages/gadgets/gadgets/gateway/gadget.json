@@ -1,0 +1,22 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "gateway",
+  "name": {
+    "pt-BR": "Gateway",
+    "en": "Gateway"
+  },
+  "tone": "mint",
+  "layout": "hub",
+  "match": {
+    "categories": [
+      "wg2",
+      "wfcon",
+      "zigbeeszq"
+    ]
+  },
+  "note": {
+    "pt-BR": "Este é o hub dos seus dispositivos Zigbee/Bluetooth. Eles aparecem na lista como “via gateway”; o controle deles pelo hub vem numa próxima versão.",
+    "en": "This hub bridges your Zigbee/Bluetooth devices. They show up as “via gateway”; controlling them through the hub is coming in a future version."
+  },
+  "controls": []
+}

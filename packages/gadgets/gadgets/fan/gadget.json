@@ -1,0 +1,68 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "fan",
+  "name": {
+    "pt-BR": "Ventilador",
+    "en": "Fan"
+  },
+  "tone": "mint",
+  "layout": "fan",
+  "match": {
+    "categories": [
+      "fs",
+      "fsd"
+    ]
+  },
+  "controls": [
+    {
+      "code": [
+        "switch",
+        "fan_switch"
+      ],
+      "type": "power",
+      "slot": "hero"
+    },
+    {
+      "code": [
+        "fan_speed_percent",
+        "fan_speed"
+      ],
+      "type": "slider",
+      "slot": "main",
+      "icon": "fan",
+      "display": "percent"
+    },
+    {
+      "code": [
+        "fan_speed_enum"
+      ],
+      "type": "select",
+      "slot": "chips",
+      "icon": "fan"
+    },
+    {
+      "code": "mode",
+      "type": "select",
+      "slot": "chips",
+      "icon": "mode"
+    },
+    {
+      "code": [
+        "switch_horizontal",
+        "switch_vertical"
+      ],
+      "type": "toggle",
+      "slot": "chips",
+      "icon": "swing"
+    },
+    {
+      "code": [
+        "countdown_set",
+        "countdown"
+      ],
+      "type": "select",
+      "slot": "main",
+      "icon": "timer"
+    }
+  ]
+}

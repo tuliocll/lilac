@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gadget do TuyaBar",
+  "type": "object",
+  "required": ["id", "name", "tone", "layout", "match", "controls"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "igual ao nome da pasta" },
+    "name": { "$ref": "#/$defs/text" },
+    "tone": { "enum": ["sun", "sky", "mint", "peach", "lilac", "pink", "neutral"], "description": "cor semântica; cada tema decide o tom" },
+    "layout": { "enum": ["climate", "switch", "light", "plug", "sensor", "cover", "fan", "hub", "generic"] },
+    "priority": { "type": "number" },
+    "note": { "$ref": "#/$defs/text" },
+    "match": {
+      "type": "object",
+      "required": ["categories"],
+      "properties": {
+        "categories": { "type": "array", "items": { "type": "string" }, "description": "categorias Tuya (kt, kg, dj…)" },
+        "requiredCodes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "type", "slot"],
+        "properties": {
+          "code": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+          "type": { "enum": ["power", "toggle", "setpoint", "slider", "stepper", "select", "buttons", "readout", "text"] },
+          "slot": { "enum": ["header", "hero", "aside", "chips", "main", "readouts"] },
+          "label": { "$ref": "#/$defs/text" },
+          "icon": { "type": "string" },
+          "unit": { "type": "string" },
+          "options": { "type": "object", "additionalProperties": { "$ref": "#/$defs/text" } },
+          "showWhen": { "type": "object" },
+          "display": { "enum": ["percent"], "description": "mostra a posição na faixa como 0–100%" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "object",
+      "required": ["pt-BR", "en"],
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

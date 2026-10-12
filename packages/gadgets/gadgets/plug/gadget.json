@@ -1,0 +1,79 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "plug",
+  "name": {
+    "pt-BR": "Tomada",
+    "en": "Plug"
+  },
+  "tone": "pink",
+  "layout": "plug",
+  "match": {
+    "categories": [
+      "cz",
+      "pc"
+    ]
+  },
+  "controls": [
+    {
+      "code": [
+        "switch_1",
+        "switch"
+      ],
+      "type": "power",
+      "slot": "hero"
+    },
+    {
+      "code": "switch_2",
+      "type": "toggle",
+      "slot": "main",
+      "icon": "power"
+    },
+    {
+      "code": "switch_3",
+      "type": "toggle",
+      "slot": "main",
+      "icon": "power"
+    },
+    {
+      "code": "cur_power",
+      "type": "readout",
+      "slot": "readouts",
+      "icon": "bolt"
+    },
+    {
+      "code": "cur_voltage",
+      "type": "readout",
+      "slot": "readouts"
+    },
+    {
+      "code": "cur_current",
+      "type": "readout",
+      "slot": "readouts"
+    },
+    {
+      "code": "add_ele",
+      "type": "readout",
+      "slot": "readouts"
+    },
+    {
+      "code": [
+        "countdown_1",
+        "countdown"
+      ],
+      "type": "stepper",
+      "slot": "main",
+      "icon": "timer"
+    },
+    {
+      "code": "relay_status",
+      "type": "select",
+      "slot": "main"
+    },
+    {
+      "code": "child_lock",
+      "type": "toggle",
+      "slot": "main",
+      "icon": "lock"
+    }
+  ]
+}

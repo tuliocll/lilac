@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { test } from 'node:test';
+import type { DpSpec } from '@tuyabar/core';
+import { COMMON, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
+
+const LANGS = ['pt-BR', 'en'];
+const TONES = ['sun', 'sky', 'mint', 'peach', 'lilac', 'pink', 'neutral'];
+const ICONS = join(import.meta.dirname, '../../../apps/menubar/src/frontend/icons');
+
+test('registry.gen.ts está em dia com gadgets/', () => {
+  execFileSync('node', [join(import.meta.dirname, '../scripts/build.mjs'), '--check']);
+});
+
+test('todo gadget tem nome nos dois idiomas, tom válido, ícone e controles conhecidos', () => {
+  assert.ok(PROFILES.some((p) => p.id === 'generic'), 'precisa existir o perfil generic');
+  for (const p of PROFILES) {
+    for (const l of LANGS) assert.ok(p.name[l], `${p.id}: name.${l}`);
+    if (p.note) for (const l of LANGS) assert.ok(p.note[l], `${p.id}: note.${l}`);
+    assert.ok(TONES.includes(p.tone), `${p.id}: tone ${p.tone}`);
+    assert.ok(p.iconSvg?.startsWith('<svg'), `${p.id}: falta icon.svg`);
+    assert.doesNotMatch(JSON.stringify(p.controls), /#[0-9a-f]{3,8}\b/i, `${p.id}: cor literal — use "tone"`);
+    for (const c of p.controls) {
+      if (c.icon) assert.ok(existsSync(join(ICONS, `${c.icon}.svg`)), `${p.id}: ícone de controle "${c.icon}" não existe em icons/`);
+      if (c.label) for (const l of LANGS) assert.ok(c.label[l], `${p.id}/${c.code}: label.${l}`);
+      for (const [v, t] of Object.entries(c.options ?? {})) for (const l of LANGS) assert.ok(t[l], `${p.id}/${c.code}: opção ${v}.${l}`);
+    }
+  }
+  for (const [k, t] of [...Object.entries(COMMON.codes), ...Object.entries(COMMON.options)])
+    for (const l of LANGS) assert.ok(t[l], `_common: ${k}.${l}`);
+});
+
+const dp = (dpId: number, code: string, type: string, values: Record<string, unknown> = {}, writable = true): DpSpec => ({ dpId, code, type, values, writable });
+
+test('ar-condicionado: perfil climate, slots e escala', () => {
+  const g = resolve({
+    category: 'kt',
+    dps: [
+      dp(1, 'switch', 'Boolean'),
+      dp(2, 'temp_set', 'Integer', { min: 160, max: 320, scale: 1, step: 10, unit: '℃' }),
+      dp(3, 'temp_current', 'Integer', { min: -20, max: 50, scale: 0 }, false),
+      dp(4, 'mode', 'Enum', { range: ['cold', 'hot', 'wind'] }),
+      dp(5, 'windspeed', 'Enum', { range: ['low', 'high'] }),
+      dp(101, 'mystery_flag', 'Boolean'),
+      dp(102, 'raw_blob', 'Raw'),
+    ],
+  });
+  assert.equal(g.profile.id, 'climate');
+  const by = Object.fromEntries(g.controls.map((c) => [c.code, c]));
+  assert.equal(by.switch!.slot, 'header');
+  assert.equal(by.temp_set!.type, 'setpoint');
+  assert.equal(by.temp_set!.unit, '°C', 'unidade do perfil vence a do DP');
+  assert.equal(by.temp_current!.slot, 'aside');
+  assert.equal(by.windspeed!.slot, 'chips', 'código alternativo');
+  assert.deepEqual(by.mode!.options!.map((o) => o.label['pt-BR']), ['Frio', 'Quente', 'Ventilar']);
+  assert.equal(by.mystery_flag!.slot, 'advanced');
+  assert.equal(by.mystery_flag!.type, 'toggle');
+  assert.equal(by.raw_blob, undefined, 'Raw não vira controle');
+
+  assert.equal(toDisplay(by.temp_set!, 225), 22.5);
+  assert.equal(toRaw(by.temp_set!, 22.4), 220, 'arredonda para o step');
+  assert.equal(toRaw(by.temp_set!, 99), 320, 'respeita o máximo');
+});
+
+test('DP sem escrita vira leitura; categoria desconhecida cai no generic', () => {
+  const g = resolve({ category: 'xyz', dps: [dp(1, 'switch', 'Boolean', {}, true), dp(2, 'level', 'Integer', {}, false)] });
+  assert.equal(g.profile.id, 'generic');
+  assert.equal(g.controls.find((c) => c.code === 'level')!.type, 'readout');
+});
+
+test('disjuntor (tdq) usa o perfil switch com leituras de energia', () => {
+  const g = resolve({
+    category: 'tdq',
+    dps: [dp(1, 'switch_1', 'Boolean'), dp(19, 'cur_power', 'Integer', { scale: 1, unit: 'W' }, false), dp(20, 'cur_voltage', 'Integer', { scale: 1, unit: 'V' }, false)],
+  });
+  assert.equal(g.profile.id, 'switch');
+  assert.equal(g.controls.find((c) => c.code === 'switch_1')!.type, 'power');
+  assert.equal(g.controls.filter((c) => c.slot === 'readouts').length, 2);
+});

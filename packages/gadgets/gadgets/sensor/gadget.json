@@ -1,0 +1,64 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "sensor",
+  "name": {
+    "pt-BR": "Sensor",
+    "en": "Sensor"
+  },
+  "tone": "mint",
+  "layout": "sensor",
+  "match": {
+    "categories": [
+      "wsdcg",
+      "mcs",
+      "mc",
+      "pir",
+      "hps",
+      "ywbj",
+      "rqbj",
+      "sj"
+    ]
+  },
+  "note": {
+    "pt-BR": "Sensores a bateria dormem e quase nunca respondem pela rede local. Os valores podem estar desatualizados.",
+    "en": "Battery sensors sleep and rarely answer on the local network. Values may be stale."
+  },
+  "controls": [
+    {
+      "code": [
+        "va_temperature",
+        "temp_current"
+      ],
+      "type": "readout",
+      "slot": "hero",
+      "icon": "thermo",
+      "unit": "°C"
+    },
+    {
+      "code": [
+        "va_humidity",
+        "humidity_value"
+      ],
+      "type": "readout",
+      "slot": "readouts",
+      "icon": "drop",
+      "unit": "%"
+    },
+    {
+      "code": "doorcontact_state",
+      "type": "readout",
+      "slot": "hero"
+    },
+    {
+      "code": "pir",
+      "type": "readout",
+      "slot": "hero"
+    },
+    {
+      "code": "battery_percentage",
+      "type": "readout",
+      "slot": "readouts",
+      "unit": "%"
+    }
+  ]
+}

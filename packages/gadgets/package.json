@@ -1,0 +1,16 @@
+{
+  "name": "@tuyabar/gadgets",
+  "version": "0.0.1",
+  "description": "Perfis de gadgets: ícone, nome, cor, layout e controles por tipo de dispositivo Tuya.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@tuyabar/core": "0.0.1"
+  },
+  "license": "MIT"
+}

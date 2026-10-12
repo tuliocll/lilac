@@ -1,0 +1,39 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "cover",
+  "name": {
+    "pt-BR": "Cortina / portão",
+    "en": "Cover / gate"
+  },
+  "tone": "lilac",
+  "layout": "cover",
+  "match": {
+    "categories": [
+      "cl",
+      "ckmkzq"
+    ]
+  },
+  "controls": [
+    {
+      "code": [
+        "control",
+        "mach_operate"
+      ],
+      "type": "buttons",
+      "slot": "hero"
+    },
+    {
+      "code": "percent_control",
+      "type": "slider",
+      "slot": "main",
+      "icon": "cover",
+      "unit": "%"
+    },
+    {
+      "code": "percent_state",
+      "type": "readout",
+      "slot": "readouts",
+      "unit": "%"
+    }
+  ]
+}

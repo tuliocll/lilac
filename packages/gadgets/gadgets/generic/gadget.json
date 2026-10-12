@@ -1,0 +1,24 @@
+{
+  "$schema": "../gadget.schema.json",
+  "id": "generic",
+  "name": {
+    "pt-BR": "Dispositivo",
+    "en": "Device"
+  },
+  "tone": "neutral",
+  "layout": "generic",
+  "match": {
+    "categories": []
+  },
+  "controls": [
+    {
+      "code": [
+        "switch",
+        "switch_1",
+        "switch_led"
+      ],
+      "type": "power",
+      "slot": "hero"
+    }
+  ]
+}
