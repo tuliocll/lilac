@@ -25,6 +25,21 @@ export interface UdpBindOptions {
   reuseAddr?: boolean;
 }
 
+export interface TcpSocket {
+  onData(cb: (data: Uint8Array) => void): void;
+  onClose(cb: (err?: Error) => void): void;
+  write(data: Uint8Array): Promise<void>;
+  close(): Promise<void>;
+}
+
+export interface TcpConnectOptions {
+  host: string;
+  port: number;
+  timeoutMs?: number;
+}
+
 export interface Transport {
   bindUdp(opts: UdpBindOptions): Promise<UdpSocket>;
+  /** Necessário só para controle local (TCP 6668). */
+  connectTcp?(opts: TcpConnectOptions): Promise<TcpSocket>;
 }

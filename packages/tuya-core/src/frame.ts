@@ -1,4 +1,6 @@
 import { concat, readU32be, u32be } from './bytes.ts';
+import { hmac } from '@noble/hashes/hmac';
+import { sha256 } from '@noble/hashes/sha2';
 import { crc32 } from './crc32.ts';
 import { aesGcmDecrypt, aesGcmEncrypt } from './crypto.ts';
 
@@ -30,6 +32,9 @@ export const Cmd = {
   UDP_NEW: 0x13,
   BROADCAST_LPV34: 0x23,
   REQ_DEVINFO: 0x25,
+  SESS_KEY_NEG_START: 0x03,
+  SESS_KEY_NEG_RESP: 0x04,
+  SESS_KEY_NEG_FINISH: 0x05,
 } as const;
 
 export class FrameError extends Error {}
@@ -70,7 +75,20 @@ function splitRetcode(body: Uint8Array, hasRetcode?: boolean): { retcode?: numbe
   return { payload: body };
 }
 
-export function decode55AA(data: Uint8Array, opts: { hasRetcode?: boolean } = {}): Frame55AA {
+/** Tamanho total do frame 55AA no início de `data`, ou null se ainda não chegou o header. */
+export function frameLength55AA(data: Uint8Array): number | null {
+  if (data.length < 16) return null;
+  if (readU32be(data, 0) !== PREFIX_55AA) throw new FrameError('prefixo 0x55AA ausente (stream dessincronizado)');
+  const len = readU32be(data, 12);
+  if (len > 0x10000) throw new FrameError(`frame grande demais (${len})`);
+  return 16 + len;
+}
+
+/**
+ * v3.4 troca o CRC32 por HMAC-SHA256 (32 bytes) com a chave local/da sessão.
+ */
+export function decode55AA(data: Uint8Array, opts: { hasRetcode?: boolean; hmacKey?: Uint8Array } = {}): Frame55AA {
+  if (opts.hmacKey) return decode55AAHmac(data, opts.hmacKey, opts.hasRetcode);
   if (data.length < 24) throw new FrameError(`frame curto demais (${data.length} bytes)`);
   if (readU32be(data, 0) !== PREFIX_55AA) throw new FrameError('prefixo 0x55AA ausente');
   const seq = readU32be(data, 4);
@@ -86,11 +104,39 @@ export function decode55AA(data: Uint8Array, opts: { hasRetcode?: boolean } = {}
   return { kind: '55aa', seq, cmd, retcode, payload };
 }
 
-export function encode55AA(f: { seq: number; cmd: number; retcode?: number; payload: Uint8Array }): Uint8Array {
+function decode55AAHmac(data: Uint8Array, key: Uint8Array, hasRetcode?: boolean): Frame55AA {
+  if (data.length < 16 + 36) throw new FrameError(`frame curto demais (${data.length} bytes)`);
+  if (readU32be(data, 0) !== PREFIX_55AA) throw new FrameError('prefixo 0x55AA ausente');
+  const seq = readU32be(data, 4);
+  const cmd = readU32be(data, 8);
+  const len = readU32be(data, 12);
+  const end = 16 + len;
+  if (end > data.length) throw new FrameError(`len=${len} excede os dados (${data.length})`);
+  if (readU32be(data, end - 4) !== SUFFIX_55AA) throw new FrameError('sufixo 0xAA55 ausente');
+  const mac = data.subarray(end - 36, end - 4);
+  const calc = hmac(sha256, key, data.subarray(0, end - 36));
+  if (!equalBytes(mac, calc)) throw new FrameError('HMAC inválido (local key errada?)');
+  const { retcode, payload } = splitRetcode(data.subarray(16, end - 36), hasRetcode);
+  return { kind: '55aa', seq, cmd, retcode, payload };
+}
+
+function equalBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a[i]! ^ b[i]!;
+  return d === 0;
+}
+
+export function encode55AA(
+  f: { seq: number; cmd: number; retcode?: number; payload: Uint8Array },
+  opts: { hmacKey?: Uint8Array } = {},
+): Uint8Array {
   const body = f.retcode === undefined ? f.payload : concat(u32be(f.retcode), f.payload);
-  const head = concat(u32be(PREFIX_55AA), u32be(f.seq), u32be(f.cmd), u32be(body.length + 8));
-  const noCrc = concat(head, body);
-  return concat(noCrc, u32be(crc32(noCrc)), u32be(SUFFIX_55AA));
+  const tail = opts.hmacKey ? 36 : 8;
+  const head = concat(u32be(PREFIX_55AA), u32be(f.seq), u32be(f.cmd), u32be(body.length + tail));
+  const signed = concat(head, body);
+  const check = opts.hmacKey ? hmac(sha256, opts.hmacKey, signed) : u32be(crc32(signed));
+  return concat(signed, check, u32be(SUFFIX_55AA));
 }
 
 export function decode6699(data: Uint8Array, key: Uint8Array, opts: { hasRetcode?: boolean } = {}): Frame6699 {

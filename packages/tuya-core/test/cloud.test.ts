@@ -79,6 +79,7 @@ function fakeCloud(session: SharingSession) {
       result = [
         { id: 'eb8bc0f725df3a2deek6uu', name: 'Ar do quarto', local_key: 'k3y!', category: 'kt', product_id: 'p', product_name: 'AC', sub: false, online: true, status: [{ code: 'switch', value: false }] },
       ];
+    else if (url.pathname.endsWith('/specifications')) result = { category: 'kt', functions: [{ code: 'switch' }, { code: 'temp_set' }], status: [] };
     else if (url.pathname.endsWith('/status'))
       result = {
         productKey: 'p',
@@ -113,5 +114,6 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
   assert.equal(d.supportLocal, true);
   assert.deepEqual(d.dps.map((x) => [x.dpId, x.code]), [[1, 'switch'], [2, 'temp_set']]);
   assert.deepEqual(d.dps[1]!.values, { min: 16, max: 32, step: 1 });
+  assert.equal(d.dps[1]!.writable, true);
   assert.deepEqual(calls.find((c) => c.path.endsWith('/home/devices'))!.params, { homeId: '42' });
 });

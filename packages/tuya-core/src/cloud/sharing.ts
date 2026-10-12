@@ -119,6 +119,8 @@ export interface DpSpec {
   type: string;
   /** faixa/opções (min, max, step, scale, unit, range…) */
   values?: Record<string, unknown>;
+  /** aceita escrita (está em `functions` da especificação) */
+  writable: boolean;
 }
 
 export interface CloudDevice {
@@ -252,8 +254,15 @@ export class SharingClient {
       code: String(d.statusCode),
       type: String(d.valueType),
       values: parseJson(d.valueDesc),
+      writable: false,
     }));
     return { dps, supportLocal: rel.length > 0 && rel.every((d) => d.supportLocal) };
+  }
+
+  /** Códigos graváveis (functions) — o que pode virar controle. */
+  async writableCodes(deviceId: string): Promise<Set<string>> {
+    const r = await this.request('GET', `/v1.1/m/life/${deviceId}/specifications`);
+    return new Set((r.result?.functions ?? []).map((f: any) => String(f.code)));
   }
 
   /** Tudo que o app precisa para operar localmente. */
@@ -267,6 +276,8 @@ export class SharingClient {
           let spec = { dps: [] as DpSpec[], supportLocal: false };
           try {
             spec = await this.dpSpecs(d.id);
+            const writable = await this.writableCodes(d.id).catch(() => new Set<string>());
+            for (const dp of spec.dps) dp.writable = writable.has(dp.code);
           } catch {
             // sem spec: aparece na lista, mas sem controle local por enquanto
           }

@@ -42,3 +42,36 @@ export const CATEGORY_LABELS: Record<string, string> = {
 export function categoryLabel(code: string | undefined): string {
   return (code && CATEGORY_LABELS[code]) || code || 'Dispositivo';
 }
+
+/** Família visual do dispositivo — usada pelos temas para escolher ícone/cor. */
+export type DeviceKind =
+  | 'light'
+  | 'switch'
+  | 'plug'
+  | 'climate'
+  | 'ir'
+  | 'gateway'
+  | 'sensor'
+  | 'fan'
+  | 'cover'
+  | 'camera'
+  | 'lock'
+  | 'unknown';
+
+const KIND_BY_CATEGORY: Record<string, DeviceKind> = {
+  dj: 'light', dd: 'light', xdd: 'light', fwd: 'light', dc: 'light',
+  kg: 'switch', tdq: 'switch', clkg: 'switch',
+  cz: 'plug', pc: 'plug',
+  kt: 'climate', ktkzq: 'climate', infrared_ac: 'climate', qn: 'climate', cs: 'climate', jsq: 'climate', kj: 'climate',
+  wnykq: 'ir',
+  wg2: 'gateway', wfcon: 'gateway', zigbeeszq: 'gateway',
+  mc: 'sensor', mcs: 'sensor', pir: 'sensor', hps: 'sensor', wsdcg: 'sensor', ywbj: 'sensor', rqbj: 'sensor', sj: 'sensor',
+  fs: 'fan', fsd: 'fan',
+  cl: 'cover', ckmkzq: 'cover',
+  sp: 'camera',
+  ms: 'lock',
+};
+
+export function categoryKind(code: string | undefined): DeviceKind {
+  return (code && KIND_BY_CATEGORY[code]) || 'unknown';
+}
