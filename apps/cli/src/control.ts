@@ -18,11 +18,10 @@ import {
   type SharingSession,
 } from '@tuyabar/core';
 import { createNodeTransport } from '@tuyabar/transport-node';
-import { load, save } from './store.ts';
+import { flag, load, save } from './store.ts';
 
-const args = process.argv.slice(2);
-const forceCloud = args.includes('--cloud');
-const [query, ...assignments] = args.filter((a) => a !== '--cloud');
+const forceCloud = flag('cloud');
+const [query, ...assignments] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 
 const inventory = await load<CloudDevice[]>('inventory.json');
 if (!query || !inventory) {

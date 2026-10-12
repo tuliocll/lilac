@@ -8,7 +8,7 @@ import { discover, toHex } from '@tuyabar/core';
 import { createNodeTransport } from '@tuyabar/transport-node';
 
 const seconds = Number(process.argv.find((a) => /^\d+$/.test(a)) ?? 10);
-const verbose = process.argv.includes('-v');
+const verbose = process.argv.includes('-v') || process.argv.includes('--verbose') || process.env.npm_config_verbose === 'true';
 
 console.log(`Escutando broadcasts Tuya nas portas 6666/6667/7000 por ${seconds}s…\n`);
 

@@ -112,7 +112,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
     const response = await fetchFn(url, { method, headers, body: bodyEnc ? JSON.stringify({ encdata: bodyEnc }) : undefined });
     if (!response.ok) throw new CloudError(`HTTP ${response.status} em ${path}`, response.status);
     const json = (await response.json()) as any;
-    if (!json?.success) throw new CloudError(`${json?.msg ?? 'erro'} (${path})`, json?.code);
+    if (!json?.success) throw new CloudError(`Tuya ${json?.code ?? '?'}: ${json?.msg ?? 'erro'} (${path})`, json?.code);
     if (typeof json.result === 'string' && json.result) {
       const plain = decryptPayload(json.result, secret);
       json.result = parseJsonOr(plain, plain);

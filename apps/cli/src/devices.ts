@@ -6,10 +6,10 @@
  */
 import { categoryLabel, createSharingClient, discover, HOME_ASSISTANT_CREDENTIALS, type CloudDevice, type SharingSession } from '@tuyabar/core';
 import { createNodeTransport } from '@tuyabar/transport-node';
-import { load, save } from './store.ts';
+import { flag, load, save } from './store.ts';
 
-const showKeys = process.argv.includes('--keys');
-const showDps = process.argv.includes('--dps');
+const showKeys = flag('keys');
+const showDps = flag('dps');
 
 const session = await load<SharingSession>('session.json');
 if (!session) {
