@@ -89,6 +89,7 @@
   --input-border: 2px solid var(--ink);
   --input-radius: 2px;
   --focus-ring: 2px dashed var(--violet);
+  --selected-ring: inset 0 0 0 3px var(--violet), 3px 3px 0 var(--ink);
 
   --badge-bg: var(--cream);
   --badge-fg: var(--ink);

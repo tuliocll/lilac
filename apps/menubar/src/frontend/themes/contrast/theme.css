@@ -78,7 +78,8 @@
   --input-fg: var(--paper);
   --input-border: 2px solid var(--paper);
   --input-radius: 0px;
-  --focus-ring: 3px solid var(--signal);
+  --focus-ring: 3px dashed var(--paper);
+  --selected-ring: inset 0 0 0 3px var(--signal);
 
   --badge-bg: var(--ink);
   --badge-fg: var(--paper);

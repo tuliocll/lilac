@@ -1,7 +1,7 @@
 // Configurações: aparência, idioma, comportamento (abrir com o sistema,
 // atalho global) e conta (sair, conectar, importar chaves).
 (() => {
-  const { $, h, button, logError } = TuyaBar.dom;
+  const { $, h, button, glyph, logError } = TuyaBar.dom;
   const { t, pick } = TuyaBar.i18n;
   const status = TuyaBar.status;
 
@@ -31,7 +31,10 @@
       i.style.background = color;
       swatches.append(i);
     }
-    b.append(h('span', 'name', pick(theme.name) + (theme.user ? ' ✦' : '')), swatches, h('span', 'desc', pick(theme.description) || theme.author || ''));
+    const name = h('span', 'name', pick(theme.name) + (theme.user ? ' ✦' : ''));
+    name.append(glyph('check')); // escolhido: além do anel, um ✓ (não depende só de cor)
+    name.lastChild.classList.add('check');
+    b.append(name, swatches, h('span', 'desc', pick(theme.description) || theme.author || ''));
     b.addEventListener('click', () => TuyaBar.themes.select(theme.id));
     return b;
   }
