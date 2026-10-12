@@ -44,7 +44,13 @@ export function restore(saved: { session?: SharingSession | null; inventory?: Om
 
 function useSession(session: SharingSession) {
   cloud = createSharingClient(session, { app: APP_CREDENTIALS, onSessionUpdate: persist });
-  push('account', { username: session.username ?? session.uid });
+  push('account', accountInfo());
+}
+
+/** Quem está conectado — para uma janela que abriu depois do login. */
+export function accountInfo() {
+  const session = cloud?.session();
+  return session ? { username: session.username ?? session.uid } : null;
 }
 
 /** Busca o inventário na nuvem. Sem rede, segue com o que já estava salvo. */

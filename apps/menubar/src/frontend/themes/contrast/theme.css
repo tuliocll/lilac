@@ -158,6 +158,20 @@
   --swatch-border: 2px solid var(--paper);
 
   color-scheme: dark;
+
+  /* janela expandida */
+  --shell-bg: var(--ink);
+  --sidebar-width: 220px;
+  --sidebar-padding: 14px 10px;
+  --sidebar-bg: var(--ink);
+  --sidebar-border: 2px solid var(--paper);
+  --side-item-fg: var(--paper);
+  --side-item-radius: 0;
+  --side-item-active-bg: var(--signal);
+  --side-item-active-fg: var(--ink);
+  --side-item-active-ring: none;
+  --detail-width: 400px;
+  --detail-border: 2px solid var(--paper);
 }
 
 /* sublinha os links e marca o foco com força: ninguém se perde */

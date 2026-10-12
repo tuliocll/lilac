@@ -16,6 +16,7 @@
   let stack = [];
   let customTitle = null;
   const leaveListeners = new Map();
+  const changeListeners = [];
 
   function renderTitle() {
     $('title').textContent = customTitle ?? t(TITLES[current] ?? 'title.devices');
@@ -27,6 +28,7 @@
     customTitle = title;
     document.body.dataset.view = view;
     renderTitle();
+    for (const fn of changeListeners) fn(view);
   }
 
   /** Vai para uma tela. `replace` limpa o histórico (ex.: depois do login). */
@@ -46,5 +48,5 @@
   for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', back);
   TuyaBar.i18n.onChange(renderTitle);
 
-  TuyaBar.nav = { go, back, onLeave, current: () => current };
+  TuyaBar.nav = { go, back, onLeave, onChange: (fn) => changeListeners.push(fn), current: () => current };
 })();

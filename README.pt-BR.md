@@ -32,6 +32,7 @@
 - ⚡ **Ações rápidas**: até 3 botões de um clique por aparelho direto na lista (liga/desliga, ou um valor fixado como “Frio” ou “22 °C”), escolhidos na página do aparelho.
 - ⭐ **Favoritos** no topo da lista, na ordem que você escolher (Organizar ↑↓), e no menu da bandeja: liga a luz sem nem abrir o painel. Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>)
   e abrir com o sistema.
+- 🪟 **Janela expandida** (menu da bandeja ou o botão ⤢): redimensionável, com menu lateral e a página do aparelho ao lado da lista.
 - 🔑 **Sem conta? Importe as chaves** do `devices.json` do tinytuya.
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
   energia e leituras de consumo, a lâmpada ganha brilho e tom de branco… DPs que o perfil não conhece aparecem em “Avançado”.
@@ -87,6 +88,10 @@ cd apps/menubar && tinyjs dev
 ```
 
 O **código de usuário** fica no Smart Life em **Eu → ⚙ Configurações → Conta e segurança → Código de usuário**.
+
+## Roadmap
+
+O backlog vivo fica em [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Contribuindo
 

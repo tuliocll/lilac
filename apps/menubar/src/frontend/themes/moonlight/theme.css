@@ -154,4 +154,18 @@
   --art-size: 88px;
 
   color-scheme: dark;
+
+  /* janela expandida */
+  --shell-bg: #121212;
+  --sidebar-width: 208px;
+  --sidebar-padding: 16px 10px 12px;
+  --sidebar-bg: #0d0d0e;
+  --sidebar-border: 1px solid #2c2c30;
+  --side-item-fg: #c9c9ce;
+  --side-item-radius: 10px;
+  --side-item-active-bg: #1c1c1e;
+  --side-item-active-fg: #f2f2f2;
+  --side-item-active-ring: inset 2px 0 0 #e8e3d8;
+  --detail-width: 380px;
+  --detail-border: 1px solid #2c2c30;
 }

@@ -17,7 +17,10 @@
   // ------------------------------------------------------------ abrir e sair
 
   async function open(device) {
+    // na janela expandida dá para trocar de aparelho sem "voltar": solta o anterior
+    if (page && page.device.id !== device.id) tiny.api.call('closeDevice', { id: page.device.id }).catch(logError('closeDevice'));
     page = { device, controls: [], values: {} };
+    TuyaBar.devices.refresh(); // marca o aberto na lista
     TuyaBar.nav.go('device', { title: device.name });
     const container = $('device-page');
     container.replaceChildren(h('p', 'muted center', t('device.connecting')));
@@ -37,6 +40,7 @@
   function leave() {
     if (page) tiny.api.call('closeDevice', { id: page.device.id }).catch(logError('closeDevice'));
     page = null;
+    TuyaBar.devices.refresh();
   }
   TuyaBar.nav.onLeave('device', leave);
 
@@ -257,5 +261,5 @@
   // textos dinâmicos: remonta no idioma novo
   TuyaBar.i18n.onChange(() => page && open(page.device));
 
-  TuyaBar.devicePage = { open };
+  TuyaBar.devicePage = { open, currentId: () => page?.device.id ?? null };
 })();

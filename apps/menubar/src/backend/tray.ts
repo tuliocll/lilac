@@ -9,13 +9,15 @@ import { favorites } from './favorites.ts';
 
 export interface TrayLabels {
   open: string;
+  /** abrir a janela expandida */
+  window: string;
   scan: string;
   quit: string;
   /** cabeçalho da seção de favoritos */
   favorites: string;
 }
 
-let labels: TrayLabels = { open: 'Abrir painel', scan: 'Procurar aparelhos', quit: 'Sair', favorites: 'Favoritos' };
+let labels: TrayLabels = { open: 'Abrir painel', window: 'Abrir janela', scan: 'Procurar aparelhos', quit: 'Sair', favorites: 'Favoritos' };
 
 export const FAVORITE_PREFIX = 'fav:';
 
@@ -33,6 +35,7 @@ export function renderTray() {
   const menu: TrayMenuItem[] = [
     ...(favoriteItems.length ? [{ id: 'favorites-title', label: labels.favorites, enabled: false }, ...favoriteItems, { separator: true }] : []),
     { id: 'open', label: labels.open },
+    { id: 'window', label: labels.window },
     { id: 'scan', label: labels.scan },
     { separator: true },
     { id: 'quit', label: labels.quit },

@@ -24,16 +24,29 @@
           </div>
         </div>
 
+        <!-- ================= menu lateral (só na janela expandida) ================= -->
+        <nav class="sidebar" data-i18n-aria="side.label">
+          <div class="sidebar-brand"><span class="dot" aria-hidden="true"></span>TuyaBar</div>
+          <button class="side-item" type="button" data-side="devices"><i class="glyph" data-g="home"></i><span data-i18n="title.devices"></span></button>
+          <button class="side-item" type="button" disabled><i class="glyph" data-g="sparkles"></i><span data-i18n="side.scenes"></span><span class="soon" data-i18n="side.soon"></span></button>
+          <button class="side-item" type="button" disabled><i class="glyph" data-g="bolt"></i><span data-i18n="side.automations"></span><span class="soon" data-i18n="side.soon"></span></button>
+          <span class="sidebar-fill" aria-hidden="true"></span>
+          <button class="side-item" type="button" data-side="settings"><i class="glyph" data-g="gear"></i><span data-i18n="title.settings"></span></button>
+          <button class="side-item" type="button" data-side="about"><i class="glyph" data-g="heart"></i><span data-i18n="title.about"></span></button>
+        </nav>
+
         <!-- ================= ferramentas por tela ================= -->
         <div class="toolbar">
           <div class="tools" data-for="devices">
             <button id="sync" class="btn btn-icon" type="button" data-i18n-title="action.sync" hidden><i class="glyph" data-g="sync"></i></button>
             <button id="layout-toggle" class="btn btn-icon" type="button"><i class="glyph" data-g="view-grid"></i></button>
-            <button id="open-settings" class="btn btn-icon" type="button" data-i18n-title="action.settings"><i class="glyph" data-g="gear"></i></button>
+            <button id="open-window" class="btn btn-icon only-panel" type="button" data-i18n-title="action.openWindow" data-i18n-aria="action.openWindow"><i class="glyph" data-g="expand"></i></button>
+            <button id="open-settings" class="btn btn-icon only-panel" type="button" data-i18n-title="action.settings"><i class="glyph" data-g="gear"></i></button>
             <button id="scan" class="btn btn-primary" type="button" data-i18n="action.scan"></button>
           </div>
           <div class="tools tools-split" data-for="device">
-            <button class="btn" type="button" data-back><i class="glyph" data-g="back"></i><span data-i18n="action.back"></span></button>
+            <button class="btn only-panel" type="button" data-back><i class="glyph" data-g="back"></i><span data-i18n="action.back"></span></button>
+            <button class="btn only-window" type="button" data-back><i class="glyph" data-g="close"></i><span data-i18n="device.close"></span></button>
             <span id="device-header" class="header-slot"></span>
           </div>
           <div class="tools tools-split" data-for="settings">
@@ -220,6 +233,7 @@
     <script src="ui/onboarding.js"></script>
     <script src="ui/settings.js"></script>
     <script src="ui/about.js"></script>
+    <script src="ui/window.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

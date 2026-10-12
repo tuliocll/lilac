@@ -8,6 +8,7 @@
  *   control    rota local/nuvem, conexão, reconexão, valores
  *   view       a lista que a página mostra
  *   favorites  favoritos   ·   tray  menu da bandeja   ·   user-themes  temas extras
+ *   windows    janela expandida e quem está olhando cada aparelho
  */
 import * as account from './backend/account.ts';
 import { push, setApp, type TinyApp } from './backend/app.ts';
@@ -20,6 +21,7 @@ import { onNetworkChange, restartListening, startListening } from './backend/net
 import { FAVORITE_PREFIX, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
 import { loadUserThemes } from './backend/user-themes.ts';
 import { deviceList } from './backend/view.ts';
+import * as windows from './backend/windows.ts';
 
 const warn = (message: string) => push('warn', message);
 const pushDevices = () => push('devices', deviceList());
@@ -53,11 +55,15 @@ function start(app: TinyApp) {
   return starting;
 }
 
+/** Quem chamou: o tinyjs informa a janela de origem. */
+type Meta = { window?: string } | undefined;
+const windowOf = (meta: Meta) => meta?.window ?? 'main';
+
 /** Garante que o backend iniciou antes de qualquer chamada da página. */
-function withStart<Params>(handler: (params: Params, app: TinyApp) => unknown) {
-  return async (params: Params, app: TinyApp) => {
+function withStart<Params>(handler: (params: Params, app: TinyApp, meta: Meta) => unknown) {
+  return async (params: Params, app: TinyApp, meta?: Meta) => {
     await start(app);
-    return handler(params ?? ({} as Params), app);
+    return handler(params ?? ({} as Params), app, meta);
   };
 }
 
@@ -93,9 +99,14 @@ export const api = {
 
   // ---- aparelhos
   devices: withStart(() => deviceList()),
-  openDevice: withStart(({ id }: Id) => control.openDevice(id)),
+  openDevice: withStart(({ id }: Id, _app, meta) => {
+    windows.watch(id, windowOf(meta));
+    return control.openDevice(id);
+  }),
   setControl: withStart(({ id, code, value }: Id & { code: string; value: unknown }) => control.setControl(id, code, value)),
-  closeDevice: withStart(({ id }: Id) => control.releaseDevice(id)),
+  closeDevice: withStart(({ id }: Id, _app, meta) => {
+    if (windows.unwatch(id, windowOf(meta))) control.releaseDevice(id);
+  }),
   toggleFavorite: withStart(async ({ id }: Id) => {
     const favorite = await toggleFavorite(id);
     pushDevices();
@@ -137,9 +148,19 @@ export const api = {
 
   // ---- interface
   trayLabels: withStart((labels: TrayLabels) => setTrayLabels(labels)),
+  /** Para uma janela que abriu depois: a conta já carregada (o painel é quem restaura do cofre). */
+  session: withStart(() => ({ account: account.accountInfo() })),
+  openWindow: withStart(() => windows.openExpanded()),
+  /** Tema, idioma ou atalho mudou numa janela: as outras releem do store. */
+  prefsChanged: withStart(({ kind }: { kind: string }, _app, meta) => push('prefs', { kind, from: windowOf(meta) })),
   userThemes: withStart(() => loadUserThemes()),
   quit: withStart((_params: unknown, app: TinyApp) => app.quit()),
 };
+
+export async function onWindowClosed(id: string, app: TinyApp) {
+  await start(app);
+  for (const deviceId of windows.windowClosed(id)) control.releaseDevice(deviceId);
+}
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -150,6 +171,7 @@ export async function init(app: TinyApp) {
 export async function onTray(id: string | null, app: TinyApp) {
   await start(app);
   if (id === 'quit') return app.quit();
+  if (id === 'window') return windows.openExpanded();
   if (id?.startsWith(FAVORITE_PREFIX)) {
     const on = await control.togglePower(id.slice(FAVORITE_PREFIX.length)).catch((error: Error) => warn(error.message));
     renderTray();

@@ -11,8 +11,19 @@ export interface TrayMenuItem {
   separator?: boolean;
 }
 
+export interface WindowOptions {
+  page: string;
+  title?: string;
+  /** 'LxA' */
+  size?: string;
+  minSize?: string;
+  chrome?: { frame?: boolean; windowControls?: boolean };
+}
+
 export interface TinyApp {
   push(event: string, data?: unknown): void;
+  openWindow?(id: string, options: WindowOptions): unknown;
+  window?(id: string): { push(event: string, data?: unknown): void; close(): void } | undefined;
   quit(): void;
   setHideOnClose(hide: boolean): void;
   tray: { set(spec: { title?: string; tooltip?: string; icon?: string; menu?: TrayMenuItem[]; primaryAction?: boolean }): void };

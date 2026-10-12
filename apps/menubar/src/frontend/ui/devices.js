@@ -30,6 +30,7 @@
     if (!shown.has(d.id)) li.classList.add('entering');
     shown.add(d.id);
     li.dataset.id = d.id;
+    if (TuyaBar.devicePage?.currentId() === d.id) li.setAttribute('aria-current', 'true'); // aberto ao lado (janela)
     li.title = [linkText(d), d.ip].filter(Boolean).join(' · ');
 
     const icon = gadgetIcon(d.gadget, d.tone);
@@ -188,6 +189,8 @@
 
   async function init() {
     layout = (await tiny.store.get('deviceLayout').catch(() => null)) === 'grid' ? 'grid' : 'list';
+    // uma janela aberta depois não recebeu a lista ainda
+    devices = (await tiny.api.call('devices').catch(() => null)) ?? devices;
     render();
   }
 
@@ -197,5 +200,5 @@
   });
   TuyaBar.i18n.onChange(render);
 
-  TuyaBar.devices = { init, all: () => devices, linkText };
+  TuyaBar.devices = { init, refresh: render, all: () => devices, linkText };
 })();

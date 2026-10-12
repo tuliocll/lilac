@@ -37,6 +37,7 @@
   under “Advanced”, with a control inferred from their type.
 - 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was) and *High Contrast*.
   Community themes can be dropped into a folder — no rebuild.
+- 🪟 **Expanded window** (tray menu or the ⤢ button): resizable, with a sidebar and the device page side by side with the list.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 
@@ -139,11 +140,9 @@ own their state with small explicit APIs, and every UI module hangs off a single
 
 ## Roadmap
 
-- [ ] Real-device validation of local control (3.3/3.4) and cloud control · local protocol 3.5
-- [ ] Sub-devices locally through gateways (`cid`) · raw IR learning/sending
-- [ ] Scenes · live state in the device list
-- [ ] Own Tuya partner credentials
-- [ ] Signed builds (the release workflow in `.github/workflows/release.yml` builds unsigned ones — untested until the first tag)
+The living backlog is in [docs/ROADMAP.md](docs/ROADMAP.md) (in Portuguese). Highlights: real-device validation,
+IR remotes through the cloud (already working for air conditioners), protocol 3.5, live cloud updates, scenes and
+automations tied to your computer (lock the screen → desk light off).
 
 ## Credits
 
