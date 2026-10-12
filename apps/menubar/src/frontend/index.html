@@ -1,80 +1,195 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="moonlight">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TuyaBar</title>
-    <link rel="stylesheet" href="style.css" />
+    <!-- Moonlight define os valores padrão de todos os tokens; os outros temas sobrescrevem. -->
+    <link rel="stylesheet" href="themes/moonlight/theme.css" />
+    <link rel="stylesheet" href="icons.css" />
+    <link rel="stylesheet" href="base.css" />
+    <script src="config.js"></script>
+    <script src="themes/index.js"></script>
+    <script src="i18n.js"></script>
   </head>
   <body data-view="loading">
-    <main class="panel">
-      <!-- ======== login ======== -->
-      <section class="view" data-for="login">
-        <header data-tiny-drag>
-          <div class="brand"><span class="dot" aria-hidden="true"></span><span>Conectar Smart Life</span></div>
-        </header>
-
-        <form id="login-form" class="login">
-          <p class="lead">
-            O TuyaBar usa sua conta só para buscar nomes e chaves dos dispositivos. Depois disso o controle é
-            direto pela sua rede.
-          </p>
-          <ol class="steps">
-            <li>Abra o app <b>Smart Life</b></li>
-            <li><b>Eu</b> → ⚙ <b>Configurações</b> → <b>Conta e segurança</b></li>
-            <li>Copie o <b>Código de usuário</b></li>
-          </ol>
-          <label class="field">
-            <span>Código de usuário</span>
-            <input id="user-code" autocomplete="off" spellcheck="false" placeholder="ex.: Ab12Cd" required />
-          </label>
-          <button class="pill wide" type="submit" id="qr-btn">Gerar QR code</button>
-          <button class="link" type="button" id="skip">Agora não — só procurar na rede</button>
-        </form>
-
-        <div id="qr-step" class="qr-step" hidden>
-          <div id="qr" class="qr" aria-label="QR code de login"></div>
-          <p class="lead center">
-            No Smart Life, toque no ícone de <b>escanear</b> (canto superior direito da tela inicial) e confirme.
-          </p>
-          <p class="muted center" id="qr-timer"></p>
-          <button class="link" type="button" id="qr-cancel">Cancelar</button>
-        </div>
-
-        <p id="login-error" class="error" hidden></p>
-      </section>
-
-      <!-- ======== dispositivos ======== -->
-      <section class="view" data-for="devices">
-        <header data-tiny-drag>
-          <div class="brand"><span class="dot" aria-hidden="true"></span><span>Dispositivos</span></div>
-          <div class="actions">
-            <button id="sync" class="icon" type="button" title="Sincronizar com a nuvem" hidden>↻</button>
-            <button id="scan" class="pill" type="button">Procurar</button>
+    <div class="desktop">
+      <main class="window">
+        <!-- ================= barra de título ================= -->
+        <div class="titlebar" data-tiny-drag>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="titlebar-title" id="title">TuyaBar</span>
+          <span class="titlebar-fill" aria-hidden="true"></span>
+          <div class="window-controls">
+            <button class="wc" type="button" data-action="hide" data-i18n-aria="wc.minimize"><i class="glyph" data-g="minimize"></i></button>
+            <button class="wc" type="button" data-action="hide" data-i18n-aria="wc.close"><i class="glyph" data-g="close"></i></button>
           </div>
-        </header>
-
-        <ul id="list" class="list" aria-live="polite"></ul>
-
-        <div id="empty" class="empty">
-          <p class="big">Nada por aqui ainda</p>
-          <p>Clique em <b>Procurar</b> para escutar os anúncios Tuya na sua rede.</p>
         </div>
 
-        <button id="connect" class="banner" type="button" hidden>
-          <b>Conecte sua conta Smart Life</b>
-          <span>para ver nomes e liberar o controle local</span>
-        </button>
-      </section>
+        <!-- ================= ferramentas por tela ================= -->
+        <div class="toolbar">
+          <div class="tools" data-for="devices">
+            <button id="sync" class="btn btn-icon" type="button" data-i18n-title="action.sync" hidden><i class="glyph" data-g="sync"></i></button>
+            <button id="open-settings" class="btn btn-icon" type="button" data-i18n-title="action.settings"><i class="glyph" data-g="gear"></i></button>
+            <button id="scan" class="btn btn-primary" type="button" data-i18n="action.scan"></button>
+          </div>
+          <div class="tools tools-split" data-for="device">
+            <button class="btn" type="button" data-back><i class="glyph" data-g="back"></i><span data-i18n="action.back"></span></button>
+            <span id="device-header" class="header-slot"></span>
+          </div>
+          <div class="tools tools-split" data-for="settings">
+            <button class="btn" type="button" data-back><i class="glyph" data-g="back"></i><span data-i18n="action.back"></span></button>
+          </div>
+          <div class="tools tools-split" data-for="about">
+            <button class="btn" type="button" data-back><i class="glyph" data-g="back"></i><span data-i18n="action.back"></span></button>
+          </div>
+        </div>
 
-      <footer>
-        <span id="status" class="status">Carregando…</span>
-        <span class="footer-actions">
-          <button id="logout" class="ghost" type="button" hidden title="">Sair da conta</button>
-          <button id="quit" class="ghost" type="button" title="Fechar o TuyaBar">Fechar</button>
-        </span>
-      </footer>
-    </main>
+        <div class="body">
+          <!-- ================= onboarding ================= -->
+          <section class="view onboarding" data-for="onboarding">
+            <div class="ob-step" data-step="1">
+              <div class="art" aria-hidden="true">
+                <span class="art-tile" data-tone="sun" style="--glyph: var(--i-gadget-light)"><i class="glyph"></i></span>
+                <span class="art-tile" data-tone="sky" style="--glyph: var(--i-gadget-climate)"><i class="glyph"></i></span>
+                <span class="art-tile" data-tone="pink" style="--glyph: var(--i-gadget-plug)"><i class="glyph"></i></span>
+              </div>
+              <h1 class="ob-title" data-i18n="ob.1.title"></h1>
+              <p class="lead" data-i18n-html="ob.1.body"></p>
+            </div>
+            <div class="ob-step" data-step="2" hidden>
+              <div class="art" aria-hidden="true">
+                <span class="art-tile" data-tone="lilac" style="--glyph: var(--i-lock)"><i class="glyph"></i></span>
+              </div>
+              <h1 class="ob-title" data-i18n="ob.2.title"></h1>
+              <p class="lead" data-i18n-html="ob.2.body"></p>
+              <ul class="checklist card">
+                <li data-i18n="ob.2.b1"></li>
+                <li data-i18n="ob.2.b2"></li>
+                <li data-i18n="ob.2.b3"></li>
+              </ul>
+            </div>
+            <div class="ob-step" data-step="3" hidden>
+              <h1 class="ob-title" data-i18n="ob.3.title"></h1>
+              <ol class="steps card">
+                <li data-i18n-html="ob.3.s1"></li>
+                <li data-i18n-html="ob.3.s2"></li>
+                <li data-i18n-html="ob.3.s3"></li>
+              </ol>
+            </div>
+
+            <div class="ob-footer">
+              <div class="step-dots" aria-hidden="true"><i data-dot="1"></i><i data-dot="2"></i><i data-dot="3"></i></div>
+              <div class="ob-actions" data-for-step="1 2">
+                <button class="btn-link" type="button" id="ob-skip" data-i18n="action.skip"></button>
+                <button class="btn btn-primary" type="button" id="ob-next" data-i18n="action.next"></button>
+              </div>
+              <div class="ob-actions stack" data-for-step="3" hidden>
+                <button class="btn btn-primary btn-wide" type="button" id="ob-connect" data-i18n="ob.connect"></button>
+                <button class="btn-link" type="button" id="ob-explore" data-i18n="ob.explore"></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= login ================= -->
+          <section class="view" data-for="login">
+            <form id="login-form" class="stack">
+              <p class="lead" data-i18n="login.lead"></p>
+              <p class="card small" data-i18n-html="login.where"></p>
+              <label class="field">
+                <span data-i18n="login.code"></span>
+                <input id="user-code" autocomplete="off" spellcheck="false" data-i18n-placeholder="login.placeholder" required />
+              </label>
+              <button class="btn btn-primary btn-wide" type="submit" id="qr-btn" data-i18n="login.generate"></button>
+              <button class="btn-link" type="button" id="skip" data-i18n="login.skip"></button>
+            </form>
+
+            <div id="qr-step" class="stack" hidden>
+              <div id="qr" class="qr" data-i18n-aria="login.qrAria"></div>
+              <p class="lead center" data-i18n-html="login.scan"></p>
+              <p class="muted center" id="qr-timer"></p>
+              <button class="btn-link" type="button" id="qr-cancel" data-i18n="login.cancel"></button>
+            </div>
+
+            <p id="login-error" class="error" hidden></p>
+          </section>
+
+          <!-- ================= dispositivos ================= -->
+          <section class="view" data-for="devices">
+            <ul id="list" class="list" aria-live="polite"></ul>
+
+            <div class="empty">
+              <p class="big" data-i18n="devices.empty.title"></p>
+              <p data-i18n-html="devices.empty.body"></p>
+            </div>
+
+            <button id="connect" class="card banner" type="button" hidden>
+              <b data-i18n="devices.connect.title"></b>
+              <span data-i18n="devices.connect.body"></span>
+            </button>
+          </section>
+
+          <!-- ================= página do gadget ================= -->
+          <section class="view device-view" data-for="device">
+            <div id="device-page" class="device-page"></div>
+          </section>
+
+          <!-- ================= configurações ================= -->
+          <section class="view settings" data-for="settings">
+            <h2 class="section-title" data-i18n="settings.appearance"></h2>
+            <div id="theme-list" class="theme-list" role="radiogroup"></div>
+            <div class="row">
+              <span class="muted" id="user-themes-info"></span>
+              <button class="btn-link" type="button" id="open-themes-dir" data-i18n="settings.themesDir"></button>
+            </div>
+
+            <h2 class="section-title" data-i18n="settings.language"></h2>
+            <label class="select-wrap">
+              <select id="language"></select>
+              <i class="glyph" data-g="chevron" aria-hidden="true"></i>
+            </label>
+
+            <h2 class="section-title" data-i18n="settings.account"></h2>
+            <div class="card row">
+              <span id="account-name" class="muted" data-i18n="settings.notConnected"></span>
+              <button id="logout" class="btn" type="button" data-i18n="settings.logout" hidden></button>
+              <button id="login-from-settings" class="btn" type="button" data-i18n="settings.connect"></button>
+            </div>
+
+            <h2 class="section-title" data-i18n="settings.more"></h2>
+            <div class="menu card">
+              <button class="menu-item" type="button" id="open-intro"><i class="glyph" data-g="info"></i><span data-i18n="settings.intro"></span></button>
+              <button class="menu-item" type="button" id="open-about"><i class="glyph" data-g="heart"></i><span data-i18n="settings.about"></span></button>
+            </div>
+          </section>
+
+          <!-- ================= sobre / créditos ================= -->
+          <section class="view about" data-for="about">
+            <div class="about-hero">
+              <span class="art-tile" data-tone="lilac" style="--glyph: var(--i-gadget-switch)"><i class="glyph"></i></span>
+              <h1 class="ob-title">TuyaBar</h1>
+              <p class="lead center" data-i18n="about.tagline"></p>
+              <p class="muted center" id="about-version"></p>
+            </div>
+            <div class="card stack-tight">
+              <p id="about-by"></p>
+              <p class="muted" data-i18n="about.vibe"></p>
+              <button class="btn" type="button" id="open-repo"><i class="glyph" data-g="github"></i><span data-i18n="about.repo"></span></button>
+            </div>
+            <h2 class="section-title" data-i18n="about.credits"></h2>
+            <ul id="credits" class="credits card"></ul>
+            <p class="muted small" data-i18n="about.disclaimer"></p>
+          </section>
+        </div>
+
+        <footer class="statusbar">
+          <span id="status" class="status" data-i18n="status.loading"></span>
+          <button id="quit" class="btn-link" type="button" data-i18n="action.quit" data-i18n-title="action.quit.title"></button>
+        </footer>
+      </main>
+    </div>
+    <script src="theme.js"></script>
+    <script src="controls.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

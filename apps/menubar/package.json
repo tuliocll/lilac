@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "tinyjs dev",
-    "build": "tinyjs build"
+    "build": "tinyjs build",
+    "assets": "node ../../packages/gadgets/scripts/build.mjs && node scripts/build-assets.mjs"
   },
   "dependencies": {
     "@tuyabar/core": "0.0.1",
     "@tuyabar/transport-txiki": "0.0.1",
-    "qrcode-generator": "^2.0.4"
+    "qrcode-generator": "^2.0.4",
+    "@tuyabar/gadgets": "0.0.1"
   }
 }

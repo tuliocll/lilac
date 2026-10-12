@@ -9,17 +9,24 @@
     "apps/*"
   ],
   "scripts": {
-    "test": "tsx --test packages/tuya-core/test/*.test.ts",
+    "test": "tsx --test packages/*/test/*.test.ts apps/*/test/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "discover": "tsx apps/cli/src/discover.ts",
     "fake-device": "tsx apps/cli/src/fake-device.ts",
     "login": "tsx apps/cli/src/login.ts",
-    "devices": "tsx apps/cli/src/devices.ts"
+    "devices": "tsx apps/cli/src/devices.ts",
+    "control": "tsx apps/cli/src/control.ts",
+    "assets": "npm run assets -w @tuyabar/menubar"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tuliocalil/tuyabar"
+  },
+  "author": "Tulio Calil"
 }

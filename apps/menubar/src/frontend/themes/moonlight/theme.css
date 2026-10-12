@@ -1,0 +1,151 @@
+/*
+ * Moonlight — o visual original do TuyaBar: escuro, discreto, arredondado.
+ * Também é a base: `:root` garante valores padrão para qualquer token que um
+ * tema de terceiros esquecer.
+ */
+:root,
+[data-theme="moonlight"] {
+  --font-ui: -apple-system, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-ui);
+  --font-size: 13px;
+  --title-size: 15px;
+  --title-weight: 600;
+
+  --desktop-bg: transparent;
+  --window-margin: 0px;
+  --window-bg: color-mix(in srgb, #121212 94%, transparent);
+  --window-fg: #f2f2f2;
+  --window-border: 1px solid #2c2c30;
+  --window-radius: 18px;
+  --window-shadow: none;
+  --window-areas: "title tools" "body body" "status status";
+  --window-columns: minmax(0, 1fr) auto;
+  --window-rows: auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: transparent;
+  --titlebar-fg: #f2f2f2;
+  --titlebar-border: 0;
+  --titlebar-padding: 14px 6px 6px 14px;
+  --wc-display: none;
+  --wc-bg: transparent;
+  --wc-fg: #8d8d93;
+  --wc-border: 0;
+  --wc-radius: 6px;
+  --dot-display: block;
+  --dot-idle: #8d8d93;
+  --dot-busy: #7bd389;
+
+  --toolbar-bg: transparent;
+  --toolbar-border: 0;
+  --toolbar-padding: 14px 14px 6px 0;
+
+  --body-padding: 6px 14px 4px;
+  --gap: 12px;
+  --muted: #8d8d93;
+  --accent: #e8e3d8;
+  --accent-fg: #111111;
+  --link: #8d8d93;
+
+  --surface-bg: #1c1c1e;
+  --surface-hover: #26262a;
+  --surface-border: 0;
+  --surface-radius: 14px;
+  --surface-shadow: none;
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0;
+  --list-padding: 0;
+  --list-gap: 8px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: transparent;
+  --btn-fg: #8d8d93;
+  --btn-border: 0;
+  --btn-radius: 999px;
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --btn-press-offset: scale(0.97);
+  --btn-hover-bg: #1c1c1e;
+  --btn-primary-bg: #e8e3d8;
+  --btn-primary-fg: #111111;
+
+  --input-bg: #1c1c1e;
+  --input-fg: #f2f2f2;
+  --input-border: 1px solid #2c2c30;
+  --input-radius: 12px;
+  --focus-ring: 2px solid #e8e3d8;
+
+  --badge-bg: #2c2c30;
+  --badge-fg: #8d8d93;
+  --badge-border: 0;
+  --badge-radius: 999px;
+  --ok-bg: #1f3324;
+  --ok-fg: #7bd389;
+  --warn-bg: #3a3326;
+  --warn-fg: #f0b35a;
+  --err-fg: #ff7a7a;
+
+  --icon-tile-size: 32px;
+  --icon-tile-border: 0;
+  --icon-tile-radius: 10px;
+  --icon-fg: #c9c9ce;
+
+  --statusbar-bg: transparent;
+  --statusbar-fg: #8d8d93;
+  --statusbar-border: 0;
+  --statusbar-padding: 8px 14px 12px;
+
+  --scrollbar-size: 8px;
+  --scrollbar-thumb: #3a3a3f;
+  --scrollbar-track: transparent;
+  --scrollbar-border: 0;
+
+  --qr-frame: #ffffff;
+  --swatch-border: 2px solid #121212;
+
+  --tone-sun: #2f2b22;
+  --tone-sky: #222a31;
+  --tone-mint: #1f2d27;
+  --tone-peach: #30271f;
+  --tone-lilac: #29253a;
+  --tone-pink: #31222b;
+  --tone-neutral: #2a2a2e;
+
+  --toggle-w: 36px;
+  --toggle-h: 20px;
+  --toggle-radius: 999px;
+  --toggle-border: 0;
+  --toggle-track: #3a3a3f;
+  --toggle-track-on: #e8e3d8;
+  --toggle-thumb: #f2f2f2;
+
+  --slider-h: 44px;
+  --slider-radius: 14px;
+  --slider-border: 1px solid #2c2c30;
+  --slider-track: #161618;
+  --slider-fill: linear-gradient(90deg, #2a2724, #8b847a);
+  --slider-thumb: #e9e7e2;
+  --slider-thumb-w: 16px;
+  --slider-thumb-h: 30px;
+  --slider-thumb-radius: 6px;
+  --slider-thumb-border: 0;
+
+  --power-size: 120px;
+  --power-bg: #1c1c1e;
+  --power-fg: #8d8d93;
+  --power-on-bg: #e8e3d8;
+  --power-on-fg: #121212;
+  --power-border: 1px solid #2c2c30;
+  --power-shadow: none;
+  --power-on-shadow: 0 0 32px rgb(232 227 216 / 0.25);
+
+  --hero-font: var(--font-ui);
+  --hero-size: 52px;
+  --chip-min-h: 78px;
+  --step-dot: #3a3a3f;
+  --step-dot-active: #e8e3d8;
+  --art-size: 88px;
+
+  color-scheme: dark;
+}

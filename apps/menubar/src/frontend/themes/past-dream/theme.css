@@ -1,0 +1,201 @@
+/*
+ * Past Dream — um sistema operacional de 1996 que nunca existiu.
+ * Janelas creme com contorno grosso, barra de título lilás, botões que
+ * afundam, sombras duras e o "desktop" azul-petróleo atrás.
+ */
+/* fonte embutida em fonts.css (gerado a partir de fonts.json) */
+
+[data-theme="past-dream"] {
+  --ink: #1d1a2b;
+  --cream: #fbf6e9;
+  --paper: #ffffff;
+  --lilac: #b8a4ff;
+  --violet: #8a63ff;
+  --sea: #2e5f7c;
+  --sea-dot: #376d8b;
+  --sun: #ffd23f;
+  --bubblegum: #ff8fc4;
+  --mint: #7ee0b5;
+  --sky: #8fd0ff;
+  --peach: #ffb38a;
+
+  --font-ui: "Segoe UI", -apple-system, system-ui, sans-serif;
+  --font-display: "Pixelify Sans", var(--font-ui);
+  --font-size: 13px;
+  --title-size: 15px;
+  --title-weight: 600;
+
+  --desktop-bg: radial-gradient(var(--sea-dot) 1px, transparent 1.5px) 0 0 / 8px 8px, var(--sea);
+  --window-margin: 8px 12px 14px 8px;
+  --window-bg: var(--cream);
+  --window-fg: var(--ink);
+  --window-border: 2px solid var(--ink);
+  --window-radius: 6px;
+  --window-shadow: 5px 5px 0 var(--ink);
+  --window-areas: "title" "tools" "body" "status";
+  --window-columns: minmax(0, 1fr);
+  --window-rows: auto auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: var(--lilac);
+  --titlebar-fg: var(--ink);
+  --titlebar-border: 2px solid var(--ink);
+  --titlebar-padding: 4px 6px 4px 10px;
+  --wc-display: flex;
+  --wc-bg: var(--cream);
+  --wc-fg: var(--ink);
+  --wc-border: 2px solid var(--ink);
+  --wc-radius: 3px;
+  --dot-display: none;
+  --dot-idle: var(--ink);
+  --dot-busy: var(--violet);
+
+  --toolbar-bg: var(--cream);
+  --toolbar-border: 2px solid var(--ink);
+  --toolbar-padding: 6px 8px;
+
+  --body-padding: 10px;
+  --gap: 10px;
+  --muted: #5d5874;
+  --accent: var(--violet);
+  --accent-fg: var(--paper);
+  --link: var(--violet);
+
+  --surface-bg: var(--paper);
+  --surface-hover: #f3eeff;
+  --surface-border: 2px solid var(--ink);
+  --surface-radius: 4px;
+  --surface-shadow: 3px 3px 0 var(--ink);
+
+  --list-bg: var(--paper);
+  --list-border: 2px solid var(--ink);
+  --list-radius: 2px;
+  --list-padding: 6px;
+  --list-gap: 6px;
+
+  --btn-font: var(--font-display);
+  --btn-bg: var(--cream);
+  --btn-fg: var(--ink);
+  --btn-border: 2px solid var(--ink);
+  --btn-radius: 4px;
+  --btn-shadow: 2px 2px 0 var(--ink);
+  --btn-shadow-active: 0 0 0 var(--ink);
+  --btn-press-offset: translate(2px, 2px);
+  --btn-hover-bg: #f3eeff;
+  --btn-primary-bg: var(--violet);
+  --btn-primary-fg: var(--paper);
+
+  --input-bg: var(--paper);
+  --input-fg: var(--ink);
+  --input-border: 2px solid var(--ink);
+  --input-radius: 2px;
+  --focus-ring: 2px dashed var(--violet);
+
+  --badge-bg: var(--cream);
+  --badge-fg: var(--ink);
+  --badge-border: 2px solid var(--ink);
+  --badge-radius: 3px;
+  --ok-bg: var(--mint);
+  --ok-fg: var(--ink);
+  --warn-bg: var(--sun);
+  --warn-fg: var(--ink);
+  --err-fg: #d6336c;
+
+  --icon-tile-size: 34px;
+  --icon-tile-border: 2px solid var(--ink);
+  --icon-tile-radius: 4px;
+  --icon-fg: var(--ink);
+
+  --statusbar-bg: var(--cream);
+  --statusbar-fg: var(--ink);
+  --statusbar-border: 2px solid var(--ink);
+  --statusbar-padding: 5px 10px;
+
+  --scrollbar-size: 16px;
+  --scrollbar-thumb: var(--lilac);
+  --scrollbar-track: repeating-conic-gradient(var(--cream) 0 25%, var(--paper) 0 50%) 0 0 / 4px 4px;
+  --scrollbar-border: 2px solid var(--ink);
+
+  --qr-frame: var(--paper);
+  --swatch-border: 2px solid var(--ink);
+
+  --tone-sun: var(--sun);
+  --tone-sky: var(--sky);
+  --tone-mint: var(--mint);
+  --tone-peach: var(--peach);
+  --tone-lilac: var(--lilac);
+  --tone-pink: var(--bubblegum);
+  --tone-neutral: var(--cream);
+
+  --toggle-w: 42px;
+  --toggle-h: 22px;
+  --toggle-radius: 3px;
+  --toggle-border: 2px solid var(--ink);
+  --toggle-track: var(--paper);
+  --toggle-track-on: var(--mint);
+  --toggle-thumb: var(--cream);
+
+  --slider-h: 28px;
+  --slider-radius: 2px;
+  --slider-border: 2px solid var(--ink);
+  --slider-track: repeating-linear-gradient(90deg, var(--paper) 0 6px, var(--cream) 6px 8px);
+  --slider-fill: repeating-linear-gradient(90deg, var(--violet) 0 6px, var(--lilac) 6px 8px);
+  --slider-thumb: var(--cream);
+  --slider-thumb-w: 14px;
+  --slider-thumb-h: 30px;
+  --slider-thumb-radius: 2px;
+  --slider-thumb-border: 2px solid var(--ink);
+
+  --power-size: 112px;
+  --power-bg: var(--cream);
+  --power-fg: var(--ink);
+  --power-on-bg: var(--mint);
+  --power-on-fg: var(--ink);
+  --power-border: 3px solid var(--ink);
+  --power-shadow: 5px 5px 0 var(--ink);
+  --power-on-shadow: 2px 2px 0 var(--ink);
+
+  --hero-font: var(--font-display);
+  --hero-size: 56px;
+  --chip-min-h: 74px;
+  --step-dot: var(--paper);
+  --step-dot-active: var(--violet);
+  --art-size: 84px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* barra de título com listras, como as janelas de época */
+[data-theme="past-dream"] .titlebar-fill {
+  margin: 5px 4px;
+  background: repeating-linear-gradient(180deg, var(--ink) 0 2px, transparent 2px 4px);
+  opacity: 0.35;
+}
+[data-theme="past-dream"] .wc { box-shadow: 1px 1px 0 var(--ink); }
+[data-theme="past-dream"] .wc:active { box-shadow: none; transform: translate(1px, 1px); }
+
+/* o status do rodapé ganha um "poço" afundado */
+[data-theme="past-dream"] .status {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-family: var(--font-display);
+}
+
+/* itens da lista ficam mais leves dentro da área branca */
+[data-theme="past-dream"] .list .device { box-shadow: none; border-width: 2px; }
+[data-theme="past-dream"] .list .device:hover { box-shadow: 2px 2px 0 var(--ink); }
+
+/* rolagem com setas, à moda antiga */
+[data-theme="past-dream"] .list::-webkit-scrollbar-button:single-button {
+  display: block;
+  height: 16px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+}
+[data-theme="past-dream"] .list::-webkit-scrollbar-thumb { border-radius: 2px; }
+
+/* o QR vira uma janelinha dentro da janela */
+[data-theme="past-dream"] .qr { box-shadow: 4px 4px 0 var(--ink); }

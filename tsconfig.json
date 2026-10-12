@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": { "types": ["node"] },
-  "include": ["packages/*/src", "packages/*/test", "apps/cli/src", "apps/menubar/src/*.ts"]
+  "include": ["packages/*/src", "packages/*/test", "apps/cli/src", "apps/menubar/src/*.ts", "apps/menubar/test"]
 }

@@ -3,7 +3,7 @@
   "title": "TuyaBar",
   "id": "dev.tuliocalil.tuyabar",
   "version": "0.0.1",
-  "size": "360x520",
+  "size": "360x560",
   "backend": "src/main.ts",
   "frontend": { "dir": "src/frontend" },
   "activation": "accessory",
