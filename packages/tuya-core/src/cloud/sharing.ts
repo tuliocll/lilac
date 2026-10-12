@@ -73,6 +73,10 @@ export interface SharingClient {
   logout(): Promise<void>;
 }
 
+/** Código da Tuya para "token is expired". */
+const TOKEN_EXPIRED = '1010';
+const isExpiredToken = (error: unknown) => error instanceof CloudError && String(error.code) === TOKEN_EXPIRED;
+
 export function createSharingClient(initial: SharingSession, options: SharingClientOptions): SharingClient {
   const fetchFn = options.fetch ?? fetch;
   let session = initial;
@@ -82,10 +86,18 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
 
   async function request<T = any>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T> {
     await refreshIfNeeded();
-    return signedRequest<T>(method, path, params, body);
+    try {
+      return await signedRequest<T>(method, path, params, body);
+    } catch (error) {
+      // O servidor pode dar o token como vencido antes da hora que calculamos
+      // (PC dormiu, relógio adiantado): renova uma vez e tenta de novo.
+      if (!isExpiredToken(error)) throw error;
+      await refresh();
+      return signedRequest<T>(method, path, params, body);
+    }
   }
 
-  async function signedRequest<T>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T> {
+  async function signedRequest<T>(method: 'GET' | 'POST', path: string, params?: object, body?: object, { withToken = true } = {}): Promise<T> {
     const requestId = uuidv4();
     const key = hashKey(requestId, session.refreshToken);
     const secret = deriveSecret(requestId, '', key);
@@ -105,7 +117,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
       'X-sid': '',
       'X-time': String(Date.now()),
     };
-    if (session.accessToken) headers['X-token'] = session.accessToken;
+    if (withToken && session.accessToken) headers['X-token'] = session.accessToken;
     headers['X-sign'] = restfulSign(key, queryEnc, bodyEnc, headers);
     if (bodyEnc) headers['Content-Type'] = 'application/json';
 
@@ -120,12 +132,18 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
     return json as T;
   }
 
-  /** Renova o token um minuto antes de expirar. Chamadas simultâneas esperam a mesma renovação. */
+  /** Renova o token um minuto antes de expirar. */
   function refreshIfNeeded(): Promise<void> {
     if (session.expiresAt - 60_000 > Date.now()) return Promise.resolve();
+    return refresh();
+  }
+
+  /** Chamadas simultâneas esperam a mesma renovação. */
+  function refresh(): Promise<void> {
     refreshing ??= (async () => {
       try {
-        const r = await signedRequest<any>('GET', `/v1.0/m/token/${session.refreshToken}`);
+        // sem o token velho: com ele, o servidor recusa a própria renovação ("token is expired")
+        const r = await signedRequest<any>('GET', `/v1.0/m/token/${session.refreshToken}`, undefined, undefined, { withToken: false });
         const t = r.result ?? {};
         session = {
           ...session,

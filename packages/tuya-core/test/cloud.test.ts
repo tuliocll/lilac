@@ -53,8 +53,8 @@ test('decryptPayload abre resposta no formato do servidor', () => {
 });
 
 /** Servidor falso: valida assinatura, decifra params e responde cifrado — como a Tuya. */
-function fakeCloud(session: SharingSession) {
-  const calls: { path: string; params?: any; body?: any }[] = [];
+function fakeCloud(session: SharingSession, { expiredTokens = new Set<string>() } = {}) {
+  const calls: { path: string; params?: any; body?: any; token?: string }[] = [];
   let refreshes = 0;
   const seal = (obj: unknown, secret: string) => {
     const nonce = new TextEncoder().encode('SERVERNONCE1');
@@ -74,7 +74,10 @@ function fakeCloud(session: SharingSession) {
     assert.equal(h['X-sign'], restfulSign(hk, enc, bodyEnc, h), 'assinatura inválida');
     const params = enc ? JSON.parse(decryptPayload(enc, secret)) : undefined;
     const body = bodyEnc ? JSON.parse(decryptPayload(bodyEnc, secret)) : undefined;
-    calls.push({ path: url.pathname, params, body });
+    calls.push({ path: url.pathname, params, body, token: h['X-token'] });
+    if (h['X-token'] && expiredTokens.has(h['X-token'])) {
+      return new Response(JSON.stringify({ success: false, code: 1010, msg: 'token is expired', t: Date.now() }));
+    }
 
     let result: unknown;
     if (url.pathname === '/v1.0/m/life/users/homes') result = [{ ownerId: 42, name: 'Casa' }];
@@ -162,12 +165,12 @@ test('status e comandos pela nuvem (caminho dos ares por infravermelho)', async 
   const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
   assert.deepEqual(await client.statusOf(['x']), { x: { online: true, status: { switch: true } } });
   await client.sendCommands('x', [{ code: 'switch', value: false }]);
-  assert.deepEqual(calls.at(-1), { path: '/v1.1/m/thing/x/commands', params: undefined, body: { commands: [{ code: 'switch', value: false }] } });
+  assert.deepEqual(calls.at(-1), { path: '/v1.1/m/thing/x/commands', params: undefined, body: { commands: [{ code: 'switch', value: false }] }, token: 'acc' });
 });
 
 test('token vencido: chamadas simultâneas esperam uma única renovação', async () => {
   const session = baseSession({ expiresAt: Date.now() - 1 });
-  const cloud = fakeCloud(session);
+  const cloud = fakeCloud(session, { expiredTokens: new Set(['acc']) });
   let saved: SharingSession | null = null;
   const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: cloud.fetchFn, onSessionUpdate: (s) => (saved = s) });
   // o servidor falso assina com o refreshToken deste objeto; usamos o mesmo valor que a renovação devolve
@@ -176,4 +179,16 @@ test('token vencido: chamadas simultâneas esperam uma única renovação', asyn
   assert.equal(cloud.refreshes(), 1);
   assert.equal(saved!.accessToken, 'acc2');
   assert.ok(client.session().expiresAt > Date.now());
+  // a renovação vai sem o token velho (com ele, a Tuya responde 1010)
+  assert.equal(cloud.calls.find((c) => c.path.startsWith('/v1.0/m/token/'))!.token, undefined);
+});
+
+test('token recusado antes da hora (PC dormiu): renova e repete a chamada uma vez', async () => {
+  const session = baseSession(); // pelo nosso relógio ainda vale
+  const cloud = fakeCloud(session, { expiredTokens: new Set(['acc']) });
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: cloud.fetchFn });
+  session.refreshToken = 'ref2';
+  assert.deepEqual(await client.statusOf(['x']), { x: { online: true, status: { switch: true } } });
+  assert.equal(cloud.refreshes(), 1);
+  assert.deepEqual(cloud.calls.map((c) => c.token), ['acc', undefined, 'acc2']);
 });
