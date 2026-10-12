@@ -6,26 +6,73 @@
     <title>TuyaBar</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body data-view="loading">
     <main class="panel">
-      <header data-tiny-drag>
-        <div class="brand">
-          <span class="dot" aria-hidden="true"></span>
-          <span>Dispositivos</span>
+      <!-- ======== login ======== -->
+      <section class="view" data-for="login">
+        <header data-tiny-drag>
+          <div class="brand"><span class="dot" aria-hidden="true"></span><span>Conectar Smart Life</span></div>
+        </header>
+
+        <form id="login-form" class="login">
+          <p class="lead">
+            O TuyaBar usa sua conta só para buscar nomes e chaves dos dispositivos. Depois disso o controle é
+            direto pela sua rede.
+          </p>
+          <ol class="steps">
+            <li>Abra o app <b>Smart Life</b></li>
+            <li><b>Eu</b> → ⚙ <b>Configurações</b> → <b>Conta e segurança</b></li>
+            <li>Copie o <b>Código de usuário</b></li>
+          </ol>
+          <label class="field">
+            <span>Código de usuário</span>
+            <input id="user-code" autocomplete="off" spellcheck="false" placeholder="ex.: Ab12Cd" required />
+          </label>
+          <button class="pill wide" type="submit" id="qr-btn">Gerar QR code</button>
+          <button class="link" type="button" id="skip">Agora não — só procurar na rede</button>
+        </form>
+
+        <div id="qr-step" class="qr-step" hidden>
+          <div id="qr" class="qr" aria-label="QR code de login"></div>
+          <p class="lead center">
+            No Smart Life, toque no ícone de <b>escanear</b> (canto superior direito da tela inicial) e confirme.
+          </p>
+          <p class="muted center" id="qr-timer"></p>
+          <button class="link" type="button" id="qr-cancel">Cancelar</button>
         </div>
-        <button id="scan" class="pill" type="button">Procurar</button>
-      </header>
 
-      <ul id="list" class="list" aria-live="polite"></ul>
+        <p id="login-error" class="error" hidden></p>
+      </section>
 
-      <div id="empty" class="empty">
-        <p class="big">Nada por aqui ainda</p>
-        <p>Clique em <b>Procurar</b> para escutar os anúncios Tuya na sua rede.</p>
-      </div>
+      <!-- ======== dispositivos ======== -->
+      <section class="view" data-for="devices">
+        <header data-tiny-drag>
+          <div class="brand"><span class="dot" aria-hidden="true"></span><span>Dispositivos</span></div>
+          <div class="actions">
+            <button id="sync" class="icon" type="button" title="Sincronizar com a nuvem" hidden>↻</button>
+            <button id="scan" class="pill" type="button">Procurar</button>
+          </div>
+        </header>
+
+        <ul id="list" class="list" aria-live="polite"></ul>
+
+        <div id="empty" class="empty">
+          <p class="big">Nada por aqui ainda</p>
+          <p>Clique em <b>Procurar</b> para escutar os anúncios Tuya na sua rede.</p>
+        </div>
+
+        <button id="connect" class="banner" type="button" hidden>
+          <b>Conecte sua conta Smart Life</b>
+          <span>para ver nomes e liberar o controle local</span>
+        </button>
+      </section>
 
       <footer>
-        <span id="status" class="status">Pronto</span>
-        <button id="quit" class="ghost" type="button" title="Sair">Sair</button>
+        <span id="status" class="status">Carregando…</span>
+        <span class="footer-actions">
+          <button id="logout" class="ghost" type="button" hidden title="">Sair da conta</button>
+          <button id="quit" class="ghost" type="button" title="Fechar o TuyaBar">Fechar</button>
+        </span>
       </footer>
     </main>
     <script src="app.js"></script>

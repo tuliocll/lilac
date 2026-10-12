@@ -12,7 +12,9 @@
     "test": "tsx --test packages/tuya-core/test/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "discover": "tsx apps/cli/src/discover.ts",
-    "fake-device": "tsx apps/cli/src/fake-device.ts"
+    "fake-device": "tsx apps/cli/src/fake-device.ts",
+    "login": "tsx apps/cli/src/login.ts",
+    "devices": "tsx apps/cli/src/devices.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

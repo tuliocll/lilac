@@ -3,7 +3,8 @@
 Controle **local** de dispositivos Tuya (Smart Life) direto da barra de menu / bandeja do sistema —
 sem Home Assistant, sem depender da nuvem para o dia a dia.
 
-> Status: **spike**. Hoje ele só *descobre* dispositivos na LAN. Controle (local key + comandos) vem a seguir.
+> Status: **spike**. Descobre dispositivos na LAN e faz login no Smart Life por QR para obter nomes, categorias,
+> local keys e mapa de DPs. O controle local (TCP 6668) vem a seguir.
 
 ## Estrutura
 
@@ -31,6 +32,16 @@ npm run discover          # escuta a rede por 10s e lista os dispositivos Tuya
 npm run discover -- 20 -v # 20s, mostrando também datagramas não reconhecidos
 ```
 
+Login no Smart Life (para nomes, local keys e DPs):
+
+```bash
+npm run login             # pede o "código de usuário" e mostra um QR no terminal
+npm run devices           # cruza conta x rede; --keys mostra as local keys, --dps o mapa de DPs
+```
+
+O código de usuário fica no app Smart Life: **Eu → ⚙ Configurações → Conta e segurança → Código de usuário**.
+A CLI guarda a sessão em `~/.tuyabar/` (só para desenvolvimento); o app de bandeja usa o cofre do sistema.
+
 Sem dispositivo por perto? Em outro terminal:
 
 ```bash
@@ -55,16 +66,27 @@ O backend (`src/main.ts`) é empacotado com esbuild pelo próprio tinyjs, puxand
 
 - [x] Frames 55AA e 6699, CRC32, AES-ECB/GCM com `@noble/*` (JS puro)
 - [x] Descoberta v3.1 / v3.3 / v3.5 em Node (testado com `fake-device`)
-- [ ] `npm run discover` encontra os dispositivos **reais** da casa
-- [ ] UDP no txiki.js do tinyjs: qual API ele expõe (`UDPSocket` ou `tjs.listen`), bind em 6666/6667/7000 e recepção de broadcast — no Windows, macOS e Linux
-- [ ] Bandeja abre o painel posicionado sob o ícone (Windows: barra embaixo)
+- [x] `npm run discover` encontra os dispositivos reais da casa
+- [x] UDP no txiki.js do tinyjs recebe broadcast (Windows)
+- [x] Bandeja abre o painel posicionado junto ao ícone (Windows)
+- [x] Assinatura/criptografia da API Smart Life idênticas ao SDK oficial (vetores de teste gerados com ele)
+- [ ] Login por QR e inventário com uma conta real
+- [ ] `fetch` do txiki falando com `apigw.iotbing.com` e o endpoint regional
+- [ ] `tiny.app.secrets` guardando sessão e local keys no Windows (Credential Manager)
 
 ## Próximos passos
 
-1. **Login por QR** (fluxo do app Smart Life, o mesmo do HA oficial) → lista de dispositivos + local keys
-2. Conexão TCP 6668: handshake de sessão v3.4/v3.5, leitura/escrita de DPs
-3. Modelo de capabilities (switch, light, climate, sensor…) a partir da categoria/DPs
-4. UI de verdade (React) com cards por capability
+1. Conexão TCP 6668: handshake de sessão v3.4/v3.5, leitura/escrita de DPs
+2. Modelo de capabilities (switch, light, climate, sensor…) a partir da categoria/DPs
+3. UI de verdade (React) com cards por capability
+
+## Login Smart Life e o `clientId`
+
+O login por QR usa a mesma API da integração oficial Tuya do Home Assistant (porta em TS do
+[tuya-device-sharing-sdk](https://github.com/tuya/tuya-device-sharing-sdk), MIT). Essa API exige um
+`clientId`/`schema` de app parceiro registrado na Tuya. Por ora usamos o do Home Assistant
+(`packages/tuya-core/src/cloud/app-credentials.ts`), o que serve para testar com a própria conta.
+**Antes de publicar, é preciso obter credenciais próprias junto à Tuya.**
 
 ## Notas do protocolo
 

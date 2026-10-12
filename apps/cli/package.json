@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@tuyabar/core": "0.0.1",
-    "@tuyabar/transport-node": "0.0.1"
+    "@tuyabar/transport-node": "0.0.1",
+    "qrcode-generator": "^2.0.4"
   }
 }
