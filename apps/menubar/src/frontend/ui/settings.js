@@ -100,8 +100,7 @@
   $('hotkey').addEventListener('click', async () => {
     const enable = !(await hotkeyEnabled());
     await tiny.store.set('hotkey', enable).catch(() => {});
-    await TuyaBar.panel.setHotkey(enable); // na janela expandida não faz nada…
-    tiny.api.call('prefsChanged', { kind: 'hotkey' }).catch(() => {}); // …e o painel aplica por este aviso
+    await TuyaBar.panel.setHotkey(enable);
     renderHotkey();
   });
 
@@ -167,11 +166,5 @@
     renderHotkey();
   });
 
-  /** Conta já conhecida (janela que abriu depois do login). */
-  function setAccount(value) {
-    account = value;
-    renderAccount();
-  }
-
-  TuyaBar.settings = { open, loadUserThemes, renderAccount, renderHotkey, hotkeyEnabled, setAccount };
+  TuyaBar.settings = { loadUserThemes, renderAccount, hotkeyEnabled };
 })();

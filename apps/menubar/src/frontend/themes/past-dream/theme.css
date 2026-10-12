@@ -168,20 +168,6 @@
   --art-size: 84px;
 
   color-scheme: light;
-
-  /* janela expandida */
-  --shell-bg: var(--desktop-bg);
-  --sidebar-width: 200px;
-  --sidebar-padding: 12px 8px;
-  --sidebar-bg: var(--lilac);
-  --sidebar-border: 2px solid var(--ink);
-  --side-item-fg: var(--ink);
-  --side-item-radius: 3px;
-  --side-item-active-bg: var(--cream);
-  --side-item-active-fg: var(--ink);
-  --side-item-active-ring: inset 0 0 0 2px var(--ink), 2px 2px 0 var(--ink);
-  --detail-width: 380px;
-  --detail-border: 2px solid var(--ink);
 }
 
 /* ---- detalhes que vão além de tokens ---- */

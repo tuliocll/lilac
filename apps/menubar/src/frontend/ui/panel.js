@@ -1,16 +1,13 @@
 // A janela como popover da bandeja: abre colada ao ícone, some ao perder o
-// foco, atalho global opcional. Na janela expandida (config.shell === 'window')
-// é só uma janela comum: não some, não se posiciona e não registra atalho.
+// foco, atalho global opcional.
 (() => {
   const { config } = TuyaBar;
-  const isPanel = config.shell === 'panel';
   const { width: W, height: H } = config.panel;
 
   /** Algo na tela precisa que o painel continue aberto (ex.: QR do login). */
   const keepOpenReasons = new Set();
 
   async function open() {
-    if (!isPanel) return tiny.win.show();
     try {
       const icon = await tiny.tray.position();
       if (!icon) throw new Error('sem posição da bandeja');
@@ -36,7 +33,6 @@
   // ---- atalho global
 
   async function setHotkey(enabled) {
-    if (!isPanel) return false; // o atalho é do painel; a janela avisa o painel (ver settings.js)
     try {
       if (enabled) await tiny.hotkey.register('open-panel', config.hotkey);
       else await tiny.hotkey.unregister('open-panel');
@@ -46,16 +42,10 @@
       return false;
     }
   }
-  if (isPanel) {
-    tiny.hotkey.on((id) => id === 'open-panel' && open());
-    window.addEventListener('blur', () => keepOpenReasons.size === 0 && hide());
-  }
-  // Esc: no painel, esconde; na janela, fecha o aparelho aberto ao lado da lista
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (isPanel) hide();
-    else if (TuyaBar.nav.current() === 'device') TuyaBar.nav.back();
-  });
+  tiny.hotkey.on((id) => id === 'open-panel' && open());
+
+  window.addEventListener('blur', () => keepOpenReasons.size === 0 && hide());
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && hide());
   for (const b of document.querySelectorAll('[data-action="hide"]')) b.addEventListener('click', hide);
 
   TuyaBar.panel = { open, hide, keepOpen, setHotkey, size: { W, H } };

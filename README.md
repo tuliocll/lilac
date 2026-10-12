@@ -37,7 +37,6 @@
   under “Advanced”, with a control inferred from their type.
 - 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was) and *High Contrast*.
   Community themes can be dropped into a folder — no rebuild.
-- 🪟 **Expanded window** (tray menu or the ⤢ button): resizable, with a sidebar and the device page side by side with the list.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 

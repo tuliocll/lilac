@@ -55,8 +55,3 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
 
 - [ ] **Separar `backend/control.ts`** (sessões × escolha de rota) — fazer junto com o fallback para a nuvem.
 - [ ] **Traduções em JSON por idioma** (hoje `ui/i18n.js` tem tudo num arquivo só).
-
-## Feito
-
-- [x] Janela expandida (redimensionável, menu lateral, lista + detalhe lado a lado) — espaço para
-      cenas, automações e o que vier.

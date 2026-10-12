@@ -48,12 +48,6 @@
   async function select(id) {
     apply(id);
     await tiny.store.set('theme', id).catch(() => {});
-    tiny.api.call('prefsChanged', { kind: 'theme' }).catch(() => {});
-  }
-
-  /** Outra janela trocou o tema: relê do store. */
-  async function reload() {
-    apply((await saved()) || DEFAULT);
   }
 
   /** Temas da pasta do usuário: ficam disponíveis e, se um deles era o escolhido, é aplicado. */
@@ -66,7 +60,6 @@
   TuyaBar.themes = {
     init,
     select,
-    reload,
     addUserThemes,
     list: () => [...themes.values()],
     current: () => current,

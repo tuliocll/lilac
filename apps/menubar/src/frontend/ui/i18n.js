@@ -27,13 +27,6 @@ TuyaBar.i18n = (() => {
       'action.send': 'Enviar',
       'action.layoutGrid': 'Ver em grade',
       'action.layoutList': 'Ver em lista',
-      'action.openWindow': 'Abrir em janela',
-      'device.close': 'Fechar',
-      'side.label': 'Navegação',
-      'side.scenes': 'Cenas',
-      'side.automations': 'Automações',
-      'side.soon': 'em breve',
-      'tray.window': 'Abrir janela',
 
       'ob.1.title': 'Sua casa na barra de tarefas',
       'ob.1.body': 'Ligue luzes, tomadas e o ar-condicionado Tuya/Smart Life direto daqui — conversando com os aparelhos <b>pela sua rede</b>, sem esperar a nuvem.',
@@ -180,13 +173,6 @@ TuyaBar.i18n = (() => {
       'action.send': 'Send',
       'action.layoutGrid': 'Grid view',
       'action.layoutList': 'List view',
-      'action.openWindow': 'Open in a window',
-      'device.close': 'Close',
-      'side.label': 'Navigation',
-      'side.scenes': 'Scenes',
-      'side.automations': 'Automations',
-      'side.soon': 'soon',
-      'tray.window': 'Open window',
 
       'ob.1.title': 'Your home in the menu bar',
       'ob.1.body': 'Switch Tuya/Smart Life lights, plugs and air conditioners right from here — talking to them <b>over your own network</b>, no cloud round-trip.',
@@ -359,24 +345,14 @@ TuyaBar.i18n = (() => {
     apply();
   }
 
-  function use(pref) {
+  async function set(pref) {
     preference = pref;
     lang = pref === 'auto' ? detect() : pref;
-    apply();
-    for (const l of listeners) l(lang);
-  }
-
-  async function set(pref) {
     try {
       await tiny.store.set('language', pref);
     } catch {}
-    use(pref);
-    tiny.api.call('prefsChanged', { kind: 'language' }).catch(() => {});
-  }
-
-  /** Outra janela trocou o idioma: relê do store. */
-  async function reload() {
-    use((await tiny.store.get('language').catch(() => null)) || 'auto');
+    apply();
+    for (const l of listeners) l(lang);
   }
 
   return {
@@ -387,7 +363,6 @@ TuyaBar.i18n = (() => {
     apply,
     init,
     set,
-    reload,
     lang: () => lang,
     preference: () => preference,
     onChange: (fn) => listeners.push(fn),
