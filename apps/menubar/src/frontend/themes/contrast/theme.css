@@ -1,0 +1,161 @@
+/*
+ * Alto Contraste — preto, branco e amarelo. Bordas grossas, nada de
+ * transparência nem sombra difusa: tudo legível em qualquer luz.
+ */
+[data-theme="contrast"] {
+  --ink: #000000;
+  --paper: #ffffff;
+  --signal: #ffe600;
+  --go: #00e676;
+  --stop: #ff5252;
+
+  --font-ui: "Segoe UI", -apple-system, system-ui, sans-serif;
+  --font-display: var(--font-ui);
+  --font-size: 14px;
+  --title-size: 16px;
+  --title-weight: 800;
+
+  --desktop-bg: var(--ink);
+  --window-margin: 0px;
+  --window-bg: var(--ink);
+  --window-fg: var(--paper);
+  --window-border: 3px solid var(--paper);
+  --window-radius: 0px;
+  --window-shadow: none;
+  --window-areas: "title tools" "body body" "status status";
+  --window-columns: minmax(0, 1fr) auto;
+  --window-rows: auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: var(--ink);
+  --titlebar-fg: var(--paper);
+  --titlebar-border: 0;
+  --titlebar-padding: 12px 6px 6px 12px;
+  --wc-display: none;
+  --wc-bg: var(--ink);
+  --wc-fg: var(--paper);
+  --wc-border: 2px solid var(--paper);
+  --wc-radius: 0px;
+  --dot-display: block;
+  --dot-idle: var(--paper);
+  --dot-busy: var(--signal);
+
+  --toolbar-bg: var(--ink);
+  --toolbar-border: 0;
+  --toolbar-padding: 12px 12px 6px 0;
+
+  --body-padding: 6px 12px 4px;
+  --gap: 12px;
+  --muted: var(--paper);
+  --accent: var(--signal);
+  --accent-fg: var(--ink);
+  --link: var(--signal);
+
+  --surface-bg: var(--ink);
+  --surface-hover: #1a1a1a;
+  --surface-border: 2px solid var(--paper);
+  --surface-radius: 0px;
+  --surface-shadow: none;
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0px;
+  --list-padding: 0;
+  --list-gap: 8px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: var(--ink);
+  --btn-fg: var(--paper);
+  --btn-border: 2px solid var(--paper);
+  --btn-radius: 0px;
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --btn-press-offset: translate(1px, 1px);
+  --btn-hover-bg: #1a1a1a;
+  --btn-primary-bg: var(--signal);
+  --btn-primary-fg: var(--ink);
+
+  --input-bg: var(--ink);
+  --input-fg: var(--paper);
+  --input-border: 2px solid var(--paper);
+  --input-radius: 0px;
+  --focus-ring: 3px solid var(--signal);
+
+  --badge-bg: var(--ink);
+  --badge-fg: var(--paper);
+  --badge-border: 2px solid var(--paper);
+  --badge-radius: 0px;
+  --ok-bg: var(--go);
+  --ok-fg: var(--ink);
+  --warn-bg: var(--signal);
+  --warn-fg: var(--ink);
+  --warn-text: var(--signal);
+  --err-fg: var(--stop);
+
+  --icon-tile-size: 32px;
+  --icon-tile-border: 2px solid var(--paper);
+  --icon-tile-radius: 0px;
+  --icon-fg: var(--paper);
+
+  --tone-sun: var(--ink);
+  --tone-sky: var(--ink);
+  --tone-mint: var(--ink);
+  --tone-peach: var(--ink);
+  --tone-lilac: var(--ink);
+  --tone-pink: var(--ink);
+  --tone-neutral: var(--ink);
+
+  --toggle-w: 44px;
+  --toggle-h: 24px;
+  --toggle-radius: 0px;
+  --toggle-border: 2px solid var(--paper);
+  --toggle-track: var(--ink);
+  --toggle-track-on: var(--signal);
+  --toggle-thumb: var(--paper);
+
+  --slider-h: 32px;
+  --slider-radius: 0px;
+  --slider-border: 2px solid var(--paper);
+  --slider-track: var(--ink);
+  --slider-fill: linear-gradient(var(--signal), var(--signal));
+  --slider-thumb: var(--paper);
+  --slider-thumb-w: 12px;
+  --slider-thumb-h: 32px;
+  --slider-thumb-radius: 0px;
+  --slider-thumb-border: 2px solid var(--ink);
+
+  --power-size: 116px;
+  --power-bg: var(--ink);
+  --power-fg: var(--paper);
+  --power-on-bg: var(--signal);
+  --power-on-fg: var(--ink);
+  --power-border: 3px solid var(--paper);
+  --power-shadow: none;
+  --power-on-shadow: none;
+
+  --hero-font: var(--font-ui);
+  --hero-size: 56px;
+  --chip-min-h: 76px;
+  --step-dot: var(--ink);
+  --step-dot-active: var(--signal);
+  --art-size: 84px;
+
+  --statusbar-bg: var(--ink);
+  --statusbar-fg: var(--paper);
+  --statusbar-border: 0;
+  --statusbar-padding: 8px 12px 12px;
+
+  --scrollbar-size: 12px;
+  --scrollbar-thumb: var(--paper);
+  --scrollbar-track: var(--ink);
+  --scrollbar-border: 2px solid var(--ink);
+
+  --qr-frame: var(--paper);
+  --swatch-border: 2px solid var(--paper);
+
+  color-scheme: dark;
+}
+
+/* sublinha os links e marca o foco com força: ninguém se perde */
+[data-theme="contrast"] .btn-link { text-decoration-thickness: 2px; }
+[data-theme="contrast"] .device:hover,
+[data-theme="contrast"] .chip:hover { outline: 2px solid var(--signal); outline-offset: -4px; }

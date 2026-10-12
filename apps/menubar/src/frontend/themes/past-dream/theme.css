@@ -98,6 +98,7 @@
   --ok-fg: var(--ink);
   --warn-bg: var(--sun);
   --warn-fg: var(--ink);
+  --warn-text: #a4470b;
   --err-fg: #d6336c;
 
   --icon-tile-size: 34px;

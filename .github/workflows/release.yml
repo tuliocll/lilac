@@ -1,0 +1,92 @@
+# Builds do app de bandeja para Windows, macOS e Linux quando uma tag v* é criada.
+# O tinyjs só compila para o sistema em que roda, por isso a matriz.
+# Os builds saem SEM assinatura (Windows SmartScreen e Gatekeeper do macOS vão reclamar);
+# para assinar, configure TINYJS_SIGN_IDENTITY e o perfil do notarytool nos secrets.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: macos-latest
+            name: macos
+          - os: ubuntu-22.04
+            name: linux
+    runs-on: ${{ matrix.os }}
+    env:
+      TINYJS_HOME: ${{ github.workspace }}/.tinyjs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Dependências do webview (Linux)
+        if: matrix.name == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0
+
+      - name: Instala o tinyjs (macOS/Linux)
+        if: matrix.name != 'windows'
+        run: |
+          curl -fsSL https://tinyjs.app/install | sh
+          echo "$TINYJS_HOME" >> "$GITHUB_PATH"
+          echo "$TINYJS_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Instala o tinyjs (Windows)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          irm https://tinyjs.app/install.ps1 | iex
+          "$env:TINYJS_HOME" | Out-File -FilePath $env:GITHUB_PATH -Append
+          "$env:TINYJS_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Build
+        working-directory: apps/menubar
+        shell: bash
+        run: |
+          if [ "${{ matrix.name }}" = "macos" ]; then tinyjs build --universal --dmg; else tinyjs build; fi
+
+      - name: Empacota
+        working-directory: apps/menubar
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          case "${{ matrix.name }}" in
+            macos)   cp dist/*.dmg "../../TuyaBar-$VERSION-macos.dmg" ;;
+            windows) (cd dist && 7z a "../../../TuyaBar-$VERSION-windows.zip" . -x!*.dmg) ;;
+            linux)   tar -czf "../../TuyaBar-$VERSION-linux-x86_64.tar.gz" -C dist . ;;
+          esac
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tuyabar-${{ matrix.name }}
+          path: TuyaBar-*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Publica a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "TuyaBar $GITHUB_REF_NAME" --generate-notes --prerelease

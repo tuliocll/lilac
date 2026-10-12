@@ -6,7 +6,7 @@
 
 <img src="docs/screenshots/moonlight-switch.png" width="230" alt="Tema Moonlight — disjuntor" />
 <img src="docs/screenshots/past-dream-onboarding.png" width="230" alt="Tema Past Dream — boas-vindas" />
-<img src="docs/screenshots/past-dream-climate.png" width="230" alt="Tema Past Dream — ar-condicionado" />
+<img src="docs/screenshots/past-dream-light.png" width="230" alt="Tema Past Dream — lâmpada colorida" />
 
 <sub>Telas renderizadas com dados de exemplo. 🇺🇸 <a href="README.md">Read in English</a></sub>
 
@@ -27,10 +27,15 @@
 - 📱 **Login no Smart Life por QR code** (o mesmo fluxo da integração oficial do Home Assistant) para buscar nomes, categorias,
   mapas de DPs e as **local keys**.
 - 🏠 **Controla os aparelhos localmente** (TCP 6668) — depois de buscar as chaves, funciona até sem internet.
+- ☁️ **Usa a nuvem quando a rede local não alcança** (sub-dispositivos de gateway, ares por infravermelho, protocolos ainda não
+  suportados), sempre marcado como “via nuvem”.
+- ⭐ **Favoritos no menu da bandeja**: liga a luz sem nem abrir o painel. Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>)
+  e abrir com o sistema.
+- 🔑 **Sem conta? Importe as chaves** do `devices.json` do tinytuya.
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
   energia e leituras de consumo, a lâmpada ganha brilho e tom de branco… DPs que o perfil não conhece aparecem em “Avançado”.
-- 🎨 **Temas**: *Moonlight* (escuro, discreto) e *Past Dream* (um sistema de 1996 que nunca existiu). Temas da comunidade
-  entram por uma pasta, sem recompilar.
+- 🎨 **Temas**: *Moonlight* (escuro, discreto), *Past Dream* (um sistema de 1996 que nunca existiu) e *Alto Contraste*.
+  Temas da comunidade entram por uma pasta, sem recompilar.
 - 🌍 **Idiomas**: português e inglês, trocáveis nas configurações.
 
 ## O que funciona (tabela honesta)
@@ -39,13 +44,12 @@
 |---|---|
 | Descoberta na LAN (protocolos 3.1 → 3.5) | ✅ testado com aparelhos reais |
 | Login por QR + inventário | ✅ testado com conta real |
-| Controle local, protocolo **3.3** | 🧪 testado contra um simulador validado com o tinytuya; teste em aparelho real em andamento |
-| Controle local, protocolo **3.4** (chave de sessão + HMAC) | 🧪 idem |
-| Controle 3.5 / 3.1 | ❌ ainda não (o 3.5 é descoberto, não controlado) |
-| Sub-dispositivos Zigbee/BLE atrás de gateway Tuya | ❌ aparecem como “via gateway”, só estado da nuvem |
-| Controles infravermelho (e os ares/TVs que eles comandam) | ❌ listados, sem controle ainda |
+| Controle local, protocolos **3.3** e **3.4** (chave de sessão + HMAC) | 🧪 testado contra um simulador validado com o tinytuya; teste em aparelho real em andamento |
+| Controle pela nuvem (sub-dispositivos, ares por IR, protocolo 3.5) | 🧪 mesma API da integração Tuya do Home Assistant; sem teste com aparelho real. Códigos de ar por IR variam — os desconhecidos aparecem em “Avançado” |
+| Controle local 3.5 / 3.1 | ❌ ainda não (vai pela nuvem quando há conta) |
+| Sub-dispositivos Zigbee/BLE *localmente* via gateway | ❌ só pela nuvem por enquanto |
 | Sensores a bateria | ⚠️ dormem; valores vêm da nuvem e podem estar velhos |
-| Lâmpadas coloridas (`colour_data`) | ❌ só branco/brilho por enquanto |
+| Lâmpadas coloridas (`colour_data_v2`, `colour_data`) | 🧪 seletor de matiz + saturação |
 
 ## Sistemas operacionais
 
@@ -89,7 +93,7 @@ O **código de usuário** fica no Smart Life em **Eu → ⚙ Configurações →
   veja [o README de lá](packages/gadgets/gadgets/README.md). Sem código.
 - **Novo tema**: [THEMING.md](apps/menubar/THEMING.md). Toda mudança de interface precisa funcionar em todos os temas e idiomas —
   os testes de contrato garantem.
-- **Novo idioma**: copie o bloco `en` em `apps/menubar/src/frontend/i18n.js`.
+- **Novo idioma**: copie o bloco `en` em `apps/menubar/src/frontend/ui/i18n.js`.
 
 ## Privacidade e segurança
 

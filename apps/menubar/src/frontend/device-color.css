@@ -1,0 +1,13 @@
+/*
+ * Cores que vêm do APARELHO, não do tema: a cor escolhida para uma lâmpada
+ * e o espectro de matizes. Por isso ficam fora de base.css (que só usa tokens).
+ */
+.color-swatch {
+  background: hsl(var(--hue, 0) calc(var(--sat, 1) * 100%) 50%);
+}
+.range.hue {
+  background: linear-gradient(90deg, hsl(0 100% 50%), hsl(60 100% 50%), hsl(120 100% 50%), hsl(180 100% 50%), hsl(240 100% 50%), hsl(300 100% 50%), hsl(360 100% 50%));
+}
+.range.saturation {
+  background: linear-gradient(90deg, hsl(var(--hue, 0) 0% 50%), hsl(var(--hue, 0) 100% 50%));
+}

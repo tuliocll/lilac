@@ -84,6 +84,7 @@
   --ok-fg: #7bd389;
   --warn-bg: #3a3326;
   --warn-fg: #f0b35a;
+  --warn-text: #f0b35a;
   --err-fg: #ff7a7a;
 
   --icon-tile-size: 32px;

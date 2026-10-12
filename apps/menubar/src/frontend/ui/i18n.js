@@ -1,10 +1,10 @@
-// Idiomas do TuyaBar. Para adicionar um: copie o bloco "en", traduza e
-// inclua em LANGS. O teste de i18n garante que todos têm as mesmas chaves.
+// Idiomas do TuyaBar. Para adicionar um: copie o bloco "en" e traduza.
+// O teste de i18n garante que todos os idiomas têm as mesmas chaves.
 //
 // No HTML: data-i18n="chave" (texto), data-i18n-html (texto com <b>),
 // data-i18n-placeholder, data-i18n-title, data-i18n-aria.
 
-window.I18N = (() => {
+TuyaBar.i18n = (() => {
   const DICT = {
     'pt-BR': {
       'lang.name': 'Português (Brasil)',
@@ -60,7 +60,6 @@ window.I18N = (() => {
       'devices.connect.title': 'Conecte sua conta Smart Life',
       'devices.connect.body': 'para ver nomes e liberar o controle local',
       'badge.local': 'local · v{version}',
-      'badge.experimental': 'v{version} · experimental',
       'badge.nokey': 'sem chave',
       'badge.sub': 'via gateway',
       'badge.away': 'fora da rede',
@@ -70,8 +69,8 @@ window.I18N = (() => {
       'device.on': 'Ligado',
       'device.off': 'Desligado',
       'device.advanced': 'Avançado',
-      'device.reason.offline': 'Este aparelho não está anunciando na rede agora. Mostrando o último estado conhecido da nuvem.',
-      'device.reason.sub': 'Este aparelho fala por um gateway/controle IR. Controle via gateway ainda não é suportado — mostrando o estado da nuvem.',
+      'device.reason.offline': 'Este aparelho não está anunciando na rede agora. Mostrando o último estado conhecido.',
+      'device.reason.sub': 'Este aparelho fala por um gateway ou controle IR. Conecte a conta Smart Life para controlá-lo pela nuvem.',
       'device.reason.nokey': 'Sem local key para este aparelho. Sincronize com a nuvem (↻) ou reconecte a conta.',
       'device.reason.version': 'Protocolo v{version} ainda não é suportado no controle local.',
       'device.reason.error': 'Não consegui falar com o aparelho: {error}',
@@ -105,9 +104,7 @@ window.I18N = (() => {
       'about.disclaimer': 'Projeto independente, sem vínculo com a Tuya. Smart Life e Tuya são marcas de seus donos.',
 
       'status.loading': 'Carregando…',
-      'status.scanning': 'Escutando a rede por {s}s…',
       'status.foundLocal': '{count} dispositivo(s) na rede',
-      'status.noneLocal': 'Nenhum dispositivo respondeu na rede',
       'status.inAccount': '{count} dispositivo(s) na conta',
       'status.cloudError': 'Nuvem: {error}',
       'status.waitingApp': 'Aguardando confirmação no app…',
@@ -115,6 +112,35 @@ window.I18N = (() => {
       'status.connectedAs': 'Conectado como {user}',
       'status.loggedOut': 'Conta desconectada',
       'status.vaultError': 'Não consegui salvar no cofre do sistema',
+      'badge.cloud': 'via nuvem',
+      'badge.unsupported': 'v{version} · sem suporte',
+      'badge.stranger': 'v{version} · fora da conta',
+      'device.favorite.add': 'Adicionar aos favoritos',
+      'device.favorite.remove': 'Remover dos favoritos',
+      'device.cloud': 'Controlando pela nuvem: {why}.',
+      'device.why.offline': 'o aparelho não está anunciando na rede',
+      'device.why.sub': 'ele fala por um gateway ou controle IR',
+      'device.why.nokey': 'falta a local key',
+      'device.why.version': 'o protocolo v{version} ainda não tem controle local',
+      'device.why.error': 'a rede local falhou ({error})',
+      'device.reason.auth': 'A local key não confere — o aparelho provavelmente foi pareado de novo.',
+      'device.resync': 'Re-sincronizar com a nuvem',
+      'device.reconnecting': 'Conexão perdida, tentando de novo…',
+      'device.reconnected': 'Reconectado',
+      'control.hue': 'Matiz',
+      'control.saturation': 'Saturação',
+      'settings.behavior': 'Comportamento',
+      'settings.startup': 'Abrir com o sistema',
+      'settings.startup.unsupported': 'Disponível no app instalado',
+      'settings.hotkey': 'Atalho {keys} abre o painel',
+      'settings.importKeys': 'Importar chaves (tinytuya)',
+      'settings.imported': '{count} aparelho(s) importado(s)',
+      'settings.importError': 'Não consegui importar: {error}',
+      'tray.open': 'Abrir painel',
+      'tray.scan': 'Procurar aparelhos',
+      'tray.quit': 'Sair',
+      'tray.favorites': 'Favoritos',
+      'status.searching': 'Procurando aparelhos na rede…',
     },
 
     en: {
@@ -171,7 +197,6 @@ window.I18N = (() => {
       'devices.connect.title': 'Connect your Smart Life account',
       'devices.connect.body': 'to see names and unlock local control',
       'badge.local': 'local · v{version}',
-      'badge.experimental': 'v{version} · experimental',
       'badge.nokey': 'no key',
       'badge.sub': 'via gateway',
       'badge.away': 'not on network',
@@ -181,8 +206,8 @@ window.I18N = (() => {
       'device.on': 'On',
       'device.off': 'Off',
       'device.advanced': 'Advanced',
-      'device.reason.offline': 'This device isn’t announcing on the network right now. Showing the last state known by the cloud.',
-      'device.reason.sub': 'This device talks through a gateway/IR blaster. Control through gateways isn’t supported yet — showing the cloud state.',
+      'device.reason.offline': 'This device isn’t announcing on the network right now. Showing the last known state.',
+      'device.reason.sub': 'This device talks through a gateway or IR blaster. Connect your Smart Life account to control it through the cloud.',
       'device.reason.nokey': 'No local key for this device. Sync with the cloud (↻) or reconnect your account.',
       'device.reason.version': 'Protocol v{version} isn’t supported for local control yet.',
       'device.reason.error': 'Couldn’t reach the device: {error}',
@@ -216,9 +241,7 @@ window.I18N = (() => {
       'about.disclaimer': 'Independent project, not affiliated with Tuya. Smart Life and Tuya are trademarks of their owners.',
 
       'status.loading': 'Loading…',
-      'status.scanning': 'Listening to the network for {s}s…',
       'status.foundLocal': '{count} device(s) on the network',
-      'status.noneLocal': 'No device answered on the network',
       'status.inAccount': '{count} device(s) in your account',
       'status.cloudError': 'Cloud: {error}',
       'status.waitingApp': 'Waiting for confirmation in the app…',
@@ -226,6 +249,35 @@ window.I18N = (() => {
       'status.connectedAs': 'Connected as {user}',
       'status.loggedOut': 'Signed out',
       'status.vaultError': 'Couldn’t save to the system vault',
+      'badge.cloud': 'via cloud',
+      'badge.unsupported': 'v{version} · unsupported',
+      'badge.stranger': 'v{version} · not in account',
+      'device.favorite.add': 'Add to favorites',
+      'device.favorite.remove': 'Remove from favorites',
+      'device.cloud': 'Controlling through the cloud: {why}.',
+      'device.why.offline': 'the device isn’t announcing on the network',
+      'device.why.sub': 'it talks through a gateway or IR blaster',
+      'device.why.nokey': 'the local key is missing',
+      'device.why.version': 'protocol v{version} has no local control yet',
+      'device.why.error': 'the local network failed ({error})',
+      'device.reason.auth': 'The local key doesn’t match — the device was probably paired again.',
+      'device.resync': 'Re-sync with the cloud',
+      'device.reconnecting': 'Connection lost, retrying…',
+      'device.reconnected': 'Reconnected',
+      'control.hue': 'Hue',
+      'control.saturation': 'Saturation',
+      'settings.behavior': 'Behaviour',
+      'settings.startup': 'Open at login',
+      'settings.startup.unsupported': 'Available in the installed app',
+      'settings.hotkey': '{keys} opens the panel',
+      'settings.importKeys': 'Import keys (tinytuya)',
+      'settings.imported': '{count} device(s) imported',
+      'settings.importError': 'Import failed: {error}',
+      'tray.open': 'Open panel',
+      'tray.scan': 'Scan for devices',
+      'tray.quit': 'Quit',
+      'tray.favorites': 'Favorites',
+      'status.searching': 'Looking for devices on the network…',
     },
   };
 
@@ -293,12 +345,8 @@ window.I18N = (() => {
     apply,
     init,
     set,
-    get lang() {
-      return lang;
-    },
-    get preference() {
-      return preference;
-    },
+    lang: () => lang,
+    preference: () => preference,
     onChange: (fn) => listeners.push(fn),
   };
 })();

@@ -1,396 +1,313 @@
-// Componentes de controle e montagem da página do gadget.
-// Cada controle recebe um "ResolvedControl" (ver packages/gadgets) e devolve
-// { el, update(valor) }. Nenhum estilo aqui — só classes do base.css.
+// Controles da página do gadget. Cada fábrica recebe um controle resolvido
+// (ver packages/gadgets: ResolvedControl), o slot onde ele vai e `send(valor)`,
+// e devolve { el, update(valor) }. Sem estilo aqui — só classes do base.css.
+(() => {
+  const { h, button, glyph } = TuyaBar.dom;
+  const { t, pick } = TuyaBar.i18n;
 
-window.Controls = (() => {
-  const { t, pick } = I18N;
+  // ------------------------------------------------------------ formatação
 
-  // ------------------------------------------------------------ helpers
-
-  function h(tag, cls, text) {
-    const el = document.createElement(tag);
-    if (cls) el.className = cls;
-    if (text !== undefined) el.textContent = text;
-    return el;
-  }
-
-  function glyph(name) {
-    const i = h('i', 'glyph');
-    if (name) i.dataset.g = name;
-    return i;
-  }
-
+  /** Casas decimais a partir da escala do DP (scale 1 → 22,5). */
   function decimals(c) {
     if (c.scale > 0) return c.scale;
     const step = (c.step ?? 1) / 10 ** c.scale;
-    return step < 1 ? String(step).split('.')[1]?.length ?? 0 : 0;
+    return step < 1 ? (String(step).split('.')[1]?.length ?? 0) : 0;
   }
 
-  function fmtNumber(c, v) {
-    if (typeof v !== 'number') return v ?? '—';
-    return v.toLocaleString(I18N.lang, { minimumFractionDigits: decimals(c), maximumFractionDigits: decimals(c) });
+  function formatNumber(c, value) {
+    const digits = decimals(c);
+    return value.toLocaleString(TuyaBar.i18n.lang(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
 
-  function fmt(c, v) {
-    if (v === undefined || v === null) return '—';
-    if (typeof v === 'boolean') return t(v ? 'device.on' : 'device.off');
-    if (c.options) {
-      const o = c.options.find((x) => x.value === String(v));
-      if (o) return pick(o.label);
-    }
-    if (typeof v === 'number' && c.display === 'percent') {
-      const { min, max } = bounds(c);
-      return `${Math.round(((v - min) / (max - min || 1)) * 100)}%`;
-    }
-    if (typeof v === 'number') return `${fmtNumber(c, v)}${c.unit ? ` ${c.unit}` : ''}`;
-    return String(v);
-  }
-
-  /** limites na escala de tela */
+  /** Limites na escala de tela. */
   function bounds(c) {
-    const k = 10 ** c.scale;
-    const min = (c.min ?? 0) / k;
-    const max = (c.max ?? 100) / k;
-    const step = Math.max(c.step ?? 1, 1) / k;
-    return { min, max, step };
+    const factor = 10 ** c.scale;
+    return {
+      min: (c.min ?? 0) / factor,
+      max: (c.max ?? 100) / factor,
+      step: Math.max(c.step ?? 1, 1) / factor,
+    };
   }
 
-  function setFill(range) {
+  /** Valor pronto para ler: "22,5 °C", "Ligado", "Frio", "70%". */
+  function format(c, value) {
+    if (value === undefined || value === null) return '—';
+    if (typeof value === 'boolean') return t(value ? 'device.on' : 'device.off');
+    const option = c.options?.find((o) => o.value === String(value));
+    if (option) return pick(option.label);
+    if (typeof value === 'number' && c.display === 'percent') {
+      const { min, max } = bounds(c);
+      return `${Math.round(((value - min) / (max - min || 1)) * 100)}%`;
+    }
+    if (typeof value === 'number') return `${formatNumber(c, value)}${c.unit ? ` ${c.unit}` : ''}`;
+    return String(value);
+  }
+
+  // ------------------------------------------------------------ peças comuns
+
+  function paintFill(range) {
     const min = Number(range.min);
     const max = Number(range.max);
-    const p = max > min ? ((Number(range.value) - min) / (max - min)) * 100 : 0;
-    range.style.setProperty('--fill', `${p}%`);
+    const percent = max > min ? ((Number(range.value) - min) / (max - min)) * 100 : 0;
+    range.style.setProperty('--fill', `${percent}%`);
   }
 
-  function rangeInput(c, onChange, onInput) {
-    const { min, max, step } = bounds(c);
-    const r = h('input', 'range');
-    r.type = 'range';
-    r.min = String(min);
-    r.max = String(max);
-    r.step = String(step);
-    r.setAttribute('aria-label', pick(c.label));
-    r.addEventListener('input', () => {
-      setFill(r);
-      onInput?.(Number(r.value));
+  /** <input type=range>: `onInput` enquanto arrasta, `onCommit` ao soltar. */
+  function rangeInput(label, { min, max, step }, { onInput, onCommit, className = '' }) {
+    const range = h('input', `range ${className}`.trim());
+    Object.assign(range, { type: 'range', min: String(min), max: String(max), step: String(step) });
+    range.setAttribute('aria-label', label);
+    range.addEventListener('input', () => {
+      paintFill(range);
+      onInput?.(Number(range.value));
     });
-    r.addEventListener('change', () => onChange(Number(r.value)));
-    return r;
+    range.addEventListener('change', () => onCommit(Number(range.value)));
+    return range;
   }
 
-  // ------------------------------------------------------------ componentes
+  function roundButton(icon, label, onClick) {
+    const b = button('btn round');
+    b.append(glyph(icon));
+    b.setAttribute('aria-label', label);
+    b.addEventListener('click', onClick);
+    return b;
+  }
 
-  const make = {
+  /** Linha padrão: [ícone] rótulo … [conteúdo à direita] */
+  function row(c, ...right) {
+    const el = h('div', 'ctl-row ctl');
+    if (c.icon) el.append(glyph(c.icon));
+    el.append(h('span', 'label', pick(c.label)), ...right);
+    return el;
+  }
+
+  // ------------------------------------------------------------ fábricas
+
+  const factories = {
     power(c, slot, send) {
-      if (slot === 'header') {
-        const b = h('button', 'btn btn-icon ctl ctl-power-mini');
-        b.type = 'button';
-        b.title = pick(c.label);
-        b.append(glyph('power'));
-        let v = false;
-        b.addEventListener('click', () => send(!v));
-        return { el: b, update: (nv) => b.setAttribute('aria-pressed', String((v = Boolean(nv)))) };
-      }
-      const b = h('button', 'ctl ctl-power');
-      b.type = 'button';
+      let on = false;
+      const b = button(slot === 'header' ? 'btn btn-icon ctl ctl-power-mini' : 'ctl ctl-power');
       const state = h('span', 'state');
-      b.append(glyph('power'), state);
+      b.append(glyph('power'));
+      if (slot !== 'header') b.append(state);
       b.setAttribute('aria-label', pick(c.label));
-      let v = false;
-      b.addEventListener('click', () => send(!v));
+      b.addEventListener('click', () => send(!on));
       return {
         el: b,
-        update(nv) {
-          v = Boolean(nv);
-          b.setAttribute('aria-pressed', String(v));
-          state.textContent = t(v ? 'device.on' : 'device.off');
+        update(value) {
+          on = Boolean(value);
+          b.setAttribute('aria-pressed', String(on));
+          state.textContent = t(on ? 'device.on' : 'device.off');
         },
       };
     },
 
     toggle(c, slot, send) {
-      let v = false;
+      let on = false;
       if (slot === 'chips') {
-        const b = h('button', 'chip ctl');
-        b.type = 'button';
-        b.setAttribute('role', 'switch');
-        const val = h('span', 'value');
-        const dot = h('span', 'corner dot-state');
-        b.append(glyph(c.icon), dot, h('span', 'label', pick(c.label)), val);
-        b.addEventListener('click', () => send(!v));
+        const chip = button('chip ctl');
+        chip.setAttribute('role', 'switch');
+        const value = h('span', 'value');
+        chip.append(glyph(c.icon), h('span', 'corner dot-state'), h('span', 'label', pick(c.label)), value);
+        chip.addEventListener('click', () => send(!on));
         return {
-          el: b,
-          update(nv) {
-            v = Boolean(nv);
-            b.setAttribute('aria-checked', String(v));
-            val.textContent = t(v ? 'device.on' : 'device.off');
+          el: chip,
+          update(v) {
+            on = Boolean(v);
+            chip.setAttribute('aria-checked', String(on));
+            value.textContent = t(on ? 'device.on' : 'device.off');
           },
         };
       }
-      const row = h('div', 'ctl-row ctl');
-      if (c.icon) row.append(glyph(c.icon));
-      const sw = h('button', 'switch');
-      sw.type = 'button';
+      const sw = button('switch');
       sw.setAttribute('role', 'switch');
       sw.setAttribute('aria-label', pick(c.label));
-      sw.addEventListener('click', () => send(!v));
-      row.append(h('span', 'label', pick(c.label)), sw);
-      return { el: row, update: (nv) => sw.setAttribute('aria-checked', String((v = Boolean(nv)))) };
+      sw.addEventListener('click', () => send(!on));
+      return { el: row(c, sw), update: (v) => sw.setAttribute('aria-checked', String((on = Boolean(v)))) };
     },
 
     setpoint(c, slot, send) {
-      const box = h('div', 'ctl ctl-setpoint');
+      const limits = bounds(c);
+      let current = limits.min;
+      const number = h('span', 'num');
       const big = h('div', 'sp-value');
-      const num = h('span', 'num');
-      const unit = h('span', 'unit', c.unit ?? '');
-      big.append(num, unit);
-      const { min, max, step } = bounds(c);
-      let v = min;
-      const r = rangeInput(c, (x) => send(x), (x) => (num.textContent = fmtNumber(c, x)));
-      const minus = h('button', 'btn round');
-      minus.type = 'button';
-      minus.append(glyph('minus'));
-      minus.setAttribute('aria-label', '−');
-      const plus = h('button', 'btn round');
-      plus.type = 'button';
-      plus.append(glyph('plus'));
-      plus.setAttribute('aria-label', '+');
-      minus.addEventListener('click', () => send(Math.max(min, +(v - step).toFixed(6))));
-      plus.addEventListener('click', () => send(Math.min(max, +(v + step).toFixed(6))));
-      const row = h('div', 'sp-row');
-      row.append(minus, r, plus);
+      big.append(number, h('span', 'unit', c.unit ?? ''));
+
+      const range = rangeInput(pick(c.label), limits, {
+        onInput: (v) => (number.textContent = formatNumber(c, v)),
+        onCommit: send,
+      });
+      const nudge = (delta) => send(Math.min(limits.max, Math.max(limits.min, +(current + delta).toFixed(6))));
+      const controls = h('div', 'sp-row');
+      controls.append(roundButton('minus', '−', () => nudge(-limits.step)), range, roundButton('plus', '+', () => nudge(limits.step)));
       const scale = h('div', 'sp-scale');
-      scale.append(h('span', '', `${fmtNumber(c, min)}°`), h('span', '', `${fmtNumber(c, max)}°`));
-      box.append(big, row, scale);
+      scale.append(h('span', '', formatNumber(c, limits.min)), h('span', '', formatNumber(c, limits.max)));
+
+      const box = h('div', 'ctl ctl-setpoint');
+      box.append(big, controls, scale);
       return {
         el: box,
-        update(nv) {
-          if (typeof nv !== 'number') return;
-          v = nv;
-          num.textContent = fmtNumber(c, nv);
-          r.value = String(nv);
-          setFill(r);
+        update(v) {
+          if (typeof v !== 'number') return;
+          current = v;
+          number.textContent = formatNumber(c, v);
+          range.value = String(v);
+          paintFill(range);
         },
       };
     },
 
     slider(c, slot, send) {
-      const row = h('div', 'ctl-row ctl');
-      if (c.icon) row.append(glyph(c.icon));
-      const val = h('span', 'value');
-      const r = rangeInput(c, (x) => send(x), (x) => (val.textContent = fmt(c, x)));
-      row.append(h('span', 'label', pick(c.label)), val, r);
+      const value = h('span', 'value');
+      const range = rangeInput(pick(c.label), bounds(c), { onInput: (v) => (value.textContent = format(c, v)), onCommit: send });
       return {
-        el: row,
-        update(nv) {
-          if (typeof nv !== 'number') return;
-          r.value = String(nv);
-          setFill(r);
-          val.textContent = fmt(c, nv);
+        el: row(c, value, range),
+        update(v) {
+          if (typeof v !== 'number') return;
+          range.value = String(v);
+          paintFill(range);
+          value.textContent = format(c, v);
         },
       };
     },
 
     stepper(c, slot, send) {
-      const row = h('div', 'ctl-row ctl');
-      if (c.icon) row.append(glyph(c.icon));
-      const { min, max, step } = bounds(c);
-      // passos grandes (ex.: temporizador em segundos) andam de 10 em 10 min
-      const jump = max - min > 3600 ? 600 : step;
-      let v = min;
-      const st = h('div', 'stepper');
-      const minus = h('button', 'btn round');
-      minus.type = 'button';
-      minus.append(glyph('minus'));
-      const val = h('span', 'value');
-      const plus = h('button', 'btn round');
-      plus.type = 'button';
-      plus.append(glyph('plus'));
-      minus.addEventListener('click', () => send(Math.max(min, v - jump)));
-      plus.addEventListener('click', () => send(Math.min(max, v + jump)));
-      st.append(minus, val, plus);
-      row.append(h('span', 'label', pick(c.label)), st);
+      const limits = bounds(c);
+      // faixas enormes (temporizador em segundos) andam de 10 em 10 minutos
+      const jump = limits.max - limits.min > 3600 ? 600 : limits.step;
+      let current = limits.min;
+      const value = h('span', 'value');
+      const stepper = h('div', 'stepper');
+      stepper.append(
+        roundButton('minus', '−', () => send(Math.max(limits.min, current - jump))),
+        value,
+        roundButton('plus', '+', () => send(Math.min(limits.max, current + jump))),
+      );
       return {
-        el: row,
-        update(nv) {
-          if (typeof nv !== 'number') return;
-          v = nv;
-          val.textContent = fmt(c, nv);
+        el: row(c, stepper),
+        update(v) {
+          if (typeof v !== 'number') return;
+          current = v;
+          value.textContent = format(c, v);
         },
       };
     },
 
     select(c, slot, send) {
-      const sel = h('select');
-      sel.setAttribute('aria-label', pick(c.label));
+      const select = h('select');
+      select.setAttribute('aria-label', pick(c.label));
       for (const o of c.options ?? []) {
-        const opt = h('option', '', pick(o.label));
-        opt.value = o.value;
-        sel.append(opt);
+        const option = h('option', '', pick(o.label));
+        option.value = o.value;
+        select.append(option);
       }
-      sel.addEventListener('change', () => send(sel.value));
+      select.addEventListener('change', () => send(select.value));
+
       if (slot === 'chips') {
+        // cartão inteiro clicável: o <select> fica invisível por cima dele
         const chip = h('label', 'chip ctl');
-        const val = h('span', 'value');
-        const corner = glyph('chevron');
-        corner.classList.add('corner');
-        chip.append(glyph(c.icon), corner, h('span', 'label', pick(c.label)), val, sel);
+        const value = h('span', 'value');
+        const chevron = glyph('chevron');
+        chevron.classList.add('corner');
+        chip.append(glyph(c.icon), chevron, h('span', 'label', pick(c.label)), value, select);
         return {
           el: chip,
-          update(nv) {
-            sel.value = String(nv);
-            val.textContent = fmt(c, nv);
+          update(v) {
+            select.value = String(v);
+            value.textContent = format(c, v);
           },
         };
       }
-      const row = h('div', 'ctl-row ctl');
-      if (c.icon) row.append(glyph(c.icon));
       const wrap = h('label', 'select-wrap');
-      const chev = glyph('chevron');
-      wrap.append(sel, chev);
-      row.append(h('span', 'label', pick(c.label)), wrap);
-      return { el: row, update: (nv) => (sel.value = String(nv)) };
+      wrap.append(select, glyph('chevron'));
+      return { el: row(c, wrap), update: (v) => (select.value = String(v)) };
     },
 
     buttons(c, slot, send) {
       const box = h('div', 'ctl ctl-buttons');
-      const btns = (c.options ?? []).map((o) => {
-        const b = h('button', 'btn', pick(o.label));
-        b.type = 'button';
+      const byValue = new Map();
+      for (const o of c.options ?? []) {
+        const b = button('btn', pick(o.label));
         b.addEventListener('click', () => send(o.value));
+        byValue.set(o.value, b);
         box.append(b);
-        return [o.value, b];
-      });
+      }
       return {
         el: box,
-        update(nv) {
-          for (const [val, b] of btns) b.classList.toggle('btn-primary', String(nv) === val);
+        update(v) {
+          for (const [value, b] of byValue) b.classList.toggle('btn-primary', String(v) === value);
         },
       };
     },
 
     readout(c) {
-      const box = h('div', 'ctl ctl-readout');
       const label = h('span', 'label');
       if (c.icon) label.append(glyph(c.icon));
-      label.append(document.createTextNode(pick(c.label)));
-      const val = h('span', 'value', '—');
-      box.append(label, val);
-      return { el: box, update: (nv) => (val.textContent = fmt(c, nv)) };
+      label.append(pick(c.label));
+      const value = h('span', 'value', '—');
+      const box = h('div', 'ctl ctl-readout');
+      box.append(label, value);
+      return { el: box, update: (v) => (value.textContent = format(c, v)) };
     },
 
     text(c, slot, send) {
-      const row = h('div', 'ctl-row ctl');
-      const form = h('form', 'ctl-text');
       const input = h('input');
-      const btn = h('button', 'btn', t('action.send'));
-      btn.type = 'submit';
-      form.append(input, btn);
+      const form = h('form', 'ctl-text');
+      const submit = h('button', 'btn', t('action.send'));
+      submit.type = 'submit';
+      form.append(input, submit);
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         send(input.value);
       });
-      row.append(h('span', 'label', pick(c.label)), form);
-      return { el: row, update: (nv) => document.activeElement !== input && (input.value = nv ?? '') };
+      return {
+        el: row(c, form),
+        update(v) {
+          if (document.activeElement !== input) input.value = v ?? '';
+        },
+      };
+    },
+
+    /** Cor: matiz + saturação (o brilho fica no slider de brilho). Valor { h, s, v }. */
+    color(c, slot, send) {
+      let color = { h: 0, s: 1, v: 1 };
+      const swatch = h('span', 'color-swatch');
+      const commit = () => send({ ...color });
+      const hue = rangeInput(t('control.hue'), { min: 0, max: 360, step: 1 }, {
+        className: 'hue',
+        onInput: (v) => paint({ ...color, h: v }),
+        onCommit: (v) => ((color = { ...color, h: v }), commit()),
+      });
+      const saturation = rangeInput(t('control.saturation'), { min: 0, max: 100, step: 1 }, {
+        className: 'saturation',
+        onInput: (v) => paint({ ...color, s: v / 100 }),
+        onCommit: (v) => ((color = { ...color, s: v / 100 }), commit()),
+      });
+      const el = row(c, swatch, hue, saturation);
+      el.classList.add('ctl-color');
+
+      function paint(value) {
+        el.style.setProperty('--hue', String(value.h));
+        el.style.setProperty('--sat', String(value.s));
+      }
+      return {
+        el,
+        update(v) {
+          if (!v || typeof v !== 'object') return;
+          color = v;
+          hue.value = String(Math.round(v.h));
+          saturation.value = String(Math.round(v.s * 100));
+          paint(v);
+        },
+      };
     },
   };
 
-  // ------------------------------------------------------------ página
-
-  /**
-   * Monta a página de um gadget.
-   * data: resposta de openDevice — { device, gadget, values, local, reason, error, version }
-   * onSet(code, value) → Promise<values>
-   */
-  function renderPage(container, data, { onSet, onError, headerSlot }) {
-    container.replaceChildren();
-    headerSlot.replaceChildren();
-    const { device, gadget } = data;
-    const page = container;
-    page.dataset.layout = gadget?.profile.layout ?? 'generic';
-    page.dataset.tone = gadget?.profile.tone ?? 'neutral';
-
-    // cabeçalho com ícone, nome e tipo
-    const head = h('div', 'dp-head');
-    const icon = h('span', 'device-icon');
-    icon.dataset.tone = gadget?.profile.tone ?? device?.tone ?? 'neutral';
-    icon.style.setProperty('--glyph', `var(--i-gadget-${gadget?.profile.id ?? device?.gadget ?? 'generic'})`);
-    icon.append(glyph());
-    const titles = h('div', 'titles');
-    titles.append(h('div', 'name', device?.name ?? ''), h('div', 'sub', [gadget ? pick(gadget.profile.name) : device?.type, device?.ip].filter(Boolean).join(' · ')));
-    head.append(icon, titles);
-    page.append(head);
-
-    // avisos: do perfil (ex.: hubs) e de conectividade
-    if (gadget?.profile.note) page.append(h('p', 'dp-note card', pick(gadget.profile.note)));
-    if (!data.local && data.reason) {
-      const msg = t(`device.reason.${data.reason}`, { version: data.version ?? '', error: data.error ?? '' });
-      page.append(h('p', 'dp-note warn card', msg));
-    }
-    if (!data.local) page.classList.add('locked');
-    else page.classList.remove('locked');
-
-    const slots = {
-      aside: h('div', 'dp-aside'),
-      hero: h('div', 'dp-hero'),
-      chips: h('div', 'dp-chips'),
-      main: h('div', 'dp-main'),
-      readouts: h('div', 'dp-readouts'),
-      advanced: h('div', 'dp-main'),
-    };
-    const items = [];
-    let values = { ...data.values };
-
-    for (const c of gadget?.controls ?? []) {
-      const factory = make[c.type] ?? make.readout;
-      const send = async (v) => {
-        const prev = values[c.code];
-        values[c.code] = v;
-        refresh(); // otimista
-        item.el.setAttribute('aria-busy', 'true');
-        try {
-          values = { ...values, ...(await onSet(c.code, v)) };
-        } catch (e) {
-          values[c.code] = prev;
-          onError(t('device.setError', { error: e.message || e }));
-        } finally {
-          item.el.removeAttribute('aria-busy');
-          refresh();
-        }
-      };
-      const item = { c, ...factory(c, c.slot, send) };
-      items.push(item);
-      if (c.slot === 'header') headerSlot.append(item.el);
-      else slots[c.slot]?.append(item.el);
-    }
-
-    if (slots.aside.childElementCount) page.append(slots.aside);
-    if (slots.hero.childElementCount) page.append(slots.hero);
-    for (const k of ['chips', 'main', 'readouts']) if (slots[k].childElementCount) page.append(slots[k]);
-    if (slots.advanced.childElementCount) {
-      const det = h('details', 'dp-advanced');
-      det.append(h('summary', '', t('device.advanced')), slots.advanced);
-      page.append(det);
-    }
-    if (!items.length && !gadget?.profile.note) page.append(h('p', 'dp-note card', t('device.noControls')));
-
-    function refresh() {
-      for (const it of items) {
-        it.update(values[it.c.code]);
-        const when = it.c.showWhen;
-        const show = !when || Object.entries(when).every(([k, v]) => values[k] === undefined || values[k] === v);
-        it.el.classList.toggle('is-hidden', !show);
-      }
-    }
-    refresh();
-
-    return {
-      update(newValues) {
-        values = { ...values, ...newValues };
-        refresh();
-      },
-    };
+  /** Cria o controle certo para o tipo (tipo desconhecido vira leitura). */
+  function create(control, send) {
+    const factory = factories[control.type] ?? factories.readout;
+    return factory(control, control.slot, send);
   }
 
-  return { renderPage, fmt };
+  TuyaBar.controls = { create, format };
 })();

@@ -8,14 +8,16 @@ Os testes em `apps/menubar/test/ui-contract.test.ts` garantem isso — se falhar
 ```
 index.html        estrutura + data-i18n (nenhum texto solto, nenhuma cor)
 base.css          layout e componentes — só var(--token), nada de cor/fonte/sombra literal
-controls.js       controles da página do gadget (só classes do base.css)
-app.js            telas e estado
+device-color.css  a única exceção: cores que vêm do APARELHO (cor da lâmpada, espectro de matizes)
+ui/*.js           um módulo por tela (devices, device-page, controls, settings…) — só classes do base.css
+app.js            inicialização e eventos gerais
 themes/
   tokens.json     CONTRATO: todos os tokens que um tema precisa definir
   moonlight/      tema padrão (também define os valores-base em :root)
   past-dream/     tema retrô (fonte embutida via fonts.json)
+  contrast/       alto contraste
   index.js        temas que vêm com o app
-i18n.js           dicionários pt-BR / en
+ui/i18n.js        dicionários pt-BR / en
 icons/*.svg       glifos (viram máscara — a cor vem do tema)
 ```
 
@@ -55,5 +57,5 @@ Use `data:` URIs para fontes/imagens em temas externos (caminhos relativos não 
 
 - Texto no HTML: `data-i18n="chave"` (ou `-html`, `-placeholder`, `-title`, `-aria`).
 - Texto no JS: `t('chave', { variavel })`. Textos que vêm de dados (gadgets, temas) usam `pick({ 'pt-BR': …, en: … })`.
-- Novo idioma: copie o bloco `en` em `i18n.js`, traduza. Gadgets e temas aceitam o mesmo código de idioma.
+- Novo idioma: copie o bloco `en` em `ui/i18n.js`, traduza. Gadgets e temas aceitam o mesmo código de idioma.
 - O teste garante que todos os idiomas têm as mesmas chaves e que nenhuma chave usada está faltando.

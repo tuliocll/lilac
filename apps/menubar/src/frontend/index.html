@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="themes/moonlight/theme.css" />
     <link rel="stylesheet" href="icons.css" />
     <link rel="stylesheet" href="base.css" />
-    <script src="config.js"></script>
-    <script src="themes/index.js"></script>
-    <script src="i18n.js"></script>
+    <link rel="stylesheet" href="device-color.css" />
   </head>
   <body data-view="loading">
     <div class="desktop">
@@ -150,12 +148,28 @@
               <i class="glyph" data-g="chevron" aria-hidden="true"></i>
             </label>
 
+            <h2 class="section-title" data-i18n="settings.behavior"></h2>
+            <div class="menu card">
+              <div class="setting-row">
+                <span class="stack-tight">
+                  <span data-i18n="settings.startup"></span>
+                  <span id="startup-hint" class="muted small" data-i18n="settings.startup.unsupported" hidden></span>
+                </span>
+                <button id="startup" class="switch" type="button" role="switch" data-i18n-aria="settings.startup"></button>
+              </div>
+              <div class="setting-row">
+                <span id="hotkey-label"></span>
+                <button id="hotkey" class="switch" type="button" role="switch" data-i18n-aria="settings.hotkey"></button>
+              </div>
+            </div>
+
             <h2 class="section-title" data-i18n="settings.account"></h2>
             <div class="card row">
               <span id="account-name" class="muted" data-i18n="settings.notConnected"></span>
               <button id="logout" class="btn" type="button" data-i18n="settings.logout" hidden></button>
               <button id="login-from-settings" class="btn" type="button" data-i18n="settings.connect"></button>
             </div>
+            <button id="import-keys" class="btn-link" type="button" data-i18n="settings.importKeys"></button>
 
             <h2 class="section-title" data-i18n="settings.more"></h2>
             <div class="menu card">
@@ -189,8 +203,23 @@
         </footer>
       </main>
     </div>
-    <script src="theme.js"></script>
-    <script src="controls.js"></script>
+    <!-- ordem = dependência: cada arquivo pendura seu módulo em window.TuyaBar -->
+    <script src="config.js"></script>
+    <script src="ui/i18n.js"></script>
+    <script src="themes/index.js"></script>
+    <script src="ui/themes.js"></script>
+    <script src="ui/dom.js"></script>
+    <script src="ui/status.js"></script>
+    <script src="ui/vault.js"></script>
+    <script src="ui/nav.js"></script>
+    <script src="ui/panel.js"></script>
+    <script src="ui/controls.js"></script>
+    <script src="ui/devices.js"></script>
+    <script src="ui/device-page.js"></script>
+    <script src="ui/login.js"></script>
+    <script src="ui/onboarding.js"></script>
+    <script src="ui/settings.js"></script>
+    <script src="ui/about.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

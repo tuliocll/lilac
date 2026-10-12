@@ -21,9 +21,10 @@ const INTERNAL = [/^--glyph$/, /^--tone$/, /^--fill$/, /^--i-/];
 
 const themeDirs = readdirSync(join(front, 'themes')).filter((d) => existsSync(join(front, 'themes', d, 'theme.css')));
 
-test('existem os temas moonlight e past-dream', () => {
-  assert.ok(themeDirs.includes('moonlight'));
-  assert.ok(themeDirs.includes('past-dream'));
+const uiScripts = ['app.js', 'config.js', ...readdirSync(join(front, 'ui')).map((f) => `ui/${f}`)];
+
+test('existem os temas moonlight, past-dream e contrast', () => {
+  for (const id of ['moonlight', 'past-dream', 'contrast']) assert.ok(themeDirs.includes(id), id);
 });
 
 for (const id of themeDirs) {
@@ -45,9 +46,9 @@ test('base.css só usa tokens do contrato', () => {
 
 test('nada de cor literal fora dos temas (base.css, index.html, *.js da interface)', () => {
   const COLOR = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(|\b(?:white|black)\b(?![-\w])/i;
-  for (const f of ['base.css', 'index.html', 'app.js', 'controls.js', 'theme.js']) {
+  for (const f of ['base.css', 'index.html', ...uiScripts]) {
     const src = f.endsWith('.css') ? stripComments(read(f)) : read(f).replace(/\/\/.*$/gm, '');
-    const lines = src.split('\n').filter((l) => COLOR.test(l) && !/swatches|lang\.name/.test(l));
+    const lines = src.split('\n').filter((l) => COLOR.test(l));
     assert.deepEqual(lines, [], `${f}: use um token do tema em vez de cor literal`);
   }
 });
@@ -59,9 +60,9 @@ test('ícones e fontes embutidos estão em dia (npm run assets)', () => {
 // ------------------------------------------------------------------ i18n
 
 function loadI18n() {
-  const ctx: any = { window: {}, navigator: { languages: ['pt-BR'] }, document: {} };
-  vm.runInNewContext(read('i18n.js'), ctx);
-  return ctx.window.I18N as { DICT: Record<string, Record<string, string>>; LANGS: string[] };
+  const ctx: any = { TuyaBar: {}, navigator: { languages: ['pt-BR'] }, document: {} };
+  vm.runInNewContext(read('ui/i18n.js'), ctx);
+  return ctx.TuyaBar.i18n as { DICT: Record<string, Record<string, string>>; LANGS: string[] };
 }
 
 test('todos os idiomas têm exatamente as mesmas chaves', () => {
@@ -78,8 +79,10 @@ test('toda chave usada na interface existe no dicionário', () => {
   const html = read('index.html');
   const used = new Set<string>();
   for (const m of html.matchAll(/data-i18n(?:-html|-placeholder|-title|-aria)?="([^"]+)"/g)) used.add(m[1]!);
-  for (const f of ['app.js', 'controls.js']) for (const m of read(f).matchAll(/\bt\('([a-zA-Z0-9.]+)'/g)) used.add(m[1]!);
-  for (const r of ['offline', 'sub', 'nokey', 'version', 'error', 'unknown']) used.add(`device.reason.${r}`);
+  for (const f of uiScripts) for (const m of read(f).matchAll(/\b(?:t|show)\('([a-zA-Z0-9.]+)'/g)) used.add(m[1]!);
+  // chaves montadas dinamicamente: device.reason.<motivo> e device.why.<motivo>
+  for (const r of ['offline', 'sub', 'nokey', 'version', 'error', 'unknown', 'auth']) used.add(`device.reason.${r}`);
+  for (const r of ['offline', 'sub', 'nokey', 'version', 'error']) used.add(`device.why.${r}`);
   const missing = [...used].filter((k) => !keys.has(k));
   assert.deepEqual(missing, []);
 });
@@ -93,11 +96,24 @@ test('texto visível no HTML vem do dicionário (sem texto solto)', () => {
   assert.deepEqual(loose, [], 'use data-i18n="chave" em vez de texto fixo');
 });
 
-test('temas embutidos descrevem-se nos dois idiomas', () => {
-  const ctx: any = { window: {} };
+test('temas embutidos descrevem-se nos dois idiomas e têm pasta', () => {
+  const ctx: any = { TuyaBar: {} };
   vm.runInNewContext(read('themes/index.js'), ctx);
-  for (const t of ctx.window.BUILTIN_THEMES) {
+  for (const t of ctx.TuyaBar.builtinThemes) {
     assert.ok(t.description['pt-BR'] && t.description.en, `tema ${t.id}`);
     assert.ok(themeDirs.includes(t.id), `tema ${t.id} sem pasta`);
   }
+});
+
+test('o motivo que o backend devolve sempre tem texto na interface', () => {
+  const { DICT } = loadI18n();
+  const control = readFileSync(join(app, 'src', 'backend', 'control.ts'), 'utf8');
+  const reasons = control.match(/export type Reason = ([^;]+);/)![1]!.match(/'([a-z]+)'/g)!.map((r) => r.slice(1, -1));
+  for (const r of reasons) assert.ok(DICT['pt-BR']![`device.reason.${r}`], `device.reason.${r}`);
+});
+
+test('todo $("id") usado nos scripts existe no index.html', () => {
+  const ids = new Set([...read('index.html').matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+  const missing = uiScripts.flatMap((f) => [...read(f).matchAll(/\$\('([^']+)'\)/g)].map((m) => m[1]!)).filter((id) => !ids.has(id));
+  assert.deepEqual([...new Set(missing)], []);
 });

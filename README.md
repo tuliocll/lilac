@@ -6,7 +6,7 @@
 
 <img src="docs/screenshots/moonlight-climate.png" width="230" alt="Moonlight theme — air conditioner page" />
 <img src="docs/screenshots/past-dream-devices.png" width="230" alt="Past Dream theme — device list" />
-<img src="docs/screenshots/past-dream-climate.png" width="230" alt="Past Dream theme — air conditioner page" />
+<img src="docs/screenshots/contrast-light.png" width="230" alt="High Contrast theme — colour light page" />
 
 <sub>Screenshots rendered with sample data. 🇧🇷 <a href="README.pt-BR.md">Leia em português</a></sub>
 
@@ -27,11 +27,16 @@
 - 📱 **Logs into Smart Life with a QR code** (same flow as Home Assistant's official Tuya integration) to fetch device names,
   categories, data-point maps and the **local keys**.
 - 🏠 **Controls devices locally** over TCP 6668 — once the keys are fetched, it works even with the internet down.
+- ☁️ **Falls back to the cloud** for what can't be reached locally (Zigbee sub-devices behind a gateway, IR air conditioners,
+  unsupported protocol versions), clearly labelled “via cloud”.
+- ⭐ **Favorites in the tray menu**: toggle a light without even opening the panel. Optional global hotkey
+  (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan chips, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
   under “Advanced”, with a control inferred from their type.
-- 🎨 **Themes**: *Moonlight* (dark, quiet) and *Past Dream* (a 1996 operating system that never was). Community themes can be
-  dropped into a folder — no rebuild.
+- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was) and *High Contrast*.
+  Community themes can be dropped into a folder — no rebuild.
+- 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 
 ## What works (honest table)
@@ -40,13 +45,12 @@
 |---|---|
 | LAN discovery (protocols 3.1 → 3.5) | ✅ tested with real devices |
 | Smart Life QR login + inventory | ✅ tested with a real account |
-| Local control, protocol **3.3** | 🧪 tested against a simulator that passes tinytuya interop; real-device testing in progress |
-| Local control, protocol **3.4** (session key + HMAC) | 🧪 same as above |
-| Protocol 3.5 / 3.1 control | ❌ not yet (3.5 is discovered, not controlled) |
-| Zigbee/BLE sub-devices behind a Tuya gateway | ❌ listed as “via gateway”, cloud state only |
-| IR blasters (and the ACs/TVs they drive) | ❌ listed, not controllable yet |
+| Local control, protocol **3.3** and **3.4** (session key + HMAC) | 🧪 tested against a simulator that passes tinytuya interop; real-device testing in progress |
+| Cloud control (sub-devices, IR air conditioners, protocol 3.5) | 🧪 same API as Home Assistant's Tuya integration; untested with real devices. IR AC codes vary — unknown ones show up under “Advanced” |
+| Local control, protocol 3.5 / 3.1 | ❌ not yet (goes through the cloud when logged in) |
+| Zigbee/BLE sub-devices *locally* through a gateway | ❌ cloud only for now |
 | Battery sensors | ⚠️ they sleep; values come from the cloud and may be stale |
-| Colour lights (`colour_data`) | ❌ white/brightness only for now |
+| Colour lights (`colour_data_v2`, `colour_data`) | 🧪 hue + saturation picker |
 
 **Device types with a dedicated page:** air conditioners/heaters/dehumidifiers, switches and breakers, plugs and power strips,
 lights, fans, covers/gates, sensors, gateways and IR blasters (info pages). Everything else gets the generic page.
@@ -104,8 +108,15 @@ packages/
   transport-txiki/  Transport for txiki.js (tinyjs backend)
 apps/
   cli/              discover / login / devices / control / fake-device
-  menubar/          the tinyjs tray app (themes, i18n, gadget pages)
+  menubar/
+    src/main.ts           API the page calls + tinyjs events (thin)
+    src/backend/          account · network · control (local/cloud routes) · view · tray · favorites · user-themes
+    src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, login…
+    src/frontend/themes/  Moonlight · Past Dream · High Contrast (+ tokens.json, the theme contract)
 ```
+
+The code is plain functions and closures — no class hierarchies. `tuya-core` has no runtime dependency, the backend modules
+own their state with small explicit APIs, and every UI module hangs off a single `window.TuyaBar` namespace in dependency order.
 
 ## Contributing
 
@@ -113,7 +124,7 @@ apps/
   [its README](packages/gadgets/gadgets/README.md). No code needed.
 - **New theme**: see [THEMING.md](apps/menubar/THEMING.md). Every UI change must work in every theme and language;
   the contract tests enforce it.
-- **New language**: copy the `en` block in `apps/menubar/src/frontend/i18n.js`.
+- **New language**: copy the `en` block in `apps/menubar/src/frontend/ui/i18n.js`.
 - Run `npm run assets`, `npm test` and `npm run typecheck` before opening a PR.
 
 ## Privacy & security
@@ -127,11 +138,11 @@ apps/
 
 ## Roadmap
 
-- [ ] Real-device validation of local control (3.3/3.4) · protocol 3.5
-- [ ] Sub-devices through gateways (`cid`) · IR blaster commands
-- [ ] Colour picker for RGB lights · scenes
-- [ ] Own Tuya partner credentials · key import (tinytuya `devices.json`, LocalTuya)
-- [ ] Signed builds for Windows/macOS/Linux
+- [ ] Real-device validation of local control (3.3/3.4) and cloud control · local protocol 3.5
+- [ ] Sub-devices locally through gateways (`cid`) · raw IR learning/sending
+- [ ] Scenes · live state in the device list
+- [ ] Own Tuya partner credentials
+- [ ] Signed builds (the release workflow in `.github/workflows/release.yml` builds unsigned ones — untested until the first tag)
 
 ## Credits
 
