@@ -54,7 +54,7 @@
 
   function quickActions(d) {
     const box = h('span', 'quick-actions');
-    d.quick.forEach((action, index) => box.append(quickButton(d, action, index)));
+    (d.quick ?? []).forEach((action, index) => box.append(quickButton(d, action, index)));
     return box;
   }
 
