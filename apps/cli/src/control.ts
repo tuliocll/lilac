@@ -99,7 +99,9 @@ async function printRaw(cloud: ReturnType<typeof createSharingClient>) {
 }
 
 /** Não imprime chaves locais, mesmo no modo de diagnóstico. */
-const hideKeys = (key: string, value: unknown) => (key === 'local_key' || key === 'localKey' ? '***' : value);
+function hideKeys(key: string, value: unknown) {
+  return key === 'local_key' || key === 'localKey' ? '***' : value;
+}
 
 function findDevice(list: CloudDevice[], text: string) {
   const lower = text.toLowerCase();
