@@ -15,6 +15,8 @@ export interface FakeDeviceOptions {
   dps: Record<string, unknown>;
   /** simula aparelhos "device22" (respondem "data unvalid" ao DP_QUERY) */
   device22?: boolean;
+  /** aparelhos que não mandam o "ack" vazio depois de um controle, só o STATUS */
+  noAck?: boolean;
 }
 
 export async function startFakeDevice(opts: FakeDeviceOptions) {
@@ -98,7 +100,7 @@ export async function startFakeDevice(opts: FakeDeviceOptions) {
         } else if (f.cmd === Cmd.CONTROL || f.cmd === Cmd.CONTROL_NEW) {
           const req = v34 ? body.data?.dps : body.dps;
           const asking = Object.values(req ?? {}).every((v) => v === null);
-          send(f.cmd, new Uint8Array(0)); // ack vazio
+          if (!opts.noAck) send(f.cmd, new Uint8Array(0)); // ack vazio
           if (asking) pushStatus({ ...dps });
           else {
             Object.assign(dps, req);
@@ -117,6 +119,10 @@ export async function startFakeDevice(opts: FakeDeviceOptions) {
     port,
     dps,
     log,
+    /** derruba as conexões abertas (simula o aparelho reiniciando) */
+    dropClients() {
+      for (const s of sockets) s.destroy();
+    },
     close: () =>
       new Promise<void>((r) => {
         for (const s of sockets) s.destroy();

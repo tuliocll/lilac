@@ -54,3 +54,17 @@ test('ECB: payload cifrado de 55AA é múltiplo de 16', () => {
   const ct = aesEcbEncrypt(UDP_KEY, te.encode('{"gwId":"abc"}'));
   assert.equal(ct.length % 16, 0);
 });
+
+test('55AA: len menor que o fim do frame é rejeitado sem índices negativos', () => {
+  const buf = encode55AA({ seq: 1, cmd: 0, payload: te.encode('{}') });
+  new DataView(buf.buffer).setUint32(12, 2); // len absurdo
+  assert.throws(() => decode55AA(buf), FrameError);
+  assert.throws(() => decode55AA(buf, { hmacKey: new Uint8Array(16) }), FrameError);
+});
+
+test('55AA com HMAC: chave errada é rejeitada', () => {
+  const key = new Uint8Array(16).fill(1);
+  const buf = encode55AA({ seq: 1, cmd: 7, payload: te.encode('{}') }, { hmacKey: key });
+  assert.deepEqual(decode55AA(buf, { hmacKey: key }).payload, te.encode('{}'));
+  assert.throws(() => decode55AA(buf, { hmacKey: new Uint8Array(16) }), FrameError);
+});

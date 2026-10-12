@@ -1,6 +1,6 @@
-import { concat, readU32be, u32be } from './bytes.ts';
 import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha2';
+import { concat, equalBytes, readU32be, u32be } from './bytes.ts';
 import { crc32 } from './crc32.ts';
 import { aesGcmDecrypt, aesGcmEncrypt } from './crypto.ts';
 
@@ -37,7 +37,9 @@ export const Cmd = {
   SESS_KEY_NEG_FINISH: 0x05,
 } as const;
 
-export class FrameError extends Error {}
+export class FrameError extends Error {
+  override name = 'FrameError';
+}
 
 export interface Frame55AA {
   kind: '55aa';
@@ -85,46 +87,30 @@ export function frameLength55AA(data: Uint8Array): number | null {
 }
 
 /**
- * v3.4 troca o CRC32 por HMAC-SHA256 (32 bytes) com a chave local/da sessão.
+ * Decodifica um frame 55AA. O fim do frame é conferido com CRC32 ou, no
+ * protocolo 3.4, com HMAC-SHA256 (32 bytes) usando a chave local/da sessão.
  */
 export function decode55AA(data: Uint8Array, opts: { hasRetcode?: boolean; hmacKey?: Uint8Array } = {}): Frame55AA {
-  if (opts.hmacKey) return decode55AAHmac(data, opts.hmacKey, opts.hasRetcode);
-  if (data.length < 24) throw new FrameError(`frame curto demais (${data.length} bytes)`);
-  if (readU32be(data, 0) !== PREFIX_55AA) throw new FrameError('prefixo 0x55AA ausente');
-  const seq = readU32be(data, 4);
-  const cmd = readU32be(data, 8);
-  const len = readU32be(data, 12);
-  const end = 16 + len;
-  if (end > data.length) throw new FrameError(`len=${len} excede o datagrama (${data.length})`);
-  if (readU32be(data, end - 4) !== SUFFIX_55AA) throw new FrameError('sufixo 0xAA55 ausente');
-  const crc = readU32be(data, end - 8);
-  const calc = crc32(data.subarray(0, end - 8));
-  if (crc !== calc) throw new FrameError(`CRC inválido (${crc.toString(16)} != ${calc.toString(16)})`);
-  const { retcode, payload } = splitRetcode(data.subarray(16, end - 8), opts.hasRetcode);
-  return { kind: '55aa', seq, cmd, retcode, payload };
-}
+  const checkSize = opts.hmacKey ? 32 : 4;
+  const tailSize = checkSize + 4; // checksum + sufixo
 
-function decode55AAHmac(data: Uint8Array, key: Uint8Array, hasRetcode?: boolean): Frame55AA {
-  if (data.length < 16 + 36) throw new FrameError(`frame curto demais (${data.length} bytes)`);
+  if (data.length < 16 + tailSize) throw new FrameError(`frame curto demais (${data.length} bytes)`);
   if (readU32be(data, 0) !== PREFIX_55AA) throw new FrameError('prefixo 0x55AA ausente');
   const seq = readU32be(data, 4);
   const cmd = readU32be(data, 8);
   const len = readU32be(data, 12);
   const end = 16 + len;
+  if (len < tailSize) throw new FrameError(`len=${len} menor que o fim do frame`);
   if (end > data.length) throw new FrameError(`len=${len} excede os dados (${data.length})`);
   if (readU32be(data, end - 4) !== SUFFIX_55AA) throw new FrameError('sufixo 0xAA55 ausente');
-  const mac = data.subarray(end - 36, end - 4);
-  const calc = hmac(sha256, key, data.subarray(0, end - 36));
-  if (!equalBytes(mac, calc)) throw new FrameError('HMAC inválido (local key errada?)');
-  const { retcode, payload } = splitRetcode(data.subarray(16, end - 36), hasRetcode);
-  return { kind: '55aa', seq, cmd, retcode, payload };
-}
 
-function equalBytes(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  let d = 0;
-  for (let i = 0; i < a.length; i++) d |= a[i]! ^ b[i]!;
-  return d === 0;
+  const signed = data.subarray(0, end - tailSize);
+  const check = data.subarray(end - tailSize, end - 4);
+  const expected = opts.hmacKey ? hmac(sha256, opts.hmacKey, signed) : u32be(crc32(signed));
+  if (!equalBytes(check, expected)) throw new FrameError(opts.hmacKey ? 'HMAC inválido (local key errada?)' : 'CRC inválido');
+
+  const { retcode, payload } = splitRetcode(data.subarray(16, end - tailSize), opts.hasRetcode);
+  return { kind: '55aa', seq, cmd, retcode, payload };
 }
 
 export function encode55AA(
@@ -146,6 +132,7 @@ export function decode6699(data: Uint8Array, key: Uint8Array, opts: { hasRetcode
   const cmd = readU32be(data, 10);
   const len = readU32be(data, 14);
   const end = 18 + len;
+  if (len < 12 + 16) throw new FrameError(`len=${len} menor que IV + tag`);
   if (end + 4 > data.length) throw new FrameError(`len=${len} excede o datagrama (${data.length})`);
   if (readU32be(data, end) !== SUFFIX_6699) throw new FrameError('sufixo 0x9966 ausente');
   const aad = data.subarray(4, 18);

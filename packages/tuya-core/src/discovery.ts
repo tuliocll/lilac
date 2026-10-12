@@ -80,43 +80,47 @@ export function parseBroadcast(data: Uint8Array): { msg: TuyaBroadcast; frame: D
   return { msg: msg as TuyaBroadcast, frame };
 }
 
-export interface DiscoverOptions {
-  /** Tempo total escutando, em ms. Dispositivos anunciam a cada ~5s; 6–10s é seguro. */
-  timeoutMs?: number;
+export interface WatchOptions {
   ports?: readonly number[];
-  onDevice?: (d: DiscoveredDevice, isNew: boolean) => void;
-  /** Datagrama que não pôde ser decodificado (útil para depurar firmwares novos). */
-  onUnknown?: (data: Uint8Array, remote: RemoteInfo, port: number, err: Error) => void;
-  /** Porta que falhou ao abrir (ocupada, sem permissão…). A descoberta segue nas outras. */
-  onBindError?: (port: number, err: Error) => void;
-  signal?: AbortSignal;
+  /** a cada anúncio decodificado; `isNew` na primeira vez que o aparelho aparece */
+  onDevice: (device: DiscoveredDevice, isNew: boolean) => void;
+  /** datagrama que não pôde ser decodificado (útil para depurar firmwares novos) */
+  onUnknown?: (data: Uint8Array, remote: RemoteInfo, port: number, error: Error) => void;
+  /** porta que falhou ao abrir (ocupada, sem permissão…); a escuta segue nas outras */
+  onBindError?: (port: number, error: Error) => void;
+}
+
+export interface BroadcastWatcher {
+  /** aparelhos vistos desde o início da escuta */
+  devices(): DiscoveredDevice[];
+  stop(): Promise<void>;
 }
 
 /**
- * Escuta os broadcasts por `timeoutMs` e devolve os dispositivos encontrados.
- * Não precisa de credencial nenhuma — a local key só é necessária para
- * *controlar*, não para descobrir.
+ * Escuta os anúncios continuamente. Os aparelhos anunciam a cada ~5 s, então
+ * isso mantém IPs e presença sempre atualizados. Não precisa de credencial:
+ * a local key só é necessária para *controlar*.
  */
-export async function discover(transport: Transport, opts: DiscoverOptions = {}): Promise<DiscoveredDevice[]> {
-  const { timeoutMs = 8000, ports = DISCOVERY_PORTS } = opts;
-  const found = new Map<string, DiscoveredDevice>();
+export async function watchBroadcasts(transport: Transport, options: WatchOptions): Promise<BroadcastWatcher> {
+  const { ports = DISCOVERY_PORTS } = options;
+  const seen = new Map<string, DiscoveredDevice>();
   const sockets: UdpSocket[] = [];
 
   for (const port of ports) {
     try {
-      const s = await transport.bindUdp({ port, broadcast: true, reuseAddr: true });
-      s.onMessage((data, remote) => {
-        let parsed;
+      const socket = await transport.bindUdp({ port, broadcast: true, reuseAddr: true });
+      socket.onMessage((data, remote) => {
+        let parsed: ReturnType<typeof parseBroadcast>;
         try {
           parsed = parseBroadcast(data);
-        } catch (e) {
-          opts.onUnknown?.(data, remote, port, e as Error);
+        } catch (error) {
+          options.onUnknown?.(data, remote, port, error as Error);
           return;
         }
         const { msg, frame } = parsed;
         const now = Date.now();
-        const prev = found.get(msg.gwId);
-        const dev: DiscoveredDevice = {
+        const previous = seen.get(msg.gwId);
+        const device: DiscoveredDevice = {
           id: msg.gwId,
           ip: msg.ip || remote.address,
           version: String(msg.version ?? (port === 6666 ? '3.1' : '?')),
@@ -124,29 +128,45 @@ export async function discover(transport: Transport, opts: DiscoverOptions = {})
           encrypted: Boolean(msg.encrypt ?? port !== 6666),
           port,
           frame,
-          firstSeen: prev?.firstSeen ?? now,
+          firstSeen: previous?.firstSeen ?? now,
           lastSeen: now,
           raw: msg,
         };
-        found.set(dev.id, dev);
-        opts.onDevice?.(dev, !prev);
+        seen.set(device.id, device);
+        options.onDevice(device, !previous);
       });
-      sockets.push(s);
-    } catch (e) {
-      opts.onBindError?.(port, e as Error);
+      sockets.push(socket);
+    } catch (error) {
+      options.onBindError?.(port, error as Error);
     }
   }
+  if (!sockets.length) throw new Error(`nenhuma porta de descoberta pôde ser aberta (${ports.join(', ')})`);
 
-  if (sockets.length === 0) throw new Error(`nenhuma porta de descoberta pôde ser aberta (${ports.join(', ')})`);
+  return {
+    devices: () => [...seen.values()],
+    stop: async () => {
+      await Promise.allSettled(sockets.map((s) => s.close()));
+    },
+  };
+}
 
+export interface DiscoverOptions extends Partial<WatchOptions> {
+  /** tempo escutando, em ms. Aparelhos anunciam a cada ~5 s; 6–10 s é seguro. */
+  timeoutMs?: number;
+  signal?: AbortSignal;
+}
+
+/** Escuta por um tempo e devolve o que encontrou. */
+export async function discover(transport: Transport, options: DiscoverOptions = {}): Promise<DiscoveredDevice[]> {
+  const { timeoutMs = 8000, signal } = options;
+  const watcher = await watchBroadcasts(transport, { ...options, onDevice: options.onDevice ?? (() => {}) });
   await new Promise<void>((resolve) => {
-    const t = setTimeout(resolve, timeoutMs);
-    opts.signal?.addEventListener('abort', () => {
-      clearTimeout(t);
+    const timer = setTimeout(resolve, timeoutMs);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
       resolve();
     });
   });
-
-  await Promise.allSettled(sockets.map((s) => s.close()));
-  return [...found.values()];
+  await watcher.stop();
+  return watcher.devices();
 }

@@ -1,32 +1,41 @@
+/** Transporte para Node.js (CLI, testes e um futuro daemon). */
 import dgram from 'node:dgram';
 import net from 'node:net';
 import type { RemoteInfo, TcpConnectOptions, TcpSocket, Transport, UdpBindOptions, UdpSocket } from '@tuyabar/core';
 
-/** Transporte para Node.js (CLI, testes, futuro daemon). */
 export function createNodeTransport(): Transport {
   return { bindUdp, connectTcp };
 }
 
-function bindUdp(opts: UdpBindOptions): Promise<UdpSocket> {
+/** Um ouvinte com erro não pode derrubar o processo (exceção dentro de um EventEmitter). */
+function emit<A extends unknown[]>(listeners: Iterable<(...args: A) => void>, ...args: A) {
+  for (const listener of listeners) {
+    try {
+      listener(...args);
+    } catch (error) {
+      console.error('[transport] ouvinte falhou:', error);
+    }
+  }
+}
+
+const asBytes = (b: Buffer) => new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+
+function bindUdp(options: UdpBindOptions): Promise<UdpSocket> {
   return new Promise((resolve, reject) => {
-    const sock = dgram.createSocket({ type: 'udp4', reuseAddr: opts.reuseAddr ?? true });
-    const listeners: ((d: Uint8Array, r: RemoteInfo) => void)[] = [];
+    const socket = dgram.createSocket({ type: 'udp4', reuseAddr: options.reuseAddr ?? true });
+    const listeners: ((data: Uint8Array, remote: RemoteInfo) => void)[] = [];
 
-    sock.once('error', reject);
-    sock.on('message', (msg, rinfo) => {
-      const data = new Uint8Array(msg.buffer, msg.byteOffset, msg.byteLength);
-      for (const l of listeners) l(data, { address: rinfo.address, port: rinfo.port });
-    });
+    socket.once('error', reject);
+    socket.on('message', (msg, rinfo) => emit(listeners, asBytes(msg), { address: rinfo.address, port: rinfo.port }));
 
-    sock.bind(opts.port, opts.address ?? '0.0.0.0', () => {
-      sock.off('error', reject);
-      sock.on('error', () => {}); // erros após o bind não derrubam o processo
-      if (opts.broadcast) sock.setBroadcast(true);
+    socket.bind(options.port, options.address ?? '0.0.0.0', () => {
+      socket.off('error', reject);
+      socket.on('error', () => {}); // erros depois do bind não derrubam o processo
+      if (options.broadcast) socket.setBroadcast(true);
       resolve({
-        onMessage: (cb) => void listeners.push(cb),
-        send: (data, port, address) =>
-          new Promise((res, rej) => sock.send(data, port, address, (err) => (err ? rej(err) : res()))),
-        close: () => new Promise((res) => sock.close(() => res())),
+        onMessage: (listener) => void listeners.push(listener),
+        send: (data, port, address) => new Promise((ok, fail) => socket.send(data, port, address, (error) => (error ? fail(error) : ok()))),
+        close: () => new Promise((done) => socket.close(() => done())),
       });
     });
   });
@@ -34,40 +43,41 @@ function bindUdp(opts: UdpBindOptions): Promise<UdpSocket> {
 
 function connectTcp({ host, port, timeoutMs = 5000 }: TcpConnectOptions): Promise<TcpSocket> {
   return new Promise((resolve, reject) => {
-    const sock = net.connect({ host, port });
-    sock.setNoDelay(true);
+    const socket = net.connect({ host, port });
+    socket.setNoDelay(true);
     const timer = setTimeout(() => {
-      sock.destroy();
+      socket.destroy();
       reject(new Error('tempo esgotado ao conectar'));
     }, timeoutMs);
-    sock.once('error', (e) => {
+
+    socket.once('error', (error) => {
       clearTimeout(timer);
-      reject(e);
+      reject(error);
     });
-    sock.once('connect', () => {
+
+    socket.once('connect', () => {
       clearTimeout(timer);
-      sock.removeAllListeners('error');
-      const dataL: ((d: Uint8Array) => void)[] = [];
-      const closeL: ((e?: Error) => void)[] = [];
-      let lastErr: Error | undefined;
-      sock.on('data', (b) => {
-        const d = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
-        for (const l of dataL) l(d);
-      });
-      sock.on('error', (e) => (lastErr = e));
-      sock.on('close', () => {
-        for (const l of closeL) l(lastErr);
-      });
+      socket.removeAllListeners('error');
+      const dataListeners: ((data: Uint8Array) => void)[] = [];
+      const closeListeners: ((error?: Error) => void)[] = [];
+      let lastError: Error | undefined;
+      let closedByUs = false;
+
+      socket.on('data', (chunk) => emit(dataListeners, asBytes(chunk)));
+      socket.on('error', (error) => (lastError = error));
+      socket.on('close', () => !closedByUs && emit(closeListeners, lastError));
+
       resolve({
-        onData: (cb) => void dataL.push(cb),
-        onClose: (cb) => void closeL.push(cb),
-        write: (data) => new Promise((res, rej) => sock.write(data, (err) => (err ? rej(err) : res()))),
+        onData: (listener) => void dataListeners.push(listener),
+        onClose: (listener) => void closeListeners.push(listener),
+        write: (data) => new Promise((ok, fail) => socket.write(data, (error) => (error ? fail(error) : ok()))),
         close: () =>
-          new Promise((res) => {
-            if (sock.destroyed) return res();
-            sock.once('close', () => res());
-            sock.end();
-            setTimeout(() => sock.destroy(), 500);
+          new Promise((done) => {
+            closedByUs = true;
+            if (socket.destroyed) return done();
+            socket.once('close', () => done());
+            socket.end();
+            setTimeout(() => socket.destroy(), 500).unref();
           }),
       });
     });

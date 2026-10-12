@@ -1,14 +1,20 @@
 /**
- * Conexão local (TCP 6668) com um dispositivo Tuya — v3.3 e v3.4.
- * Baseado no comportamento do tinytuya (MIT); validado contra ele nos testes.
+ * Conexão local (TCP 6668) com um dispositivo Tuya — protocolos 3.3 e 3.4.
+ * Comportamento baseado no tinytuya (MIT) e validado contra ele nos testes.
  *
- * v3.3: frames 55AA com CRC32; payload AES-ECB(localKey).
- *       CONTROL leva o cabeçalho "3.3"+12×0 *fora* da criptografia.
- * v3.4: negocia uma chave de sessão (3 mensagens) e passa a usar HMAC-SHA256
- *       no lugar do CRC; comandos viram CONTROL_NEW/DP_QUERY_NEW e o cabeçalho
- *       "3.4"+12×0 vai *dentro* da criptografia.
+ *   3.3  frames 55AA com CRC32; payload em AES-ECB(localKey).
+ *        CONTROL leva o cabeçalho "3.3"+12×0 *fora* da criptografia.
+ *   3.4  primeiro negocia uma chave de sessão (3 mensagens); depois usa
+ *        HMAC-SHA256 no lugar do CRC. Comandos viram CONTROL_NEW/DP_QUERY_NEW
+ *        e o cabeçalho "3.4"+12×0 vai *dentro* da criptografia.
+ *
+ * Uso:
+ *   const dev = createLocalDevice({ id, ip, localKey, version, transport });
+ *   await dev.status();            // { '1': true, '2': 22 }
+ *   await dev.set({ '1': false });
+ *   dev.close();
  */
-import { concat, td, te } from '../bytes.ts';
+import { concat, equalBytes, td, te } from '../bytes.ts';
 import { randomBytes } from '../cloud/encoding.ts';
 import { Cmd, decode55AA, encode55AA, frameLength55AA, FrameError, type Frame55AA } from '../frame.ts';
 import type { TcpSocket, Transport } from '../transport.ts';
@@ -16,14 +22,22 @@ import { ecbDecrypt, ecbEncrypt, hmacSha256, sessionKey34, startsWithVersion, ve
 
 export type Dps = Record<string, unknown>;
 export type LocalVersion = '3.3' | '3.4';
+export type LocalErrorCode = 'timeout' | 'connect' | 'auth' | 'protocol' | 'closed' | 'unsupported';
 
 export class LocalError extends Error {
   constructor(
     message: string,
-    readonly code: 'timeout' | 'connect' | 'auth' | 'protocol' | 'closed' | 'unsupported',
+    readonly code: LocalErrorCode,
   ) {
     super(message);
+    this.name = 'LocalError';
   }
+}
+
+export const SUPPORTED_LOCAL_VERSIONS: readonly string[] = ['3.3', '3.4'];
+
+export function isLocalVersionSupported(v: string | undefined): v is LocalVersion {
+  return v !== undefined && SUPPORTED_LOCAL_VERSIONS.includes(v);
 }
 
 export interface LocalDeviceOptions {
@@ -33,254 +47,317 @@ export interface LocalDeviceOptions {
   version: string;
   transport: Transport;
   port?: number;
+  /** tempo máximo esperando cada resposta */
   timeoutMs?: number;
+  /** intervalo do heartbeat enquanto conectado (0 desliga). Aparelhos derrubam conexões ociosas. */
+  heartbeatMs?: number;
 }
 
-export const SUPPORTED_LOCAL_VERSIONS: readonly string[] = ['3.3', '3.4'];
-
-export function isLocalVersionSupported(v: string | undefined): v is LocalVersion {
-  return !!v && SUPPORTED_LOCAL_VERSIONS.includes(v);
+export interface LocalDevice {
+  readonly id: string;
+  readonly version: LocalVersion;
+  isConnected(): boolean;
+  /** Lê todos os DPs. Conecta se precisar. */
+  status(): Promise<Dps>;
+  /** Escreve DPs, ex.: set({ '1': true }). Resolve com o que o aparelho confirmou. */
+  set(dps: Dps): Promise<Dps>;
+  /** DPs que o aparelho anuncia sozinho (alguém mexeu nele). Retorna a função para parar de ouvir. */
+  onStatus(listener: (dps: Dps) => void): () => void;
+  /** Chamado quando a conexão cai. */
+  onClose(listener: (error?: Error) => void): () => void;
+  close(): Promise<void>;
 }
 
 interface Waiter {
-  match: (f: Frame55AA) => boolean;
-  resolve: (f: Frame55AA) => void;
-  reject: (e: Error) => void;
+  accepts: (frame: Frame55AA) => boolean;
+  resolve: (frame: Frame55AA) => void;
+  reject: (error: Error) => void;
   timer: ReturnType<typeof setTimeout>;
 }
 
-export class TuyaLocalDevice {
-  readonly id: string;
-  readonly version: LocalVersion;
-  private readonly realKey: Uint8Array;
-  private key: Uint8Array; // chave de sessão (3.4) ou a própria local key (3.3)
-  private sock: TcpSocket | null = null;
-  private buf: Uint8Array = new Uint8Array(0);
-  private seq = 1;
-  private waiters: Waiter[] = [];
-  private statusListeners: ((dps: Dps) => void)[] = [];
-  private closeListeners: ((err?: Error) => void)[] = [];
-  private device22 = false;
-  private negotiating = false;
+const COMMANDS_WITHOUT_HEADER = new Set<number>([Cmd.DP_QUERY, Cmd.DP_QUERY_NEW, Cmd.HEART_BEAT]);
+const EMPTY = new Uint8Array(0);
 
-  constructor(private readonly opts: LocalDeviceOptions) {
-    if (!isLocalVersionSupported(opts.version)) throw new LocalError(`protocolo v${opts.version} ainda não suportado`, 'unsupported');
-    if (opts.localKey.length !== 16) throw new LocalError('local key precisa ter 16 caracteres', 'auth');
-    this.id = opts.id;
-    this.version = opts.version;
-    this.realKey = te.encode(opts.localKey);
-    this.key = this.realKey;
+export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
+  const { id, ip, transport, port = 6668, timeoutMs = 5000, heartbeatMs = 10_000 } = options;
+  if (!isLocalVersionSupported(options.version)) {
+    throw new LocalError(`protocolo v${options.version} ainda não suportado`, 'unsupported');
+  }
+  if (options.localKey.length !== 16) throw new LocalError('a local key precisa ter 16 caracteres', 'auth');
+
+  const version: LocalVersion = options.version;
+  const is34 = version === '3.4';
+  const localKey = te.encode(options.localKey);
+
+  // --- estado da conexão (tudo é reiniciado em resetConnection) ---
+  let socket: TcpSocket | null = null;
+  let sessionKey: Uint8Array = localKey; // em 3.4 vira a chave negociada
+  let pending: Uint8Array = EMPTY;
+  let seq = 1;
+  let negotiating = false;
+  let connecting: Promise<void> | null = null;
+  let heartbeat: ReturnType<typeof setInterval> | undefined;
+  let waiters: Waiter[] = [];
+
+  // aparelhos "device22" só respondem a CONTROL_NEW pedindo DPs explícitos
+  let isDevice22 = false;
+
+  // último STATUS recebido (pode chegar no mesmo pacote que o ack de um controle)
+  let lastStatus: Frame55AA | null = null;
+  let statusCount = 0;
+
+  const statusListeners = new Set<(dps: Dps) => void>();
+  const closeListeners = new Set<(error?: Error) => void>();
+
+  // Um comando por vez: as respostas são casadas pelo número do comando,
+  // então dois comandos em paralelo poderiam pegar a resposta um do outro.
+  let queue: Promise<unknown> = Promise.resolve();
+  function exclusive<T>(task: () => Promise<T>): Promise<T> {
+    const run = queue.then(task, task);
+    queue = run.catch(() => {});
+    return run;
   }
 
-  get connected() {
-    return this.sock !== null;
+  // ------------------------------------------------------------- conexão
+
+  function connect(): Promise<void> {
+    if (socket) return Promise.resolve();
+    connecting ??= openConnection().finally(() => (connecting = null));
+    return connecting;
   }
 
-  onStatus(cb: (dps: Dps) => void) {
-    this.statusListeners.push(cb);
-  }
-
-  onClose(cb: (err?: Error) => void) {
-    this.closeListeners.push(cb);
-  }
-
-  async connect(): Promise<void> {
-    if (this.sock) return;
-    const { transport, ip, port = 6668, timeoutMs = 5000 } = this.opts;
+  async function openConnection() {
     if (!transport.connectTcp) throw new LocalError('este runtime não tem TCP', 'unsupported');
     try {
-      this.sock = await transport.connectTcp({ host: ip, port, timeoutMs });
-    } catch (e) {
-      throw new LocalError(`não conectou em ${ip}:${port} — ${(e as Error).message}`, 'connect');
+      socket = await transport.connectTcp({ host: ip, port, timeoutMs });
+    } catch (error) {
+      throw new LocalError(`não conectou em ${ip}:${port} — ${(error as Error).message}`, 'connect');
     }
-    this.sock.onData((d) => this.onBytes(d));
-    this.sock.onClose((err) => this.handleClose(err));
-    if (this.version === '3.4') {
+    const current = socket;
+    current.onData((chunk) => socket === current && receive(chunk));
+    current.onClose((error) => socket === current && dropConnection(error));
+
+    if (is34) {
       try {
-        await this.negotiate();
-      } catch (e) {
-        await this.close();
-        throw e;
+        await negotiateSessionKey();
+      } catch (error) {
+        await closeSocket();
+        // o aparelho derruba a conexão quando o HMAC não confere: é chave errada
+        if (error instanceof LocalError && error.code === 'closed') {
+          throw new LocalError('o aparelho recusou a conexão — a local key provavelmente mudou', 'auth');
+        }
+        throw error;
       }
     }
+    if (heartbeatMs > 0) heartbeat = setInterval(sendHeartbeat, heartbeatMs);
   }
 
-  async close(): Promise<void> {
-    const s = this.sock;
-    this.sock = null;
-    this.key = this.realKey;
-    if (s) await s.close().catch(() => {});
-    this.failAll(new LocalError('conexão fechada', 'closed'));
-  }
-
-  // ----------------------------------------------------------------- comandos
-
-  /** Lê todos os DPs. */
-  async status(): Promise<Dps> {
-    await this.connect();
-    const t = Math.floor(Date.now() / 1000);
-    if (this.version === '3.4') {
-      const res = await this.request(Cmd.DP_QUERY_NEW, {}, [Cmd.DP_QUERY_NEW, Cmd.STATUS]);
-      return extractDps(res) ?? {};
-    }
-    if (!this.device22) {
-      const res = await this.request(Cmd.DP_QUERY, { gwId: this.id, devId: this.id, uid: this.id, t: String(t) }, [Cmd.DP_QUERY, Cmd.STATUS]);
-      if (res !== 'device22') return extractDps(res) ?? {};
-      this.device22 = true;
-    }
-    // "device22": aparelhos com id de 22 caracteres que só respondem a CONTROL_NEW pedindo DPs explícitos
-    const ask: Dps = { '1': null };
-    const statusWait = this.waitFor((f) => f.cmd === Cmd.STATUS, 2500).catch(() => null);
-    const ack = extractDps(await this.request(Cmd.CONTROL_NEW, { devId: this.id, uid: this.id, t: String(t), dps: ask }, [Cmd.CONTROL_NEW, Cmd.STATUS]));
-    if (ack && Object.keys(ack).length) return ack;
-    const st = await statusWait;
-    return (st && extractDps(this.decodePayload(st))) ?? {};
-  }
-
-  /** Escreve DPs, ex.: set({ 1: true, 2: 23 }). Resolve com o que o aparelho confirmou. */
-  async set(dps: Dps): Promise<Dps> {
-    await this.connect();
-    const t = Math.floor(Date.now() / 1000);
-    const body =
-      this.version === '3.4'
-        ? { protocol: 5, t, data: { dps } }
-        : { devId: this.id, uid: this.id, t: String(t), dps };
-    const cmd = this.version === '3.4' ? Cmd.CONTROL_NEW : Cmd.CONTROL;
-
-    // o aparelho responde com um "ack" e, em seguida, um STATUS com os DPs aplicados
-    const statusWait = this.waitFor((f) => f.cmd === Cmd.STATUS, 2500).catch(() => null);
-    const ack = await this.request(cmd, body, [cmd, Cmd.STATUS]);
-    const ackDps = extractDps(ack);
-    if (ackDps && Object.keys(ackDps).length) return ackDps;
-    const st = await statusWait;
-    return (st && extractDps(this.decodePayload(st))) ?? {};
-  }
-
-  // ----------------------------------------------------------------- sessão v3.4
-
-  private async negotiate() {
-    this.negotiating = true;
+  async function negotiateSessionKey() {
+    negotiating = true;
     try {
       const localNonce = randomBytes(16);
-      const resp = await this.sendRaw(Cmd.SESS_KEY_NEG_START, ecbEncrypt(this.realKey, localNonce), [Cmd.SESS_KEY_NEG_RESP]);
+      const reply = await sendFrame(Cmd.SESS_KEY_NEG_START, ecbEncrypt(localKey, localNonce), [Cmd.SESS_KEY_NEG_RESP]);
       let payload: Uint8Array;
       try {
-        payload = ecbDecrypt(this.realKey, resp.payload);
+        payload = ecbDecrypt(localKey, reply.payload);
       } catch {
-        throw new LocalError('falha na negociação (local key errada?)', 'auth');
+        throw new LocalError('a local key não confere com o aparelho', 'auth');
       }
-      if (payload.length < 48) throw new LocalError('resposta de negociação curta', 'protocol');
+      if (payload.length < 48) throw new LocalError('resposta de negociação curta demais', 'protocol');
+
       const remoteNonce = payload.subarray(0, 16);
-      const expected = hmacSha256(this.realKey, localNonce);
-      if (!bytesEq(expected, payload.subarray(16, 48))) throw new LocalError('HMAC da negociação não confere (local key errada?)', 'auth');
-
-      await this.sendRaw(Cmd.SESS_KEY_NEG_FINISH, ecbEncrypt(this.realKey, hmacSha256(this.realKey, remoteNonce)), null);
-      this.key = sessionKey34(this.realKey, localNonce, remoteNonce);
+      if (!equalBytes(hmacSha256(localKey, localNonce), payload.subarray(16, 48))) {
+        throw new LocalError('a local key não confere com o aparelho', 'auth');
+      }
+      await sendFrame(Cmd.SESS_KEY_NEG_FINISH, ecbEncrypt(localKey, hmacSha256(localKey, remoteNonce)), null);
+      sessionKey = sessionKey34(localKey, localNonce, remoteNonce);
     } finally {
-      this.negotiating = false;
+      negotiating = false;
     }
   }
 
-  // ----------------------------------------------------------------- enquadramento
-
-  /** Monta payload (JSON → bytes cifrados com cabeçalho quando aplicável) e envia. */
-  private async request(cmd: number, body: unknown, expect: number[]): Promise<unknown> {
-    const json = te.encode(JSON.stringify(body));
-    const noHeader = cmd === Cmd.DP_QUERY || cmd === Cmd.DP_QUERY_NEW || cmd === Cmd.HEART_BEAT;
-    let payload: Uint8Array;
-    if (this.version === '3.4') {
-      payload = ecbEncrypt(this.key, noHeader ? json : concat(versionHeader('3.4'), json));
-    } else {
-      const enc = ecbEncrypt(this.key, json);
-      payload = noHeader ? enc : concat(versionHeader('3.3'), enc);
-    }
-    const frame = await this.sendRaw(cmd, payload, expect);
-    return this.decodePayload(frame);
+  function sendHeartbeat() {
+    exclusive(() => request(Cmd.HEART_BEAT, { gwId: id, devId: id }, [Cmd.HEART_BEAT])).catch((error) =>
+      dropConnection(error as Error),
+    );
   }
 
-  private async sendRaw(cmd: number, payload: Uint8Array, expect: number[] | null): Promise<Frame55AA> {
-    if (!this.sock) throw new LocalError('desconectado', 'closed');
-    const hmacKey = this.version === '3.4' ? this.key : undefined;
-    const data = encode55AA({ seq: this.seq++, cmd, payload }, { hmacKey });
-    const wait = expect ? this.waitFor((f) => expect.includes(f.cmd)) : null;
-    await this.sock.write(data);
-    return wait ? wait : ({ kind: '55aa', seq: 0, cmd, payload: new Uint8Array(0) } as Frame55AA);
+  function resetConnection() {
+    clearInterval(heartbeat);
+    heartbeat = undefined;
+    socket = null;
+    sessionKey = localKey;
+    pending = EMPTY;
   }
 
-  private waitFor(match: (f: Frame55AA) => boolean, timeoutMs = this.opts.timeoutMs ?? 5000): Promise<Frame55AA> {
-    return new Promise((resolve, reject) => {
-      const w: Waiter = {
-        match,
-        resolve,
-        reject,
-        timer: setTimeout(() => {
-          this.waiters = this.waiters.filter((x) => x !== w);
-          reject(new LocalError('o dispositivo não respondeu a tempo', 'timeout'));
-        }, timeoutMs),
-      };
-      this.waiters.push(w);
+  async function closeSocket() {
+    const s = socket;
+    resetConnection();
+    rejectAllWaiters(new LocalError('conexão fechada', 'closed'));
+    if (s) await s.close().catch(() => {});
+  }
+
+  function dropConnection(error?: Error) {
+    if (!socket) return;
+    const s = socket;
+    resetConnection();
+    rejectAllWaiters(new LocalError(error ? `a conexão caiu: ${error.message}` : 'o aparelho fechou a conexão', 'closed'));
+    s.close().catch(() => {});
+    for (const listener of closeListeners) listener(error);
+  }
+
+  // ------------------------------------------------------------- comandos
+
+  async function status(): Promise<Dps> {
+    return exclusive(async () => {
+      await connect();
+      if (is34) return dpsIn(await request(Cmd.DP_QUERY_NEW, {}, [Cmd.DP_QUERY_NEW, Cmd.STATUS])) ?? {};
+
+      if (!isDevice22) {
+        const now = String(unixTime());
+        const reply = await request(Cmd.DP_QUERY, { gwId: id, devId: id, uid: id, t: now }, [Cmd.DP_QUERY, Cmd.STATUS]);
+        if (reply !== 'device22') return dpsIn(reply) ?? {};
+        isDevice22 = true;
+      }
+      return controlAndWait(Cmd.CONTROL_NEW, { devId: id, uid: id, t: String(unixTime()), dps: { '1': null } });
     });
   }
 
-  private onBytes(chunk: Uint8Array) {
-    this.buf = this.buf.length ? concat(this.buf, chunk) : chunk;
+  async function set(dps: Dps): Promise<Dps> {
+    return exclusive(async () => {
+      await connect();
+      return is34
+        ? controlAndWait(Cmd.CONTROL_NEW, { protocol: 5, t: unixTime(), data: { dps } })
+        : controlAndWait(Cmd.CONTROL, { devId: id, uid: id, t: String(unixTime()), dps });
+    });
+  }
+
+  /**
+   * Um controle costuma ter duas respostas: um "ack" (às vezes vazio) e um
+   * STATUS com os DPs aplicados. Alguns aparelhos mandam só uma delas.
+   * Esperamos pela primeira; se for um ack vazio, usamos o STATUS que chegar
+   * em seguida (ou que já tenha chegado junto, no mesmo pacote TCP).
+   */
+  async function controlAndWait(cmd: number, body: unknown): Promise<Dps> {
+    const statusesBefore = statusCount;
+    const first = dpsIn(await request(cmd, body, [cmd, Cmd.STATUS]));
+    if (first && Object.keys(first).length) return first;
+
+    if (statusCount > statusesBefore && lastStatus) return dpsIn(decodePayload(lastStatus)) ?? {};
+    const frame = await waitForFrame((f) => f.cmd === Cmd.STATUS, 2500).catch(() => null);
+    return (frame && dpsIn(decodePayload(frame))) ?? {}; // sem STATUS: confirmou sem dizer o que mudou
+  }
+
+  // ------------------------------------------------------------- envio
+
+  /** JSON → payload (cifrado, com cabeçalho de versão quando o comando pede) → frame. */
+  async function request(cmd: number, body: unknown, expect: number[]): Promise<unknown> {
+    const json = te.encode(JSON.stringify(body));
+    const withHeader = !COMMANDS_WITHOUT_HEADER.has(cmd);
+    let payload: Uint8Array;
+    if (is34) {
+      payload = ecbEncrypt(sessionKey, withHeader ? concat(versionHeader('3.4'), json) : json);
+    } else {
+      const encrypted = ecbEncrypt(sessionKey, json);
+      payload = withHeader ? concat(versionHeader('3.3'), encrypted) : encrypted;
+    }
+    return decodePayload(await sendFrame(cmd, payload, expect));
+  }
+
+  /** Envia um frame. Com `expect`, espera pelo primeiro frame recebido com um daqueles comandos. */
+  async function sendFrame(cmd: number, payload: Uint8Array, expect: number[] | null): Promise<Frame55AA> {
+    if (!socket) throw new LocalError('desconectado', 'closed');
+    const frame = encode55AA({ seq: seq++, cmd, payload }, { hmacKey: is34 ? sessionKey : undefined });
+    const reply = expect ? waitForFrame((f) => expect.includes(f.cmd)) : null;
+    await socket.write(frame);
+    return reply ?? { kind: '55aa', seq: 0, cmd, payload: EMPTY };
+  }
+
+  function waitForFrame(accepts: (f: Frame55AA) => boolean, ms = timeoutMs): Promise<Frame55AA> {
+    return new Promise((resolve, reject) => {
+      const waiter: Waiter = {
+        accepts,
+        resolve,
+        reject,
+        timer: setTimeout(() => {
+          waiters = waiters.filter((w) => w !== waiter);
+          reject(new LocalError('o aparelho não respondeu a tempo', 'timeout'));
+        }, ms),
+      };
+      waiters.push(waiter);
+    });
+  }
+
+  function rejectAllWaiters(error: Error) {
+    const all = waiters;
+    waiters = [];
+    for (const w of all) {
+      clearTimeout(w.timer);
+      w.reject(error);
+    }
+  }
+
+  // ------------------------------------------------------------- recebimento
+
+  function receive(chunk: Uint8Array) {
+    pending = pending.length ? concat(pending, chunk) : chunk;
     for (;;) {
-      let len: number | null;
+      let length: number | null;
       try {
-        len = frameLength55AA(this.buf);
-      } catch (e) {
-        this.buf = new Uint8Array(0);
-        this.handleClose(e as Error);
-        return;
+        length = frameLength55AA(pending);
+      } catch (error) {
+        return dropConnection(error as Error); // fluxo dessincronizado: melhor reconectar
       }
-      if (len === null || this.buf.length < len) return;
-      const raw = this.buf.slice(0, len);
-      this.buf = this.buf.slice(len);
-      let frame: Frame55AA;
+      if (length === null || pending.length < length) return;
+
+      const raw = pending.slice(0, length);
+      pending = pending.slice(length);
       try {
-        frame = decode55AA(raw, { hasRetcode: true, hmacKey: this.version === '3.4' ? this.key : undefined });
-      } catch (e) {
-        if (e instanceof FrameError) {
-          // na negociação, HMAC inválido = local key errada
-          if (this.negotiating) this.failAll(new LocalError('a local key não confere com o aparelho', 'auth'));
-          continue; // fora dela: frame corrompido, ignora
-        }
-        throw e;
+        dispatch(decode55AA(raw, { hasRetcode: true, hmacKey: is34 ? sessionKey : undefined }));
+      } catch (error) {
+        if (!(error instanceof FrameError)) throw error;
+        // HMAC inválido durante a negociação = local key errada; fora dela, frame corrompido
+        if (negotiating) rejectAllWaiters(new LocalError('a local key não confere com o aparelho', 'auth'));
       }
-      this.dispatch(frame);
     }
   }
 
-  private dispatch(frame: Frame55AA) {
-    const i = this.waiters.findIndex((w) => w.match(frame));
-    if (i >= 0) {
-      const [w] = this.waiters.splice(i, 1);
-      clearTimeout(w!.timer);
-      w!.resolve(frame);
+  function dispatch(frame: Frame55AA) {
+    const index = waiters.findIndex((w) => w.accepts(frame));
+    if (index >= 0) {
+      const [waiter] = waiters.splice(index, 1);
+      clearTimeout(waiter!.timer);
+      waiter!.resolve(frame);
     }
-    // STATUS espontâneo (alguém mexeu no aparelho, ou resposta a um set)
-    if (frame.cmd === Cmd.STATUS && !this.negotiating) {
-      const dps = extractDps(this.decodePayload(frame));
-      if (dps) for (const l of this.statusListeners) l(dps);
+    if (frame.cmd === Cmd.STATUS && !negotiating) {
+      lastStatus = frame;
+      statusCount++;
+      let dps: Dps | null = null;
+      try {
+        dps = dpsIn(decodePayload(frame));
+      } catch {
+        // STATUS ilegível: ignora, o próximo virá
+      }
+      if (dps) for (const listener of statusListeners) listener(dps);
     }
   }
 
-  /** Bytes do frame → objeto JSON (ou 'device22' / null). */
-  private decodePayload(frame: Frame55AA): unknown {
-    let p = frame.payload;
-    if (!p.length) return null;
+  /** Bytes do frame → JSON. Retorna null para payload vazio e 'device22' para "data unvalid". */
+  function decodePayload(frame: Frame55AA): unknown {
+    let bytes = frame.payload;
+    if (!bytes.length) return null;
     try {
-      if (this.version === '3.4') {
-        p = ecbDecrypt(this.key, p);
-        if (startsWithVersion(p)) p = p.subarray(VERSION_HEADER_LEN);
+      if (is34) {
+        bytes = ecbDecrypt(sessionKey, bytes);
+        if (startsWithVersion(bytes)) bytes = bytes.subarray(VERSION_HEADER_LEN);
       } else {
-        if (startsWithVersion(p)) p = p.subarray(VERSION_HEADER_LEN);
-        if (p[0] !== 0x7b) p = ecbDecrypt(this.key, p);
+        if (startsWithVersion(bytes)) bytes = bytes.subarray(VERSION_HEADER_LEN);
+        if (bytes[0] !== 0x7b /* { */) bytes = ecbDecrypt(sessionKey, bytes);
       }
     } catch {
       throw new LocalError('não consegui decifrar a resposta (local key errada?)', 'auth');
     }
-    const text = td.decode(p);
+    const text = td.decode(bytes);
     if (text.includes('data unvalid')) return 'device22';
     try {
       return JSON.parse(text);
@@ -289,35 +366,32 @@ export class TuyaLocalDevice {
     }
   }
 
-  private handleClose(err?: Error) {
-    if (!this.sock) return;
-    this.sock = null;
-    this.key = this.realKey;
-    this.failAll(new LocalError(err ? `conexão caiu: ${err.message}` : 'o dispositivo fechou a conexão', 'closed'));
-    for (const l of this.closeListeners) l(err);
-  }
-
-  private failAll(err: Error) {
-    const ws = this.waiters;
-    this.waiters = [];
-    for (const w of ws) {
-      clearTimeout(w.timer);
-      w.reject(err);
-    }
-  }
+  return {
+    id,
+    version,
+    isConnected: () => socket !== null,
+    status,
+    set,
+    onStatus(listener) {
+      statusListeners.add(listener);
+      return () => statusListeners.delete(listener);
+    },
+    onClose(listener) {
+      closeListeners.add(listener);
+      return () => closeListeners.delete(listener);
+    },
+    close: closeSocket,
+  };
 }
 
-/** Aceita {dps}, {data:{dps}} (v3.4) e normaliza chaves para string. */
-export function extractDps(obj: unknown): Dps | null {
-  if (!obj || typeof obj !== 'object') return null;
-  const o = obj as any;
-  const dps = o.dps ?? o.data?.dps;
+/** Aceita { dps } (3.3) e { data: { dps } } (3.4). */
+export function dpsIn(reply: unknown): Dps | null {
+  if (!reply || typeof reply !== 'object') return null;
+  const r = reply as { dps?: Dps; data?: { dps?: Dps } };
+  const dps = r.dps ?? r.data?.dps;
   return dps && typeof dps === 'object' ? { ...dps } : null;
 }
 
-function bytesEq(a: Uint8Array, b: Uint8Array) {
-  if (a.length !== b.length) return false;
-  let d = 0;
-  for (let i = 0; i < a.length; i++) d |= a[i]! ^ b[i]!;
-  return d === 0;
+function unixTime() {
+  return Math.floor(Date.now() / 1000);
 }

@@ -1,125 +1,29 @@
 /**
- * Cliente da API "Smart Life sharing" — o mesmo backend que a integração
- * oficial Tuya do Home Assistant usa. Fluxo:
+ * Cliente da API "Smart Life sharing" — a mesma que a integração oficial
+ * Tuya do Home Assistant usa (porta de tuya_sharing/customerapi.py, MIT © Tuya).
  *
- *  1. requestLoginQr(userCode) → token; o QR contém `tuyaSmart--qrLogin?token=…`
- *  2. o usuário escaneia no app Smart Life e confirma
- *  3. pollLogin(token) até vir a sessão (access/refresh token + endpoint regional)
- *  4. SharingClient(session).inventory() → casas, dispositivos, local keys e mapa de DPs
- *
- * Depois disso o controle é 100% local; a nuvem só é consultada para
- * re-sincronizar (dispositivo novo, local key trocada após re-pareamento…).
+ * Serve para três coisas:
+ *   - inventário: casas, aparelhos, local keys e mapa de DPs;
+ *   - status e comandos pela nuvem, para quem não fala pela rede local
+ *     (sub-dispositivos de gateway, ares por infravermelho);
+ *   - renovar o token sozinho.
  */
 import type { SharingAppCredentials } from './app-credentials.ts';
 import { uuidv4 } from './encoding.ts';
+import { CloudError, type SharingSession } from './login.ts';
 import { decryptPayload, deriveSecret, encryptPayload, hashKey, restfulSign } from './signing.ts';
 
-export const LOGIN_HOST = 'https://apigw.iotbing.com';
-
-type FetchFn = typeof fetch;
-
-export class CloudError extends Error {
-  constructor(
-    message: string,
-    readonly code?: string | number,
-  ) {
-    super(message);
-  }
-}
-
-export interface SharingSession {
-  uid: string;
-  username?: string;
-  accessToken: string;
-  refreshToken: string;
-  /** epoch ms em que o accessToken expira */
-  expiresAt: number;
-  /** host regional, ex.: https://apigw.tuyaus.com */
-  endpoint: string;
-  terminalId: string;
-  userCode: string;
-}
-
-export interface LoginQr {
-  token: string;
-  /** conteúdo a ser codificado no QR */
-  qrData: string;
-}
-
-export function qrDataFor(token: string): string {
-  return `tuyaSmart--qrLogin?token=${token}`;
-}
-
-export async function requestLoginQr(
-  userCode: string,
-  app: SharingAppCredentials,
-  fetchFn: FetchFn = fetch,
-): Promise<LoginQr> {
-  const q = new URLSearchParams({ clientid: app.clientId, usercode: userCode.trim(), schema: app.schema });
-  const res = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens?${q}`, { method: 'POST' });
-  const json: any = await res.json();
-  if (!json?.success || !json.result?.qrcode) {
-    throw new CloudError(json?.msg || `falha ao gerar QR (HTTP ${res.status})`, json?.code);
-  }
-  return { token: json.result.qrcode, qrData: qrDataFor(json.result.qrcode) };
-}
-
-/** Uma consulta. Retorna `null` enquanto o usuário não confirmou no app. */
-export async function checkLogin(
-  token: string,
-  userCode: string,
-  app: SharingAppCredentials,
-  fetchFn: FetchFn = fetch,
-): Promise<SharingSession | null> {
-  const q = new URLSearchParams({ clientid: app.clientId, usercode: userCode.trim() });
-  const res = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens/${token}?${q}`);
-  const json: any = await res.json();
-  if (!json?.success) return null;
-  const r = json.result ?? {};
-  return {
-    uid: r.uid,
-    username: r.username,
-    accessToken: r.access_token,
-    refreshToken: r.refresh_token,
-    expiresAt: Number(json.t ?? Date.now()) + Number(r.expire_time ?? 0) * 1000,
-    endpoint: r.endpoint,
-    terminalId: r.terminal_id,
-    userCode: userCode.trim(),
-  };
-}
-
-/** Faz polling até o login ser confirmado, expirar (`timeoutMs`) ou ser abortado. */
-export async function pollLogin(
-  token: string,
-  userCode: string,
-  app: SharingAppCredentials,
-  opts: { intervalMs?: number; timeoutMs?: number; signal?: AbortSignal; fetch?: FetchFn } = {},
-): Promise<SharingSession> {
-  const { intervalMs = 2000, timeoutMs = 3 * 60_000, signal } = opts;
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (signal?.aborted) throw new CloudError('login cancelado');
-    try {
-      const s = await checkLogin(token, userCode, app, opts.fetch);
-      if (s) return s;
-    } catch {
-      // rede instável: tenta de novo no próximo ciclo
-    }
-    await new Promise((r) => setTimeout(r, intervalMs));
-  }
-  throw new CloudError('QR expirou sem confirmação');
-}
-
-// ---------------------------------------------------------------------------
+export * from './login.ts';
 
 export interface DpSpec {
+  /** id numérico do DP (0 quando só a nuvem conhece o aparelho) */
   dpId: number;
   code: string;
   /** Boolean | Integer | Enum | String | Json | Raw | Bitmap */
   type: string;
-  /** faixa/opções (min, max, step, scale, unit, range…) */
+  /** faixa/opções: min, max, step, scale, unit, range… */
   values?: Record<string, unknown>;
-  /** aceita escrita (está em `functions` da especificação) */
+  /** aceita escrita (aparece em `functions` da especificação) */
   writable: boolean;
 }
 
@@ -130,169 +34,183 @@ export interface CloudDevice {
   category: string;
   productId: string;
   productName: string;
-  /** sub-dispositivo de um gateway (Zigbee/BLE) */
+  /** sub-dispositivo de um gateway ou de um controle IR */
   sub: boolean;
   online: boolean;
   homeId: string;
   homeName: string;
   icon?: string;
-  /** status atual pela nuvem, por code */
+  /** último status conhecido pela nuvem, por código */
   status: Record<string, unknown>;
-  /** mapa dpId → spec; vazio se o produto não suporta controle local */
   dps: DpSpec[];
+  /** o produto declara suporte a controle local */
   supportLocal: boolean;
   /** a lista de DPs graváveis veio da nuvem (se false, `writable` é desconhecido) */
   writableKnown: boolean;
 }
 
+export interface CloudCommand {
+  code: string;
+  value: unknown;
+}
+
 export interface SharingClientOptions {
   app: SharingAppCredentials;
-  fetch?: FetchFn;
+  fetch?: typeof fetch;
   /** chamado quando o token é renovado — persista a nova sessão */
-  onSessionUpdate?: (s: SharingSession) => void;
+  onSessionUpdate?: (session: SharingSession) => void;
 }
 
-function parseJson(v: unknown): Record<string, unknown> | undefined {
-  if (typeof v !== 'string' || !v) return (v as Record<string, unknown>) ?? undefined;
-  try {
-    return JSON.parse(v);
-  } catch {
-    return undefined;
-  }
+export interface SharingClient {
+  /** sessão atual (muda quando o token é renovado) */
+  session(): SharingSession;
+  request<T = any>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T>;
+  homes(): Promise<{ id: string; name: string }[]>;
+  inventory(options?: { concurrency?: number }): Promise<CloudDevice[]>;
+  /** status atual pela nuvem, por código */
+  statusOf(deviceIds: string[]): Promise<Record<string, { online: boolean; status: Record<string, unknown> }>>;
+  sendCommands(deviceId: string, commands: CloudCommand[]): Promise<void>;
+  logout(): Promise<void>;
 }
 
-export class SharingClient {
-  private refreshing = false;
-  private readonly fetchFn: FetchFn;
+export function createSharingClient(initial: SharingSession, options: SharingClientOptions): SharingClient {
+  const fetchFn = options.fetch ?? fetch;
+  let session = initial;
+  let refreshing: Promise<void> | null = null;
 
-  constructor(
-    public session: SharingSession,
-    private readonly opts: SharingClientOptions,
-  ) {
-    this.fetchFn = opts.fetch ?? fetch;
+  // ------------------------------------------------------------ transporte
+
+  async function request<T = any>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T> {
+    await refreshIfNeeded();
+    return signedRequest<T>(method, path, params, body);
   }
 
-  async request<T = any>(method: 'GET' | 'POST', path: string, params?: Record<string, unknown>, body?: Record<string, unknown>): Promise<T> {
-    await this.refreshIfNeeded();
+  async function signedRequest<T>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T> {
+    const requestId = uuidv4();
+    const key = hashKey(requestId, session.refreshToken);
+    const secret = deriveSecret(requestId, '', key);
 
-    const rid = uuidv4();
-    const sid = '';
-    const hk = hashKey(rid, this.session.refreshToken);
-    const secret = deriveSecret(rid, sid, hk);
-
+    let url = session.endpoint + path;
     let queryEnc = '';
-    let url = this.session.endpoint + path;
     if (params && Object.keys(params).length) {
       queryEnc = encryptPayload(JSON.stringify(params), secret);
       url += `?encdata=${encodeURIComponent(queryEnc)}`;
     }
     let bodyEnc = '';
-    let bodyStr: string | undefined;
-    if (body && Object.keys(body).length) {
-      bodyEnc = encryptPayload(JSON.stringify(body), secret);
-      bodyStr = JSON.stringify({ encdata: bodyEnc });
-    }
+    if (body && Object.keys(body).length) bodyEnc = encryptPayload(JSON.stringify(body), secret);
 
     const headers: Record<string, string> = {
-      'X-appKey': this.opts.app.clientId,
-      'X-requestId': rid,
-      'X-sid': sid,
+      'X-appKey': options.app.clientId,
+      'X-requestId': requestId,
+      'X-sid': '',
       'X-time': String(Date.now()),
     };
-    if (this.session.accessToken) headers['X-token'] = this.session.accessToken;
-    headers['X-sign'] = restfulSign(hk, queryEnc, bodyEnc, headers);
-    if (bodyStr) headers['Content-Type'] = 'application/json';
+    if (session.accessToken) headers['X-token'] = session.accessToken;
+    headers['X-sign'] = restfulSign(key, queryEnc, bodyEnc, headers);
+    if (bodyEnc) headers['Content-Type'] = 'application/json';
 
-    const res = await this.fetchFn(url, { method, headers, body: bodyStr });
-    if (!res.ok) throw new CloudError(`HTTP ${res.status} em ${path}`, res.status);
-    const json: any = await res.json();
+    const response = await fetchFn(url, { method, headers, body: bodyEnc ? JSON.stringify({ encdata: bodyEnc }) : undefined });
+    if (!response.ok) throw new CloudError(`HTTP ${response.status} em ${path}`, response.status);
+    const json = (await response.json()) as any;
     if (!json?.success) throw new CloudError(`${json?.msg ?? 'erro'} (${path})`, json?.code);
-    if (json.result) {
+    if (typeof json.result === 'string' && json.result) {
       const plain = decryptPayload(json.result, secret);
-      try {
-        json.result = JSON.parse(plain);
-      } catch {
-        json.result = plain;
-      }
+      json.result = parseJsonOr(plain, plain);
     }
     return json as T;
   }
 
-  private async refreshIfNeeded(): Promise<void> {
-    if (this.refreshing || this.session.expiresAt - 60_000 > Date.now()) return;
-    this.refreshing = true;
-    try {
-      const r: any = await this.request('GET', `/v1.0/m/token/${this.session.refreshToken}`);
-      const t = r.result ?? {};
-      this.session = {
-        ...this.session,
-        uid: t.uid ?? this.session.uid,
-        accessToken: t.accessToken,
-        refreshToken: t.refreshToken,
-        expiresAt: Number(r.t ?? Date.now()) + Number(t.expireTime ?? 0) * 1000,
-      };
-      this.opts.onSessionUpdate?.(this.session);
-    } finally {
-      this.refreshing = false;
+  /** Renova o token um minuto antes de expirar. Chamadas simultâneas esperam a mesma renovação. */
+  function refreshIfNeeded(): Promise<void> {
+    if (session.expiresAt - 60_000 > Date.now()) return Promise.resolve();
+    refreshing ??= (async () => {
+      try {
+        const r = await signedRequest<any>('GET', `/v1.0/m/token/${session.refreshToken}`);
+        const t = r.result ?? {};
+        session = {
+          ...session,
+          uid: t.uid ?? session.uid,
+          accessToken: t.accessToken,
+          refreshToken: t.refreshToken,
+          expiresAt: Number(r.t ?? Date.now()) + Number(t.expireTime ?? 0) * 1000,
+        };
+        options.onSessionUpdate?.(session);
+      } finally {
+        refreshing = null;
+      }
+    })();
+    return refreshing;
+  }
+
+  // ------------------------------------------------------------ inventário
+
+  async function homes() {
+    const r = await request('GET', '/v1.0/m/life/users/homes');
+    return ((r.result ?? []) as any[]).map((h) => ({ id: String(h.ownerId), name: String(h.name ?? '') }));
+  }
+
+  /** DPs pela "estratégia local" do produto (com dpId). */
+  async function localStrategy(deviceId: string) {
+    const r = await request('GET', `/v1.0/m/life/devices/${deviceId}/status`);
+    const relations: any[] = r.result?.dpStatusRelationDTOS ?? [];
+    return {
+      dps: relations.map<DpSpec>((d) => ({
+        dpId: Number(d.dpId),
+        code: String(d.statusCode),
+        type: String(d.valueType),
+        values: parseValues(d.valueDesc),
+        writable: false,
+      })),
+      supportLocal: relations.length > 0 && relations.every((d) => d.supportLocal),
+    };
+  }
+
+  /** Especificação: `functions` (graváveis) e `status` (legíveis). */
+  async function specification(deviceId: string) {
+    const r = await request('GET', `/v1.1/m/life/${deviceId}/specifications`);
+    const toSpec = (f: any, writable: boolean): DpSpec => ({
+      dpId: Number(f.dp_id ?? f.dpId ?? 0),
+      code: String(f.code),
+      type: String(f.type),
+      values: parseValues(f.values),
+      writable,
+    });
+    return {
+      functions: ((r.result?.functions ?? []) as any[]).map((f) => toSpec(f, true)),
+      status: ((r.result?.status ?? []) as any[]).map((f) => toSpec(f, false)),
+    };
+  }
+
+  /** Junta as duas fontes: a estratégia local traz os dpIds, a especificação diz o que é gravável. */
+  async function describe(deviceId: string) {
+    const [strategy, spec] = await Promise.all([
+      localStrategy(deviceId).catch(() => ({ dps: [] as DpSpec[], supportLocal: false })),
+      specification(deviceId).catch(() => null),
+    ]);
+    const writable = new Set(spec?.functions.map((f) => f.code));
+    let dps = strategy.dps.map((d) => ({ ...d, writable: writable.has(d.code) }));
+
+    // aparelhos só da nuvem (ex.: ar por infravermelho) não têm estratégia local
+    if (!dps.length && spec) {
+      const byCode = new Map<string, DpSpec>();
+      for (const s of [...spec.status, ...spec.functions]) byCode.set(s.code, { ...byCode.get(s.code), ...s, writable: writable.has(s.code) });
+      dps = [...byCode.values()];
     }
+    return { dps, supportLocal: strategy.supportLocal, writableKnown: spec !== null };
   }
 
-  async homes(): Promise<{ id: string; name: string }[]> {
-    const r = await this.request('GET', '/v1.0/m/life/users/homes');
-    return (r.result ?? []).map((h: any) => ({ id: String(h.ownerId), name: String(h.name ?? '') }));
-  }
-
-  async devicesRaw(homeId: string): Promise<any[]> {
-    const r = await this.request('GET', '/v1.0/m/life/ha/home/devices', { homeId });
-    return r.result ?? [];
-  }
-
-  /** dpId → code/tipo/faixa, a partir da "estratégia local" do produto. */
-  async dpSpecs(deviceId: string): Promise<{ dps: DpSpec[]; supportLocal: boolean }> {
-    const r = await this.request('GET', `/v1.0/m/life/devices/${deviceId}/status`);
-    const rel: any[] = r.result?.dpStatusRelationDTOS ?? [];
-    const dps: DpSpec[] = rel.map((d) => ({
-      dpId: Number(d.dpId),
-      code: String(d.statusCode),
-      type: String(d.valueType),
-      values: parseJson(d.valueDesc),
-      writable: false,
-    }));
-    return { dps, supportLocal: rel.length > 0 && rel.every((d) => d.supportLocal) };
-  }
-
-  /** Códigos graváveis (functions) — o que pode virar controle. */
-  async writableCodes(deviceId: string): Promise<Set<string>> {
-    const r = await this.request('GET', `/v1.1/m/life/${deviceId}/specifications`);
-    return new Set((r.result?.functions ?? []).map((f: any) => String(f.code)));
-  }
-
-  /** Tudo que o app precisa para operar localmente. */
-  async inventory(opts: { concurrency?: number } = {}): Promise<CloudDevice[]> {
-    const out: CloudDevice[] = [];
-    for (const home of await this.homes()) {
-      const raw = await this.devicesRaw(home.id);
-      const queue = [...raw];
+  async function inventory({ concurrency = 4 } = {}): Promise<CloudDevice[]> {
+    const devices: CloudDevice[] = [];
+    for (const home of await homes()) {
+      const r = await request('GET', '/v1.0/m/life/ha/home/devices', { homeId: home.id });
+      const queue: any[] = [...(r.result ?? [])];
       const worker = async () => {
         for (let d = queue.shift(); d; d = queue.shift()) {
-          let spec = { dps: [] as DpSpec[], supportLocal: false };
-          let writableKnown = false;
-          try {
-            spec = await this.dpSpecs(d.id);
-            const writable = await this.writableCodes(d.id).then(
-              (w) => ((writableKnown = true), w),
-              () => new Set<string>(),
-            );
-            for (const dp of spec.dps) dp.writable = writable.has(dp.code);
-          } catch {
-            // sem spec: aparece na lista, mas sem controle local por enquanto
-          }
-          const status: Record<string, unknown> = {};
-          for (const s of d.status ?? []) if (s && 'code' in s) status[s.code] = s.value;
-          out.push({
+          const described = await describe(d.id);
+          devices.push({
             id: d.id,
             name: d.name,
-            localKey: d.local_key,
+            localKey: d.local_key ?? '',
             category: d.category,
             productId: d.product_id,
             productName: d.product_name,
@@ -301,23 +219,66 @@ export class SharingClient {
             homeId: home.id,
             homeName: home.name,
             icon: d.icon,
-            status,
-            dps: spec.dps,
-            supportLocal: spec.supportLocal,
-            writableKnown,
+            status: statusByCode(d.status),
+            ...described,
           });
         }
       };
-      await Promise.all(Array.from({ length: opts.concurrency ?? 4 }, worker));
+      await Promise.all(Array.from({ length: concurrency }, worker));
     }
+    return devices;
+  }
+
+  // ------------------------------------------------------------ controle pela nuvem
+
+  async function statusOf(deviceIds: string[]) {
+    if (!deviceIds.length) return {};
+    const r = await request('GET', '/v1.0/m/life/ha/devices/detail', { devIds: deviceIds.join(',') });
+    const out: Record<string, { online: boolean; status: Record<string, unknown> }> = {};
+    for (const d of (r.result ?? []) as any[]) out[d.id] = { online: Boolean(d.online), status: statusByCode(d.status) };
     return out;
   }
 
-  /** Encerra a sessão no servidor (logout). */
-  async logout(): Promise<void> {
-    await this.request('POST', '/v1.0/m/token/terminal/expire', undefined, {
-      accessToken: this.session.accessToken,
-      terminalId: this.session.terminalId,
+  async function sendCommands(deviceId: string, commands: CloudCommand[]) {
+    await request('POST', `/v1.1/m/thing/${deviceId}/commands`, undefined, { commands });
+  }
+
+  async function logout() {
+    await request('POST', '/v1.0/m/token/terminal/expire', undefined, {
+      accessToken: session.accessToken,
+      terminalId: session.terminalId,
     });
+  }
+
+  return { session: () => session, request, homes, inventory, statusOf, sendCommands, logout };
+}
+
+// ------------------------------------------------------------ utilitários
+
+/** [{ code: 'switch', value: true }, …] → { switch: true, … } */
+function statusByCode(list: unknown): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if (!Array.isArray(list)) return out;
+  for (const item of list) {
+    if (item && typeof item === 'object' && 'code' in item) {
+      const { code, value } = item as { code: string; value: unknown };
+      out[code] = value;
+    }
+  }
+  return out;
+}
+
+function parseValues(v: unknown): Record<string, unknown> | undefined {
+  if (v && typeof v === 'object') return v as Record<string, unknown>;
+  if (typeof v !== 'string' || !v) return undefined;
+  const parsed = parseJsonOr(v, undefined);
+  return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : undefined;
+}
+
+function parseJsonOr<T>(text: string, fallback: T): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
   }
 }

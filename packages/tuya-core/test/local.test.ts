@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { createNodeTransport } from '../../transport-node/src/index.ts';
-import { TuyaLocalDevice } from '../src/index.ts';
+import { createLocalDevice } from '../src/index.ts';
 import { startFakeDevice } from './fake-local-device.ts';
 
 const KEY = 'abcdef0123456789';
@@ -15,11 +15,11 @@ const transport = createNodeTransport();
 for (const version of ['3.3', '3.4'] as const) {
   test(`v${version}: status() e set() contra o aparelho falso`, async () => {
     const fake = await startFakeDevice({ id: ID, localKey: KEY, version, dps: { '1': false, '2': 22, '4': 'cold' } });
-    const dev = new TuyaLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version, transport, timeoutMs: 2000 });
+    const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version, transport, timeoutMs: 2000 });
     try {
       assert.deepEqual(await dev.status(), { '1': false, '2': 22, '4': 'cold' });
       const pushed: unknown[] = [];
-      dev.onStatus((d) => pushed.push(d));
+      dev.onStatus((d: unknown) => pushed.push(d));
       const applied = await dev.set({ '1': true, '2': 24 });
       assert.deepEqual(applied, { '1': true, '2': 24 });
       assert.equal(fake.dps['2'], 24);
@@ -34,9 +34,59 @@ for (const version of ['3.3', '3.4'] as const) {
   });
 }
 
+for (const version of ['3.3', '3.4'] as const) {
+  test(`v${version}: comandos em paralelo não trocam respostas`, async () => {
+    const fake = await startFakeDevice({ id: ID, localKey: KEY, version, dps: { '1': false, '2': 20, '3': 'a' } });
+    const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version, transport, timeoutMs: 2000 });
+    try {
+      const [a, b, st] = await Promise.all([dev.set({ '1': true }), dev.set({ '2': 25 }), dev.status()]);
+      assert.deepEqual(a, { '1': true });
+      assert.deepEqual(b, { '2': 25 });
+      assert.deepEqual(st, { '1': true, '2': 25, '3': 'a' });
+    } finally {
+      await dev.close();
+      await fake.close();
+    }
+  });
+
+  test(`v${version}: heartbeat mantém a conexão e reconecta depois de cair`, async () => {
+    const fake = await startFakeDevice({ id: ID, localKey: KEY, version, dps: { '1': false } });
+    const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version, transport, timeoutMs: 1000, heartbeatMs: 50 });
+    try {
+      await dev.status();
+      await new Promise((r) => setTimeout(r, 180));
+      assert.ok(fake.log.filter((l) => l.cmd === 9).length >= 2, 'enviou heartbeats');
+      assert.equal(dev.isConnected(), true);
+
+      let closed = false;
+      dev.onClose(() => (closed = true));
+      fake.dropClients();
+      await new Promise((r) => setTimeout(r, 50));
+      assert.equal(closed, true, 'avisou que caiu');
+      assert.deepEqual(await dev.status(), { '1': false }, 'reconecta sozinho no próximo comando');
+    } finally {
+      await dev.close();
+      await fake.close();
+    }
+  });
+}
+
+test('aparelho que não manda "ack" (só STATUS) também funciona', async () => {
+  const fake = await startFakeDevice({ id: ID, localKey: KEY, version: '3.4', dps: { '1': false }, noAck: true });
+  const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version: '3.4', transport, timeoutMs: 800 });
+  try {
+    const started = Date.now();
+    assert.deepEqual(await dev.set({ '1': true }), { '1': true });
+    assert.ok(Date.now() - started < 500, 'não espera o prazo do ack');
+  } finally {
+    await dev.close();
+    await fake.close();
+  }
+});
+
 test('v3.3 device22: cai para CONTROL_NEW pedindo DPs', async () => {
   const fake = await startFakeDevice({ id: ID, localKey: KEY, version: '3.3', dps: { '1': true }, device22: true });
-  const dev = new TuyaLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version: '3.3', transport, timeoutMs: 2000 });
+  const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: KEY, version: '3.3', transport, timeoutMs: 2000 });
   try {
     assert.deepEqual(await dev.status(), { '1': true });
   } finally {
@@ -47,7 +97,7 @@ test('v3.3 device22: cai para CONTROL_NEW pedindo DPs', async () => {
 
 test('v3.4 com local key errada falha com erro de autenticação', async () => {
   const fake = await startFakeDevice({ id: ID, localKey: KEY, version: '3.4', dps: { '1': true } });
-  const dev = new TuyaLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: 'XXXXXXXXXXXXXXXX', version: '3.4', transport, timeoutMs: 1000 });
+  const dev = createLocalDevice({ id: ID, ip: '127.0.0.1', port: fake.port, localKey: 'XXXXXXXXXXXXXXXX', version: '3.4', transport, timeoutMs: 1000 });
   try {
     await assert.rejects(dev.status(), (e: any) => ['auth', 'timeout', 'closed'].includes(e.code));
   } finally {

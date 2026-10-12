@@ -7,7 +7,7 @@ import {
   fromBase64,
   hashKey,
   restfulSign,
-  SharingClient,
+  createSharingClient,
   toBase64,
   type SharingSession,
 } from '../src/index.ts';
@@ -54,7 +54,8 @@ test('decryptPayload abre resposta no formato do servidor', () => {
 
 /** Servidor falso: valida assinatura, decifra params e responde cifrado — como a Tuya. */
 function fakeCloud(session: SharingSession) {
-  const calls: { path: string; params?: any }[] = [];
+  const calls: { path: string; params?: any; body?: any }[] = [];
+  let refreshes = 0;
   const seal = (obj: unknown, secret: string) => {
     const nonce = new TextEncoder().encode('SERVERNONCE1');
     const ct = gcm(new TextEncoder().encode(secret), nonce).encrypt(new TextEncoder().encode(JSON.stringify(obj)));
@@ -69,17 +70,36 @@ function fakeCloud(session: SharingSession) {
     const hk = hashKey(h['X-requestId']!, session.refreshToken);
     const secret = deriveSecret(h['X-requestId']!, '', hk);
     const enc = url.searchParams.get('encdata') ?? '';
-    assert.equal(h['X-sign'], restfulSign(hk, enc, '', h), 'assinatura inválida');
+    const bodyEnc = init.body ? JSON.parse(init.body).encdata : '';
+    assert.equal(h['X-sign'], restfulSign(hk, enc, bodyEnc, h), 'assinatura inválida');
     const params = enc ? JSON.parse(decryptPayload(enc, secret)) : undefined;
-    calls.push({ path: url.pathname, params });
+    const body = bodyEnc ? JSON.parse(decryptPayload(bodyEnc, secret)) : undefined;
+    calls.push({ path: url.pathname, params, body });
 
     let result: unknown;
     if (url.pathname === '/v1.0/m/life/users/homes') result = [{ ownerId: 42, name: 'Casa' }];
     else if (url.pathname === '/v1.0/m/life/ha/home/devices')
       result = [
         { id: 'eb8bc0f725df3a2deek6uu', name: 'Ar do quarto', local_key: 'k3y!', category: 'kt', product_id: 'p', product_name: 'AC', sub: false, online: true, status: [{ code: 'switch', value: false }] },
+        { id: 'ir-ac-1', name: 'Ar escritório', category: 'infrared_ac', product_id: 'q', product_name: 'IR AC', sub: true, online: true, status: [{ code: 'temp', value: 24 }] },
       ];
-    else if (url.pathname.endsWith('/specifications')) result = { category: 'kt', functions: [{ code: 'switch' }, { code: 'temp_set' }], status: [] };
+    else if (url.pathname.endsWith('/specifications'))
+      result = url.pathname.includes('ir-ac')
+        ? {
+            functions: [
+              { code: 'switch', type: 'Boolean', values: '{}' },
+              { code: 'temp', type: 'Integer', values: '{"min":16,"max":30,"step":1}' },
+            ],
+            status: [{ code: 'temp', type: 'Integer', values: '{"min":16,"max":30,"step":1}' }],
+          }
+        : { category: 'kt', functions: [{ code: 'switch' }, { code: 'temp_set' }], status: [] };
+    else if (url.pathname.endsWith('/status') && url.pathname.includes('ir-ac')) result = { dpStatusRelationDTOS: [] };
+    else if (url.pathname === '/v1.0/m/life/ha/devices/detail') result = [{ id: 'x', online: true, status: [{ code: 'switch', value: true }] }];
+    else if (url.pathname.startsWith('/v1.1/m/thing/')) result = true;
+    else if (url.pathname.startsWith('/v1.0/m/token/')) {
+      refreshes++;
+      result = { uid: 'u', accessToken: 'acc2', refreshToken: 'ref2', expireTime: 7200 };
+    }
     else if (url.pathname.endsWith('/status'))
       result = {
         productKey: 'p',
@@ -90,7 +110,7 @@ function fakeCloud(session: SharingSession) {
       };
     return new Response(JSON.stringify({ success: true, t: Date.now(), result: seal(result, secret) }));
   }) as typeof fetch;
-  return { fetchFn, calls };
+  return { fetchFn, calls, refreshes: () => refreshes };
 }
 
 test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs', async () => {
@@ -104,16 +124,56 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
     userCode: 'abc',
   };
   const { fetchFn, calls } = fakeCloud(session);
-  const client = new SharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
   const inv = await client.inventory();
-  assert.equal(inv.length, 1);
-  const d = inv[0]!;
+  assert.equal(inv.length, 2);
+  const d = inv.find((x) => x.id === 'eb8bc0f725df3a2deek6uu')!;
   assert.equal(d.name, 'Ar do quarto');
   assert.equal(d.localKey, 'k3y!');
   assert.equal(d.homeName, 'Casa');
   assert.equal(d.supportLocal, true);
-  assert.deepEqual(d.dps.map((x) => [x.dpId, x.code]), [[1, 'switch'], [2, 'temp_set']]);
+  assert.deepEqual(d.dps.map((x: { dpId: number; code: string }) => [x.dpId, x.code]), [[1, 'switch'], [2, 'temp_set']]);
   assert.deepEqual(d.dps[1]!.values, { min: 16, max: 32, step: 1 });
   assert.equal(d.dps[1]!.writable, true);
   assert.deepEqual(calls.find((c) => c.path.endsWith('/home/devices'))!.params, { homeId: '42' });
+
+  // ar por infravermelho: sem estratégia local, os DPs vêm da especificação (por código)
+  const ir = inv.find((x) => x.id === 'ir-ac-1')!;
+  assert.equal(ir.localKey, '');
+  assert.equal(ir.sub, true);
+  assert.deepEqual(ir.dps.map((x) => [x.code, x.writable]).sort(), [['switch', true], ['temp', true]]);
+  assert.deepEqual(ir.status, { temp: 24 });
+});
+
+const baseSession = (over: Partial<SharingSession> = {}): SharingSession => ({
+  uid: 'u',
+  accessToken: 'acc',
+  refreshToken: 'ref',
+  expiresAt: Date.now() + 3600_000,
+  endpoint: 'https://apigw.example.com',
+  terminalId: 't',
+  userCode: 'abc',
+  ...over,
+});
+
+test('status e comandos pela nuvem (caminho dos ares por infravermelho)', async () => {
+  const session = baseSession();
+  const { fetchFn, calls } = fakeCloud(session);
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
+  assert.deepEqual(await client.statusOf(['x']), { x: { online: true, status: { switch: true } } });
+  await client.sendCommands('x', [{ code: 'switch', value: false }]);
+  assert.deepEqual(calls.at(-1), { path: '/v1.1/m/thing/x/commands', params: undefined, body: { commands: [{ code: 'switch', value: false }] } });
+});
+
+test('token vencido: chamadas simultâneas esperam uma única renovação', async () => {
+  const session = baseSession({ expiresAt: Date.now() - 1 });
+  const cloud = fakeCloud(session);
+  let saved: SharingSession | null = null;
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: cloud.fetchFn, onSessionUpdate: (s) => (saved = s) });
+  // o servidor falso assina com o refreshToken deste objeto; usamos o mesmo valor que a renovação devolve
+  session.refreshToken = 'ref2';
+  await Promise.all([client.statusOf(['x']), client.statusOf(['x']), client.statusOf(['x'])]).catch(() => {});
+  assert.equal(cloud.refreshes(), 1);
+  assert.equal(saved!.accessToken, 'acc2');
+  assert.ok(client.session().expiresAt > Date.now());
 });
