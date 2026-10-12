@@ -171,6 +171,8 @@ body[data-view="loading"] .toolbar { display: none; }
 .glyph[data-g="star"] { --glyph: var(--i-star); }
 .glyph[data-g="star-fill"] { --glyph: var(--i-star-fill); }
 .glyph[data-g="palette"] { --glyph: var(--i-palette); }
+.glyph[data-g="arrow-up"] { --glyph: var(--i-arrow-up); }
+.glyph[data-g="arrow-down"] { --glyph: var(--i-arrow-down); }
 
 /* ---------- botões ---------- */
 
@@ -300,9 +302,10 @@ body:not(.has-devices) .list { display: none; }
   border: var(--surface-border);
   border-radius: var(--surface-radius);
   box-shadow: var(--surface-shadow);
-  animation: in 0.25s ease-out;
   flex: none;
 }
+/* só quem acabou de aparecer anima — reordenar não pisca a lista inteira */
+.device.entering { animation: in 0.25s ease-out; }
 .device:hover { background: var(--surface-hover); }
 .device.away { opacity: 0.6; }
 @keyframes in { from { opacity: 0; transform: translateY(4px); } }
@@ -662,3 +665,22 @@ body.has-devices .empty { display: none; }
   border-radius: 50%;
   border: var(--badge-border);
 }
+
+/* ---------- seções da lista e organizar favoritos ---------- */
+
+.list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 2px 0;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 0.92em;
+  flex: none;
+}
+.list-heading .btn-link { padding: 0; }
+.list[data-layout="grid"] .list-heading { grid-column: 1 / -1; }
+.move-buttons { grid-area: badge; display: flex; gap: 4px; }
+.list[data-layout="grid"] .move-buttons { justify-self: start; margin-top: 4px; }
+.list.arranging .device:not(.away):hover { background: var(--surface-bg); }

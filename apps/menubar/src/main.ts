@@ -12,7 +12,7 @@
 import * as account from './backend/account.ts';
 import { push, setApp, type TinyApp } from './backend/app.ts';
 import * as control from './backend/control.ts';
-import { loadFavorites, toggleFavorite } from './backend/favorites.ts';
+import { loadFavorites, reorderFavorites, toggleFavorite } from './backend/favorites.ts';
 import { readText } from './backend/files.ts';
 import { onNetworkChange, restartListening, startListening } from './backend/network.ts';
 import { FAVORITE_PREFIX, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
@@ -88,6 +88,12 @@ export const api = {
     pushDevices();
     renderTray();
     return { favorite };
+  }),
+  reorderFavorites: withStart(async ({ order }: { order: string[] }) => {
+    const ids = await reorderFavorites(Array.isArray(order) ? order : []);
+    pushDevices();
+    renderTray();
+    return { order: ids };
   }),
 
   // ---- interface

@@ -31,7 +31,8 @@ export interface DeviceView {
 }
 
 export function deviceList(): DeviceView[] {
-  const favs = new Set(favorites());
+  const favoriteOrder = favorites();
+  const favs = new Set(favoriteOrder);
   const inventory = devices();
   const known = new Set(inventory.map((d) => d.id));
 
@@ -59,9 +60,10 @@ export function deviceList(): DeviceView[] {
     if (!known.has(seen.id)) views.push(stranger(seen));
   }
 
-  // favoritos primeiro, depois quem está acessível, depois por nome
+  // favoritos primeiro, na ordem escolhida; depois quem está acessível; depois por nome
   const rank = (v: DeviceView) => (v.favorite ? 0 : v.route ? 1 : 2);
-  return views.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  const favoritePosition = (v: DeviceView) => (v.favorite ? favoriteOrder.indexOf(v.id) : 0);
+  return views.sort((a, b) => rank(a) - rank(b) || favoritePosition(a) - favoritePosition(b) || a.name.localeCompare(b.name));
 }
 
 /** Aparelho anunciando na rede que não está na conta (sem chave, não dá para controlar). */

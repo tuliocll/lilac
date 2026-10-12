@@ -10,17 +10,20 @@ import { startFakeDevice } from '../../../packages/tuya-core/test/fake-local-dev
 import * as account from '../src/backend/account.ts';
 import { setApp, type TinyApp } from '../src/backend/app.ts';
 import * as control from '../src/backend/control.ts';
+import { loadFavorites, reorderFavorites, toggleFavorite } from '../src/backend/favorites.ts';
+import { renderTray } from '../src/backend/tray.ts';
 import { configureNetwork, restartListening } from '../src/backend/network.ts';
 import { deviceList } from '../src/backend/view.ts';
 
 const KEY = 'abcdef0123456789';
 const pushes: { event: string; data: any }[] = [];
+let trayMenu: { id?: string; label?: string }[] = [];
 const store = new Map<string, unknown>();
 const fakeApp: TinyApp = {
   push: (event, data) => pushes.push({ event, data }),
   quit() {},
   setHideOnClose() {},
-  tray: { set() {} },
+  tray: { set: (spec) => void (trayMenu = spec.menu ?? []) },
   store: { get: async (k) => store.get(k), set: async (k, v) => void store.set(k, v) },
 };
 
@@ -146,4 +149,22 @@ test('bandeja e página abrindo o mesmo aparelho juntas compartilham uma sessão
   assert.equal(a.route, 'local');
   assert.equal(b.route, 'local');
   control.releaseDevice('dev34');
+});
+
+test('favoritos: aparecem primeiro, na ordem escolhida, na lista e na bandeja', async () => {
+  await loadFavorites();
+  await toggleFavorite('away');
+  await toggleFavorite('dev34');
+  await toggleFavorite('wrongkey');
+  const order = () => deviceList().filter((d) => d.favorite).map((d) => d.id);
+  assert.deepEqual(order(), ['away', 'dev34', 'wrongkey'], 'ordem em que foram favoritados');
+
+  await reorderFavorites(['wrongkey', 'away', 'inexistente', 'wrongkey']);
+  assert.deepEqual(order(), ['wrongkey', 'away', 'dev34'], 'ids inválidos e repetidos são ignorados; quem faltou vai pro fim');
+  assert.deepEqual(deviceList().slice(0, 3).map((d) => d.id), ['wrongkey', 'away', 'dev34'], 'favoritos no topo da lista');
+
+  renderTray();
+  const trayFavorites = trayMenu.filter((i) => i.id?.startsWith('fav:')).map((i) => i.id!.slice(4));
+  assert.deepEqual(trayFavorites, ['wrongkey', 'away', 'dev34']);
+  assert.deepEqual([...store.get('favorites') as string[]], ['wrongkey', 'away', 'dev34'], 'ordem salva');
 });
