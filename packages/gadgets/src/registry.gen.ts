@@ -17,17 +17,24 @@ export const PROFILES: GadgetProfile[] = [
         "qn",
         "cs",
         "jsq",
-        "kj"
+        "kj",
+        "infrared_ac"
       ]
     },
     "controls": [
       {
-        "code": "switch",
+        "code": [
+          "switch",
+          "power"
+        ],
         "type": "power",
         "slot": "header"
       },
       {
-        "code": "temp_set",
+        "code": [
+          "temp_set",
+          "temp"
+        ],
         "type": "setpoint",
         "slot": "hero",
         "unit": "°C"
@@ -51,7 +58,8 @@ export const PROFILES: GadgetProfile[] = [
         "code": [
           "fan_speed_enum",
           "windspeed",
-          "fan_speed"
+          "fan_speed",
+          "wind"
         ],
         "type": "select",
         "slot": "chips",
@@ -309,6 +317,18 @@ export const PROFILES: GadgetProfile[] = [
         "type": "select",
         "slot": "chips",
         "icon": "mode"
+      },
+      {
+        "code": [
+          "colour_data_v2",
+          "colour_data"
+        ],
+        "type": "color",
+        "slot": "main",
+        "icon": "palette",
+        "showWhen": {
+          "work_mode": "colour"
+        }
       },
       {
         "code": [
@@ -722,6 +742,26 @@ export const COMMON: CommonLabels = {
     "fault": {
       "pt-BR": "Falha",
       "en": "Fault"
+    },
+    "colour_data_v2": {
+      "pt-BR": "Cor",
+      "en": "Colour"
+    },
+    "colour_data": {
+      "pt-BR": "Cor",
+      "en": "Colour"
+    },
+    "power": {
+      "pt-BR": "Ligado",
+      "en": "Power"
+    },
+    "temp": {
+      "pt-BR": "Temperatura",
+      "en": "Temperature"
+    },
+    "wind": {
+      "pt-BR": "Ventilação",
+      "en": "Fan speed"
     }
   },
   "options": {

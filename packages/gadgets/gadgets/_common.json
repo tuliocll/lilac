@@ -168,6 +168,26 @@
     "fault": {
       "pt-BR": "Falha",
       "en": "Fault"
+    },
+    "colour_data_v2": {
+      "pt-BR": "Cor",
+      "en": "Colour"
+    },
+    "colour_data": {
+      "pt-BR": "Cor",
+      "en": "Colour"
+    },
+    "power": {
+      "pt-BR": "Ligado",
+      "en": "Power"
+    },
+    "temp": {
+      "pt-BR": "Temperatura",
+      "en": "Temperature"
+    },
+    "wind": {
+      "pt-BR": "Ventilação",
+      "en": "Fan speed"
     }
   },
   "options": {

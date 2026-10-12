@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import type { DpSpec } from '@tuyabar/core';
-import { COMMON, onlySupported, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
+import { COMMON, decodeColor, encodeColor, onlySupported, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
 
 const LANGS = ['pt-BR', 'en'];
 const TONES = ['sun', 'sky', 'mint', 'peach', 'lilac', 'pink', 'neutral'];
@@ -103,4 +103,31 @@ test('sem lista de graváveis: perfil tenta escrever, extras ficam só leitura',
   const g = resolve({ category: 'kt', writableKnown: false, dps: [dp(1, 'switch', 'Boolean', {}, false), dp(99, 'mystery', 'Boolean', {}, false)] });
   assert.equal(g.controls.find((c) => c.code === 'switch')!.type, 'power');
   assert.equal(g.controls.find((c) => c.code === 'mystery')!.type, 'readout');
+});
+
+test('cor: local em hex, nuvem em JSON, ida e volta', () => {
+  const red = { h: 0, s: 1, v: 1 };
+  assert.equal(encodeColor('colour_data_v2', red, 'local'), '000003e803e8');
+  assert.equal(encodeColor('colour_data_v2', { h: 240, s: 0.5, v: 0.25 }, 'cloud'), '{"h":240,"s":500,"v":250}');
+  assert.deepEqual(decodeColor('colour_data_v2', '00f001f400fa'), { h: 240, s: 0.5, v: 0.25 });
+  assert.deepEqual(decodeColor('colour_data_v2', '{"h":240,"s":500,"v":250}'), { h: 240, s: 0.5, v: 0.25 });
+  assert.equal(encodeColor('colour_data', red, 'local'), 'ff00000000ffff');
+  assert.deepEqual(decodeColor('colour_data', 'ff00000000ffff'), red);
+  assert.equal(decodeColor('colour_data_v2', 'lixo'), null);
+});
+
+test('lâmpada colorida ganha controle de cor que só aparece no modo cor', () => {
+  const g = resolve({ category: 'dj', dps: [dp(20, 'switch_led', 'Boolean'), dp(21, 'work_mode', 'Enum', { range: ['white', 'colour'] }), dp(24, 'colour_data_v2', 'Json')] });
+  const color = g.controls.find((c) => c.code === 'colour_data_v2')!;
+  assert.equal(color.type, 'color');
+  assert.deepEqual(color.showWhen, { work_mode: 'colour' });
+  assert.deepEqual(toDisplay(color, '000003e803e8'), { h: 0, s: 1, v: 1 });
+  assert.equal(toRaw(color, { h: 0, s: 1, v: 1 }, 'cloud'), '{"h":0,"s":1000,"v":1000}');
+});
+
+test('ar por infravermelho usa o perfil de clima com os códigos da nuvem', () => {
+  const g = resolve({ category: 'infrared_ac', dps: [dp(0, 'power', 'Boolean'), dp(0, 'temp', 'Integer', { min: 16, max: 30 }), dp(0, 'wind', 'Enum', { range: ['0', '1', '2'] })] });
+  assert.equal(g.profile.id, 'climate');
+  const types = Object.fromEntries(g.controls.map((c) => [c.code, [c.type, c.slot]]));
+  assert.deepEqual(types, { power: ['power', 'header'], temp: ['setpoint', 'hero'], wind: ['select', 'chips'] });
 });

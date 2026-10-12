@@ -31,7 +31,7 @@ Depois rode `npm run assets` na raiz e `npm test`.
 ```
 
 - **code**: código do DP (veja com `npm run devices -- --dps`). Uma lista = alternativas.
-- **type**: `power`, `toggle`, `setpoint`, `slider`, `stepper`, `select`, `buttons`, `readout`, `text`.
+- **type**: `power`, `toggle`, `setpoint`, `slider`, `stepper`, `select`, `buttons`, `readout`, `text`, `color`.
 - **slot**: `header`, `hero`, `aside`, `chips`, `main`, `readouts`.
 - DPs que o perfil não cita aparecem sozinhos em “Avançado”, com o controle inferido pelo tipo.
 - Rótulos de DPs e opções comuns ficam em `_common.json`.

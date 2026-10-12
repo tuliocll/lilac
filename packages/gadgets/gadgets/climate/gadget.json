@@ -14,17 +14,24 @@
       "qn",
       "cs",
       "jsq",
-      "kj"
+      "kj",
+      "infrared_ac"
     ]
   },
   "controls": [
     {
-      "code": "switch",
+      "code": [
+        "switch",
+        "power"
+      ],
       "type": "power",
       "slot": "header"
     },
     {
-      "code": "temp_set",
+      "code": [
+        "temp_set",
+        "temp"
+      ],
       "type": "setpoint",
       "slot": "hero",
       "unit": "°C"
@@ -48,7 +55,8 @@
       "code": [
         "fan_speed_enum",
         "windspeed",
-        "fan_speed"
+        "fan_speed",
+        "wind"
       ],
       "type": "select",
       "slot": "chips",

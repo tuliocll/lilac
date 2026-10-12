@@ -1,7 +1,13 @@
+/**
+ * Do perfil genérico ao aparelho real: escolhe o perfil pela categoria,
+ * liga cada controle declarado ao DP que existe e converte valores
+ * entre o formato do aparelho e o da tela.
+ */
 import type { DpSpec } from '@tuyabar/core';
+import { decodeColor, encodeColor, type Route } from './color.ts';
 import type { CommonLabels, ControlType, GadgetProfile, I18nText, ResolvedControl, ResolvedGadget } from './types.ts';
 
-const WRITE_TYPES: ControlType[] = ['power', 'toggle', 'setpoint', 'slider', 'stepper', 'select', 'buttons', 'text'];
+const WRITE_TYPES: ControlType[] = ['power', 'toggle', 'setpoint', 'slider', 'stepper', 'select', 'buttons', 'text', 'color'];
 
 export function pickProfile(profiles: GadgetProfile[], category: string | undefined, codes: Set<string>): GadgetProfile {
   const candidates = profiles
@@ -16,41 +22,49 @@ export function prettifyCode(code: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function num(v: unknown): number | undefined {
-  const n = typeof v === 'string' ? Number(v) : (v as number);
+function toNumber(value: unknown): number | undefined {
+  const n = typeof value === 'string' ? Number(value) : value;
   return typeof n === 'number' && Number.isFinite(n) ? n : undefined;
 }
 
-function bind(
-  spec: DpSpec,
-  type: ControlType,
-  slot: ResolvedControl['slot'],
-  label: I18nText,
-  common: CommonLabels,
-  extra: { icon?: string; unit?: string; options?: Record<string, I18nText>; showWhen?: Record<string, unknown>; display?: 'percent' },
-  assumeWritable: boolean,
-): ResolvedControl {
-  const v = spec.values ?? {};
+const labelFor = (code: string, common: CommonLabels): I18nText =>
+  common.codes[code] ?? { 'pt-BR': prettifyCode(code), en: prettifyCode(code) };
+
+interface Binding {
+  type: ControlType;
+  slot: ResolvedControl['slot'];
+  label: I18nText;
+  icon?: string;
+  unit?: string;
+  options?: Record<string, I18nText>;
+  showWhen?: Record<string, unknown>;
+  display?: 'percent';
+}
+
+/** Junta o que o perfil pede (`binding`) com o que o DP real oferece (`spec`). */
+function bind(spec: DpSpec, binding: Binding, common: CommonLabels, assumeWritable: boolean): ResolvedControl {
+  const values = spec.values ?? {};
   const writable = spec.writable || assumeWritable;
-  const range = Array.isArray(v.range) ? (v.range as unknown[]).map(String) : undefined;
+  const range = Array.isArray(values.range) ? (values.range as unknown[]).map(String) : undefined;
+  const optionLabel = (value: string) => binding.options?.[value] ?? common.options[value] ?? { 'pt-BR': value, en: value };
   return {
     code: spec.code,
     dpId: spec.dpId,
     // sem permissão de escrita, qualquer controle vira leitura
-    type: writable || !WRITE_TYPES.includes(type) ? type : 'readout',
-    slot,
-    label,
-    icon: extra.icon,
+    type: writable || !WRITE_TYPES.includes(binding.type) ? binding.type : 'readout',
+    slot: binding.slot,
+    label: binding.label,
+    icon: binding.icon,
     writable,
     dpType: spec.type,
-    min: num(v.min),
-    max: num(v.max),
-    step: num(v.step),
-    scale: num(v.scale) ?? 0,
-    unit: extra.unit ?? (typeof v.unit === 'string' && v.unit ? v.unit : undefined),
-    options: range?.map((value) => ({ value, label: extra.options?.[value] ?? common.options[value] ?? { 'pt-BR': value, en: value } })),
-    showWhen: extra.showWhen,
-    display: extra.display,
+    min: toNumber(values.min),
+    max: toNumber(values.max),
+    step: toNumber(values.step),
+    scale: toNumber(values.scale) ?? 0,
+    unit: binding.unit ?? (typeof values.unit === 'string' && values.unit ? values.unit : undefined),
+    options: range?.map((value) => ({ value, label: optionLabel(value) })),
+    showWhen: binding.showWhen,
+    display: binding.display,
   };
 }
 
@@ -87,16 +101,14 @@ export function resolveGadget(
     const spec = codes.map((c) => byCode.get(c)).find((s) => s && !used.has(s.code));
     if (!spec) continue;
     used.add(spec.code);
-    const label = def.label ?? common.codes[spec.code] ?? { 'pt-BR': prettifyCode(spec.code), en: prettifyCode(spec.code) };
-    controls.push(bind(spec, def.type, def.slot, label, common, def, assumeWritable));
+    controls.push(bind(spec, { ...def, label: def.label ?? labelFor(spec.code, common) }, common, assumeWritable));
   }
 
   for (const spec of device.dps) {
     if (used.has(spec.code)) continue;
     const type = autoType(spec, spec.writable);
     if (!type) continue;
-    const label = common.codes[spec.code] ?? { 'pt-BR': prettifyCode(spec.code), en: prettifyCode(spec.code) };
-    controls.push(bind(spec, type, 'advanced', label, common, {}, false));
+    controls.push(bind(spec, { type, slot: 'advanced', label: labelFor(spec.code, common) }, common, false));
   }
 
   const { id, name, tone, layout, note } = profile;
@@ -118,17 +130,22 @@ export function onlySupported(g: ResolvedGadget, seen: Iterable<string>): Resolv
 
 // --------------------------------------------------------------- valores
 
-/** bruto do aparelho → valor de tela (aplica escala). */
-export function toDisplay(c: Pick<ResolvedControl, 'scale' | 'dpType'>, raw: unknown): unknown {
+type Convertible = Pick<ResolvedControl, 'code' | 'type' | 'scale' | 'dpType' | 'min' | 'max' | 'step'>;
+
+/** Valor bruto do aparelho → valor de tela (escala aplicada; cor vira { h, s, v }). */
+export function toDisplay(c: Convertible, raw: unknown): unknown {
+  if (c.type === 'color') return decodeColor(c.code, raw);
   if (typeof raw === 'number' && c.scale > 0) return raw / 10 ** c.scale;
   return raw;
 }
 
-/** valor de tela → bruto, respeitando min/max/step. */
-export function toRaw(c: Pick<ResolvedControl, 'scale' | 'dpType' | 'min' | 'max' | 'step'>, value: unknown): unknown {
+/** Valor de tela → bruto, respeitando min/max/step. `route` importa para cor (local e nuvem escrevem diferente). */
+export function toRaw(c: Convertible, value: unknown, route: Route = 'local'): unknown {
+  if (c.type === 'color') return encodeColor(c.code, value as { h: number; s: number; v: number }, route);
   const t = c.dpType.toLowerCase();
   if (t === 'boolean' || t === 'bool') return value === true || value === 'true' || value === 1;
   if (t === 'integer' || t === 'value') {
+    if (!Number.isFinite(Number(value))) throw new Error(`valor inválido para ${c.code}: ${value}`);
     let n = Math.round(Number(value) * 10 ** c.scale);
     if (c.step && c.step > 1) n = Math.round(n / c.step) * c.step;
     if (c.min !== undefined) n = Math.max(c.min, n);
@@ -136,9 +153,4 @@ export function toRaw(c: Pick<ResolvedControl, 'scale' | 'dpType' | 'min' | 'max
     return n;
   }
   return String(value);
-}
-
-export function pickText(t: I18nText | undefined, lang: string): string {
-  if (!t) return '';
-  return t[lang] ?? t[lang.split('-')[0]!] ?? t['en'] ?? t['pt-BR'] ?? Object.values(t)[0] ?? '';
 }

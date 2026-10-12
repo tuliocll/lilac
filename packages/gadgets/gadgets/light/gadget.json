@@ -56,6 +56,18 @@
     },
     {
       "code": [
+        "colour_data_v2",
+        "colour_data"
+      ],
+      "type": "color",
+      "slot": "main",
+      "icon": "palette",
+      "showWhen": {
+        "work_mode": "colour"
+      }
+    },
+    {
+      "code": [
         "countdown_1",
         "countdown"
       ],

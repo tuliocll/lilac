@@ -26,7 +26,7 @@
         "required": ["code", "type", "slot"],
         "properties": {
           "code": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
-          "type": { "enum": ["power", "toggle", "setpoint", "slider", "stepper", "select", "buttons", "readout", "text"] },
+          "type": { "enum": ["power", "toggle", "setpoint", "slider", "stepper", "select", "buttons", "readout", "text", "color"] },
           "slot": { "enum": ["header", "hero", "aside", "chips", "main", "readouts"] },
           "label": { "$ref": "#/$defs/text" },
           "icon": { "type": "string" },

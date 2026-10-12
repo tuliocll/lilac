@@ -15,8 +15,9 @@ export type Tone = 'sun' | 'sky' | 'mint' | 'peach' | 'lilac' | 'pink' | 'neutra
  *  buttons  uma ação por opção                 (Enum) — ex.: abrir/parar/fechar
  *  readout  só leitura                         (qualquer)
  *  text     campo de texto                     (String)
+ *  color    matiz + saturação                  (colour_data_v2 / colour_data)
  */
-export type ControlType = 'power' | 'toggle' | 'setpoint' | 'slider' | 'stepper' | 'select' | 'buttons' | 'readout' | 'text';
+export type ControlType = 'power' | 'toggle' | 'setpoint' | 'slider' | 'stepper' | 'select' | 'buttons' | 'readout' | 'text' | 'color';
 
 /**
  * Onde o controle aparece na página:
