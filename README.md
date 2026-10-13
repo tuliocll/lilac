@@ -94,9 +94,7 @@ for a real app — and it went pretty far: tray popover, OS keychain, UDP broadc
 The bet is hedged, though. `packages/tuya-core` knows nothing about the runtime — networking comes in through a small
 `Transport` interface (there are Node and txiki implementations). If tinyjs doesn't work out, only the shell changes.
 
-Things we learned the hard way are documented in the code — e.g. `file://` + WebView2 blocks CSS masks and web fonts under CORS,
-so icons and fonts are embedded as `data:` URIs by `npm run assets`; and windows can't be transparent on Windows, so themes
-paint their own background edge to edge.
+Things we learned the hard way are documented in the code and in [THEMING.md](apps/menubar/THEMING.md).
 
 ## Getting started
 

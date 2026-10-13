@@ -34,7 +34,7 @@ icons/*.svg       glifos (viram máscara — a cor vem do tema)
 3. Ajustes que vão além de tokens ficam abaixo, sempre prefixados com `[data-theme="meu-tema"]`
    (ex.: listras na barra de título, `::-webkit-scrollbar-button`, rótulos pixelados em caixa alta).
 4. Fonte própria? Coloque o `.woff2` em `fonts/` (com a licença), declare em `fonts.json` e rode `npm run assets`
-   (o WebView2 bloqueia fontes via `file://`, então elas são embutidas como `data:`). Dê o crédito em `ui/about.js` e no README.
+   (ela é embutida no `fonts.css` como `data:`). Dê o crédito em `ui/about.js` e no README.
 5. Registre em `themes/index.js` (com `description` em pt-BR e en, e algumas `swatches`) e rode `npm test`.
 
 O layout também é tematizável: `--window-areas`, `--window-columns` e `--window-rows` decidem se a
@@ -42,9 +42,9 @@ barra de ferramentas fica ao lado do título (Moonlight) ou abaixo (Past Dream).
 
 ### Lições dos temas que vêm com o app
 
-- **Nada de transparência no Windows.** Lá a janela é opaca, então o que fica fora da `.window` vira uma borda branca.
-  Use `--window-margin: 0` e um `--desktop-bg` opaco. Quer sombra dura? Desenhe como borda mais grossa
-  (Past Dream: `border-width: 2px 5px 5px 2px`).
+- **A janela é opaca (por enquanto).** O tinyjs suporta janela transparente (`chrome.transparent`), mas o Lilac ainda não
+  liga isso, então o que fica fora da `.window` vira uma borda branca. Use `--window-margin: 0` e um `--desktop-bg` opaco.
+  Quer sombra dura? Desenhe como borda mais grossa (Past Dream: `border-width: 2px 5px 5px 2px`).
 - **Token que entra numa lista de `background` não pode trazer o próprio tamanho.** O slider pinta
   `var(--slider-fill) 0 0 / var(--fill) 100% no-repeat, var(--slider-track)`, então `--slider-fill` precisa ser só uma imagem
   (um degradê), enquanto `--slider-track`, a última camada, pode ter `center / 100% 3px no-repeat`.

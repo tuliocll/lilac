@@ -94,9 +94,7 @@ ele vai num app de verdade, e foi longe: popover na bandeja, cofre de senhas do 
 A aposta tem rede de proteção: o `packages/tuya-core` não sabe em que runtime está — a rede entra por uma interface `Transport`
 (há implementações para Node e txiki). Se o tinyjs não vingar, só a casca muda.
 
-O que aprendemos apanhando está documentado no código — por exemplo, `file://` + WebView2 bloqueia máscaras CSS e fontes por
-CORS, então ícones e fontes são embutidos como `data:` pelo `npm run assets`; e janela no Windows não pode ser transparente,
-então os temas pintam o próprio fundo de ponta a ponta.
+O que aprendemos apanhando está documentado no código e no [THEMING.pt-BR.md](apps/menubar/THEMING.pt-BR.md).
 
 ## Começando
 
