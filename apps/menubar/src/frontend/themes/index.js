@@ -30,6 +30,13 @@ TuyaBar.builtinThemes = [
     swatches: ['#9aa283', '#22261a', '#6b7258', '#7f9294', '#4a6fa5'],
   },
   {
+    id: 'cutelight',
+    name: 'Cutelight',
+    description: { 'pt-BR': 'Claro e fofo: azul-bebê, cartões flutuando e roxo', en: 'Light and cute: baby blue, floating cards and purple' },
+    href: ['themes/cutelight/fonts.css', 'themes/cutelight/theme.css'],
+    swatches: ['#e4eefc', '#ffffff', '#8a78f2', '#22c55e', '#ffb627'],
+  },
+  {
     id: 'contrast',
     name: { 'pt-BR': 'Alto Contraste', en: 'High Contrast' },
     description: { 'pt-BR': 'Preto, branco e amarelo — legível em qualquer luz', en: 'Black, white and yellow — readable in any light' },

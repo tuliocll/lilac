@@ -1,0 +1,5 @@
+[
+  { "family": "Nunito", "file": "fonts/Nunito-400.woff2", "weight": "400 500" },
+  { "family": "Nunito", "file": "fonts/Nunito-700.woff2", "weight": "600 700" },
+  { "family": "Nunito", "file": "fonts/Nunito-800.woff2", "weight": "800 900" }
+]

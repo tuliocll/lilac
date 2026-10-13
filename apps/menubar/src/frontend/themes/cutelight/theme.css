@@ -1,0 +1,193 @@
+/*
+ * Cutelight — claro e fofo: fundo azul-bebê, cartões brancos que flutuam
+ * com sombra difusa, cantos bem redondos, botão principal roxo que brilha e
+ * ícones "3D" em degradê com letra branca.
+ */
+/* fonte embutida em fonts.css (gerado a partir de fonts.json) */
+
+[data-theme="cutelight"] {
+  /* paleta */
+  --sky-bg: #e4eefc;
+  --card: #ffffff;
+  --navy: #1e2338;
+  --gray: #8b93a8;
+  --line: #dde6f5;
+  --purple: #8a78f2;
+  --purple-grad: linear-gradient(180deg, #a596ff 0%, #7c68ee 100%);
+  --green-grad: linear-gradient(160deg, #6ff08e 0%, #22c55e 100%);
+  --float: 0 6px 18px rgba(80, 100, 160, 0.13), 0 1px 2px rgba(80, 100, 160, 0.08);
+  --glow-purple: 0 6px 14px rgba(124, 104, 238, 0.4);
+  --glow-green: 0 8px 22px rgba(34, 197, 94, 0.45);
+  /* ícone "3D": degradê + brilho em cima + sombra colorida embaixo (ver regra no fim) */
+
+  --font-ui: "Nunito", "Segoe UI", -apple-system, system-ui, sans-serif;
+  --font-display: var(--font-ui);
+  --font-size: 13px;
+  --title-size: 17px;
+  --title-weight: 800;
+
+  --desktop-bg: var(--sky-bg);
+  --window-margin: 0px;
+  --window-bg: var(--sky-bg);
+  --window-fg: var(--navy);
+  --window-border: 0;
+  --window-radius: 0px;
+  --window-shadow: none;
+  --window-areas: "title tools" "body body" "status status";
+  --window-columns: minmax(0, 1fr) auto;
+  --window-rows: auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: transparent;
+  --titlebar-fg: var(--navy);
+  --titlebar-border: 0;
+  --titlebar-padding: 16px 6px 8px 16px;
+  --wc-display: none;
+  --wc-bg: transparent;
+  --wc-fg: var(--gray);
+  --wc-border: 0;
+  --wc-radius: 50%;
+  --dot-display: none;
+  --dot-idle: var(--gray);
+  --dot-busy: var(--purple);
+
+  --toolbar-bg: transparent;
+  --toolbar-border: 0;
+  --toolbar-padding: 16px 14px 8px 0;
+
+  --body-padding: 6px 14px 4px;
+  --gap: 12px;
+  --muted: var(--gray);
+  --accent: var(--purple);
+  --accent-fg: #ffffff;
+  --link: var(--purple);
+
+  --surface-bg: var(--card);
+  --surface-hover: #f6f9ff;
+  --surface-border: 0;
+  --surface-radius: 18px;
+  --surface-shadow: var(--float);
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0;
+  /* respiro para a sombra dos cartões não ser cortada */
+  --list-padding: 4px 6px 10px;
+  --list-gap: 10px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: var(--card);
+  --btn-fg: var(--navy);
+  --btn-border: 0;
+  --btn-radius: 12px;
+  --btn-shadow: var(--float);
+  --btn-shadow-active: 0 2px 6px rgba(80, 100, 160, 0.15);
+  --btn-press-offset: scale(0.97);
+  --btn-hover-bg: #f6f9ff;
+  --btn-primary-bg: var(--purple-grad);
+  --btn-primary-fg: #ffffff;
+
+  --input-bg: var(--card);
+  --input-fg: var(--navy);
+  --input-border: 1px solid var(--line);
+  --input-radius: 12px;
+  --focus-ring: 2px solid #b9adff;
+  --selected-ring: inset 0 0 0 2px var(--purple);
+
+  --badge-bg: #eef3fd;
+  --badge-fg: var(--gray);
+  --badge-border: 0;
+  --badge-radius: 999px;
+  --ok-bg: #dcfce7;
+  --ok-fg: #16a34a;
+  --warn-bg: #fff4d6;
+  --warn-fg: #b45309;
+  --warn-text: #b45309;
+  --err-fg: #e5484d;
+
+  --icon-tile-size: 38px;
+  --icon-tile-border: 0;
+  --icon-tile-radius: 13px;
+  --icon-fg: #ffffff;
+
+  --statusbar-bg: transparent;
+  --statusbar-fg: var(--gray);
+  --statusbar-border: 0;
+  --statusbar-padding: 8px 16px 12px;
+
+  --scrollbar-size: 6px;
+  --scrollbar-thumb: #c9d5ea;
+  --scrollbar-track: transparent;
+  --scrollbar-border: 0;
+
+  --qr-frame: #ffffff;
+  --link-local: #22c55e;
+  --link-cloud: #5aa9ff;
+  --link-ring: #ffffff;
+  --quick-size: 34px;
+  --swatch-border: 2px solid #ffffff;
+
+  --tone-sun: linear-gradient(160deg, #ffe57a 0%, #ffb627 100%);
+  --tone-sky: linear-gradient(160deg, #8fd3ff 0%, #3d8bff 100%);
+  --tone-mint: var(--green-grad);
+  --tone-peach: linear-gradient(160deg, #ffc49b 0%, #ff7a59 100%);
+  --tone-lilac: linear-gradient(160deg, #c8b8ff 0%, #8a6cf6 100%);
+  --tone-pink: linear-gradient(160deg, #ffb0d9 0%, #f0509c 100%);
+  --tone-neutral: linear-gradient(160deg, #e4ebf7 0%, #a9b6cf 100%);
+
+  --toggle-w: 44px;
+  --toggle-h: 26px;
+  --toggle-radius: 999px;
+  --toggle-border: 0;
+  --toggle-track: #d7e1f2;
+  --toggle-track-on: var(--purple-grad);
+  --toggle-thumb: #ffffff;
+
+  --slider-h: 14px;
+  --slider-radius: 999px;
+  --slider-border: 0;
+  --slider-track: #d7e1f2;
+  --slider-fill: var(--purple-grad);
+  --slider-thumb: #ffffff;
+  --slider-thumb-w: 24px;
+  --slider-thumb-h: 24px;
+  --slider-thumb-radius: 50%;
+  --slider-thumb-border: 0;
+
+  --power-size: 120px;
+  --power-bg: var(--card);
+  --power-fg: var(--gray);
+  --power-on-bg: var(--green-grad);
+  --power-on-fg: #ffffff;
+  --power-border: 10px solid #f1f5fd;
+  --power-shadow: var(--float);
+  --power-on-shadow: var(--glow-green);
+
+  --hero-font: var(--font-ui);
+  --hero-size: 60px;
+  --chip-min-h: 76px;
+  --step-dot: #c9d5ea;
+  --step-dot-active: var(--purple);
+  --art-size: 88px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* botão principal brilha em roxo */
+[data-theme="cutelight"] .btn-primary { box-shadow: var(--glow-purple); }
+
+/* ícones "3D": brilho na borda de cima e sombra colorida embaixo */
+[data-theme="cutelight"] .device-icon,
+[data-theme="cutelight"] .art-tile {
+  box-shadow: inset 0 2px 1px rgba(255, 255, 255, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(80, 100, 160, 0.22);
+}
+
+/* a bolinha do slider e do interruptor flutua */
+[data-theme="cutelight"] .switch::after { box-shadow: 0 2px 5px rgba(30, 35, 56, 0.2); }
+[data-theme="cutelight"] .range::-webkit-slider-thumb { box-shadow: 0 3px 8px rgba(30, 35, 56, 0.22), inset 0 0 0 6px #ffffff, inset 0 0 0 12px var(--purple); }
+
+/* ação rápida ligada: verde, como o liga/desliga grande */
+[data-theme="cutelight"] .quick[aria-pressed="true"] { box-shadow: 0 4px 10px rgba(34, 197, 94, 0.35); }
+
+[data-theme="cutelight"] .list::-webkit-scrollbar-thumb { border-radius: 999px; }

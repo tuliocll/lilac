@@ -35,7 +35,7 @@
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan chips, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
   under “Advanced”, with a control inferred from their type.
-- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was), *Frutiger Aero* (glass, bubbles and gloss), *CassiUI* (an olive LCD screen) and *High Contrast*.
+- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was), *Frutiger Aero* (glass, bubbles and gloss), *CassiUI* (an olive LCD screen), *Cutelight* (light, soft and cute) and *High Contrast*.
   Community themes can be dropped into a folder — no rebuild.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
@@ -149,6 +149,6 @@ automations tied to your computer (lock the screen → desk light off).
 [tuya-device-sharing-sdk](https://github.com/tuya/tuya-device-sharing-sdk) (QR login reference) ·
 [tinytuya](https://github.com/jasonacox/tinytuya) (local protocol reference) ·
 [@noble/ciphers & hashes](https://paulmillr.com/noble/) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) ·
-[Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) (OFL) · [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew) (OFL) · [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL).
+[Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) (OFL) · [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew) (OFL) · [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL) · [Nunito](https://github.com/googlefonts/nunito) (OFL).
 
 MIT © Tulio Calil. Independent project, **not affiliated with Tuya**. Tuya and Smart Life are trademarks of their owners.
