@@ -19,6 +19,7 @@ themes/
   past-dream/     sistema retrô (fonte embutida via fonts.json)
   frutiger-aero/  vidro e brilho        cassi-ui/     LCD oliva
   cutelight/      claro e fofo          boringlight/  lavanda e índigo (sem fonte própria)
+  frutiger-inferno/  o irmão do mal do Aero (usa a fonte do Aero)
   contrast/       alto contraste
   index.js        temas que vêm com o app
 ui/i18n.js        dicionários pt-BR / en

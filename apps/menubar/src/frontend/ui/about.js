@@ -14,7 +14,7 @@
     { name: 'Pixelify Sans', lic: 'OFL-1.1', url: 'https://github.com/eifetx/Pixelify-Sans', what: { 'pt-BR': 'fonte do tema Past Dream', en: 'Past Dream theme font' } },
     { name: 'Silkscreen', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/silkscreen', what: { 'pt-BR': 'fonte do tema CassiUI', en: 'CassiUI theme font' } },
     { name: 'Nunito', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/nunito', what: { 'pt-BR': 'fonte do tema Cutelight', en: 'Cutelight theme font' } },
-    { name: 'Varela Round', lic: 'OFL-1.1', url: 'https://github.com/alefalefalef/Varela-Round-Hebrew', what: { 'pt-BR': 'fonte do tema Frutiger Aero', en: 'Frutiger Aero theme font' } },
+    { name: 'Varela Round', lic: 'OFL-1.1', url: 'https://github.com/alefalefalef/Varela-Round-Hebrew', what: { 'pt-BR': 'fonte dos temas Frutiger Aero e Inferno', en: 'Frutiger Aero and Inferno theme font' } },
   ];
 
   function credit({ name, lic, url, what }) {
