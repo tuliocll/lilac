@@ -7,27 +7,26 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
 
 - [ ] **Validar no tinyjs de verdade.** A interface só foi testada com um `tiny` simulado e o TCP
       do backend nunca rodou no txiki. Maior risco do projeto: se o TCP falhar lá, cai todo o controle local.
-- [ ] **Controle local com aparelho real** (3.4 — ex.: lâmpadas/disjuntores Wi-Fi). Hoje passa nos
-      testes com o aparelho falso e com o tinytuya, mas nunca acendeu uma lâmpada.
+      Conferir também: ícone da bandeja (`assets/tray.png` — o caminho é relativo a quê?) e o ícone do app no build.
+- [ ] **Controle local com aparelho real** (3.4 — ex.: Luz garagem / Luz porão). Hoje passa nos testes
+      com o aparelho falso e com o tinytuya, mas nunca acendeu uma lâmpada.
 - [ ] **clientId próprio.** Hoje usamos o do Home Assistant (ok para teste, não para distribuir).
-- [ ] **Confirmar a URL do repositório** (`config.js` e `package.json`).
+- [ ] **Nome e endereço:** conferir se "lilac" está livre no GitHub (e npm, se um dia publicar pacotes);
+      atualizar a URL em `config.js` e `package.json`.
 - [ ] **README: aviso de builds sem assinatura** (SmartScreen no Windows, Gatekeeper no macOS).
+- [ ] **Revisão humana do código** nas áreas de risco: segredos e sessão (`cloud/*`, `vault.js`, CLI),
+      decodificadores de rede (`frame.ts`, `discovery.ts`), concorrência (`local/device.ts`, `backend/control.ts`).
 
-## Descobertas (out/2026)
+## Nuvem e IR
 
-- [x] **Ar IR pela nuvem** (liga/desliga, temperatura, modo, vento; estado lembrado) — falta confirmar
-      no aparelho real o significado de cada número de `M`.
-- [ ] **Resto do IR pela nuvem —** Controles virtuais criados no Smart Life (marca/modelo) expõem
-      comandos padrão da Tuya pela API de compartilhamento, seja qual for o emissor (Wi-Fi ou Zigbee):
-      - Ar (`infrared_ac`): `PowerOn`/`PowerOff`, `T` (temperatura), `M` (modo 0–4), `F` (vento 0–3).
-        Testado: liga e desliga. Falta confirmar `T`, `M` e o significado de cada número de modo.
-      - A nuvem **não informa estado** desses aparelhos → o app lembra o último comando enviado
-        e deixa claro que o controle físico pode tê-lo mudado.
-      - TV / ventilador / umidificador: grade de botões a partir da lista de funções (confirmar com `--inspect`).
-      - Controles "DIY"/aprendidos (`infrared_diy`): botões com os nomes que o usuário gravou.
+- [x] **Ar IR pela nuvem** — liga/desliga, temperatura, modo, vento; estado lembrado pelo app.
+- [ ] **Confirmar no ar real** o que cada número de `M` faz (hoje: 0 frio · 1 quente · 2 auto · 3 ventilar · 4 secar)
+      e se o "detalhe" da nuvem traz algum estado depois de mexer pelo app Smart Life (daria o estado inicial).
+- [ ] **TV, ventilador, umidificador** — grade de botões a partir da lista de funções (confirmar com `--inspect`).
+- [ ] **Controles "DIY"/aprendidos** (`infrared_diy`) — botões com os nomes que o usuário gravou.
 - [ ] **Cair para a nuvem quando o local falha.** Aparelho que anuncia na rede mas não aceita TCP
-      (ex.: Wi-Fi separada, isolamento de AP) hoje dá "tempo esgotado". Deve usar a nuvem e explicar,
-      discretamente. Vale para a CLI também.
+      (Wi-Fi separada, isolamento de AP — aconteceu com o "IR Escritório") hoje dá "tempo esgotado".
+      Deve usar a nuvem e explicar, discretamente. Vale para a CLI também.
 - [ ] **Protocolo 3.5** (frames 6699). Aparelhos novos já vêm assim; hoje ficam só pela nuvem.
 - [ ] **Tempo real da nuvem** (o canal de push que a integração do HA usa). Sem isso, o que muda pelo
       celular só aparece quando o app pergunta de novo.
@@ -40,9 +39,9 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
 - [ ] **Atalho global por ação** — ex.: `Ctrl+Alt+L` alterna a luz da mesa.
 - [ ] **Integração com outras ferramentas** — `lilac://toggle/luz-garagem` ou servidor local
       (Stream Deck, Raycast, AutoHotkey, scripts).
-- [ ] **Estado na barra** — no macOS, texto ao lado do ícone ("❄ 23°"); no Windows, ícone que muda.
 - [ ] **Timer** — "desligar o ar em 1 h" (countdown do aparelho quando houver; senão, o app agenda).
 - [ ] **Agrupar por cômodo** — a nuvem já devolve casas e cômodos.
+- [ ] **Estado na barra** — no macOS, texto ao lado do ícone ("❄ 23°"); no Windows, ícone que muda.
 - [ ] **Notificações** (depende do tempo real) — porta abriu, botão Zigbee apertado, vazamento.
 - [ ] **Consumo das tomadas** — potência atual + mini gráfico das últimas horas.
 
@@ -50,10 +49,30 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
 
 - [ ] **Template de issue "meu aparelho não funciona"** pedindo a saída de
       `npm run control -- "<nome>" --inspect` (foi assim que destravamos o IR).
-- [ ] **CONTRIBUTING.md** — como cadastrar um gadget, rodar o aparelho falso e criar um tema.
+- [ ] **CONTRIBUTING.md** — como cadastrar um gadget, rodar o aparelho falso, criar um tema e
+      onde revisar com mais cuidado (as áreas de risco acima).
 - [ ] **Gadgets que faltam** — robô aspirador; botão sem fio (`wxkg`: só leitura ou esconder).
 
 ## Código
 
+- [ ] **Teste de fuzz dos decodificadores** (`frame.ts`, `discovery.ts`): bytes aleatórios da rede não
+      podem quebrar nem travar o app.
+- [ ] **Segredos da CLI no Windows** — `~/.lilac` guarda sessão e chaves em texto puro (o `0600` não vale
+      no Windows). Documentar como "só para desenvolvimento" ou usar o cofre do sistema.
 - [ ] **Separar `backend/control.ts`** (sessões × escolha de rota) — fazer junto com o fallback para a nuvem.
 - [ ] **Traduções em JSON por idioma** (hoje `ui/i18n.js` tem tudo num arquivo só).
+- [ ] **Testes do transporte txiki** — hoje não tem nenhum; e decidir se a API antiga do txiki ainda precisa existir.
+
+## Feito (out/2026)
+
+- [x] Nome novo: **Lilac** · ícone (cacho de lilás em hexágonos) para app, bandeja, README e Sobre.
+- [x] Temas novos: Frutiger Aero, CassiUI, Cutelight, BoringLight (7 no total) · escolha de tema nas boas-vindas
+      · seção de temas no README · grade compacta nas configurações.
+- [x] Sessão da nuvem não morre mais depois de ~2 h (a renovação ia com o token vencido).
+- [x] "Atalhos na lista" no fim da página do aparelho (no lugar do ⚡ que ninguém entendia).
+- [x] Past Dream sem o fundo azul em volta; sombra dura desenhada como borda (Windows não tem janela transparente).
+
+## Descartado (e por quê)
+
+- **Janela expandida** (menu lateral, lista e aparelho lado a lado) — feita e desfeita: o painel da bandeja
+  basta; o espaço extra não pagou a complexidade.
