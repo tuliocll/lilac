@@ -34,7 +34,11 @@
     const name = h('span', 'name', pick(theme.name) + (theme.user ? ' ✦' : ''));
     name.append(glyph('check')); // escolhido: além do anel, um ✓ (não depende só de cor)
     name.lastChild.classList.add('check');
-    b.append(name, swatches, h('span', 'desc', pick(theme.description) || theme.author || ''));
+    // grade compacta: nome e cores; a descrição fica no "title" (passar o mouse) e no leitor de tela
+    const desc = pick(theme.description) || theme.author || '';
+    b.title = desc;
+    b.setAttribute('aria-description', desc);
+    b.append(name, swatches);
     b.addEventListener('click', () => TuyaBar.themes.select(theme.id));
     return b;
   }

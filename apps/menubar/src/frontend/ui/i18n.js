@@ -71,9 +71,8 @@ TuyaBar.i18n = (() => {
       'link.cloud': 'Pela nuvem',
       'link.none': 'Sem conexão',
       'link.stranger': 'Na rede, fora da sua conta · v{version}',
-      'quick.title': 'Ações rápidas',
-      'quick.hint': 'Aparecem como botões na lista de aparelhos. Escolha até {max}.',
-      'quick.edit': 'Editar ações rápidas',
+      'quick.title': 'Atalhos na lista',
+      'quick.hint': 'Viram botões ao lado do aparelho na lista, sem precisar abrir esta página. Escolha até {max}.',
       'quick.max': 'No máximo {max} ações rápidas',
       'quick.failed': 'Não deu: {error}',
 
@@ -218,9 +217,8 @@ TuyaBar.i18n = (() => {
       'link.cloud': 'Through the cloud',
       'link.none': 'Not reachable',
       'link.stranger': 'On the network, not in your account · v{version}',
-      'quick.title': 'Quick actions',
-      'quick.hint': 'They show up as buttons in the device list. Pick up to {max}.',
-      'quick.edit': 'Edit quick actions',
+      'quick.title': 'Shortcuts in the list',
+      'quick.hint': 'They become buttons next to the device in the list, no need to open this page. Pick up to {max}.',
       'quick.max': 'At most {max} quick actions',
       'quick.failed': 'Didn’t work: {error}',
 

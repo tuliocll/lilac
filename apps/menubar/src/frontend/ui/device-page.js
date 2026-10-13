@@ -21,7 +21,7 @@
     TuyaBar.nav.go('device', { title: device.name });
     const container = $('device-page');
     container.replaceChildren(h('p', 'muted center', t('device.connecting')));
-    $('device-header').replaceChildren(quickButton(), favoriteButton(device));
+    $('device-header').replaceChildren(favoriteButton(device));
 
     const done = status.busy();
     try {
@@ -49,7 +49,7 @@
     container.replaceChildren(header(device, gadget), ...notes(result));
     container.dataset.layout = gadget?.profile.layout ?? 'generic';
     container.classList.toggle('locked', !route);
-    $('device-header').replaceChildren(quickButton(), favoriteButton(device));
+    $('device-header').replaceChildren(favoriteButton(device));
 
     page.values = { ...result.values };
     page.controls = (gadget?.controls ?? []).map((control) => ({
@@ -76,6 +76,7 @@
       container.append(details);
     }
     if (!page.controls.length && !gadget?.profile.note) container.append(h('p', 'dp-note card', t('device.noControls')));
+    if (route && page.controls.length) container.append(quickSection());
     refresh();
   }
 
@@ -137,22 +138,16 @@
 
   // ------------------------------------------------------------ ações rápidas
 
-  function quickButton() {
-    const b = button('btn btn-icon');
-    b.append(glyph('quick'));
-    b.title = t('quick.edit');
-    b.setAttribute('aria-label', b.title);
-    b.addEventListener('click', toggleQuickEditor);
-    return b;
-  }
-
-  async function toggleQuickEditor() {
-    const container = $('device-page');
-    const open = container.querySelector('.quick-editor');
-    if (open) return open.remove();
-    const options = await tiny.api.call('quickActionOptions', { id: page.device.id }).catch(logError('quickActionOptions'));
-    if (!options || !page) return;
-    container.querySelector('.dp-head')?.after(quickEditor(options));
+  /** Seção recolhida no fim da página: quais controles viram botão na lista. Carrega ao abrir. */
+  function quickSection() {
+    const details = h('details', 'dp-advanced');
+    details.append(h('summary', '', t('quick.title')));
+    details.addEventListener('toggle', async () => {
+      if (!details.open || details.querySelector('.quick-editor')) return;
+      const options = await tiny.api.call('quickActionOptions', { id: page.device.id }).catch(logError('quickActionOptions'));
+      if (options && page && details.isConnected) details.append(quickEditor(options));
+    });
+    return details;
   }
 
   /**
@@ -201,7 +196,7 @@
         row.append(h('span', '', text), sw);
         return row;
       });
-      box.replaceChildren(h('h2', 'section-title', t('quick.title')), h('p', 'hint', t('quick.hint', { max })), ...rows);
+      box.replaceChildren(h('p', 'hint', t('quick.hint', { max })), ...rows);
     }
 
     render();
