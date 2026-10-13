@@ -1,7 +1,5 @@
 # Roadmap
 
-🇧🇷 [Leia em português](ROADMAP.pt-BR.md)
-
 What's missing, what we found out and what we want. Order within each section = priority.
 Want to pick something up? Open an issue first so we can line it up.
 

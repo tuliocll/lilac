@@ -174,7 +174,7 @@ na ordem de dependência.
 
 ## Roadmap
 
-O backlog vivo fica em [docs/ROADMAP.pt-BR.md](docs/ROADMAP.pt-BR.md). Destaques: validar o controle local com aparelhos reais,
+O backlog vivo fica em [docs/ROADMAP.md](docs/ROADMAP.md) (em inglês). Destaques: validar o controle local com aparelhos reais,
 mais controles infravermelhos, protocolo 3.5, atualizações da nuvem em tempo real, cenas e automações ligadas ao computador
 (bloqueou a tela → apaga a luz da mesa).
 
