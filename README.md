@@ -40,7 +40,7 @@
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan cards, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
   under “Advanced”, with a control inferred from their type. Only controls the device actually reports are shown.
-- 🎨 **Seven themes**, picked in the welcome tour or in Settings — and community themes can be dropped into a folder.
+- 🎨 **Eight themes**, picked in the welcome tour or in Settings — and community themes can be dropped into a folder.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 
@@ -50,7 +50,7 @@ Every screen works in every theme — pick one in the welcome tour or in Setting
 
 <table>
 <tr><td align="center" valign="top"><img src="docs/screenshots/themes/moonlight.png" width="180" alt="Moonlight" /><br /><b>Moonlight</b><br /><sub>dark and quiet — the original</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/past-dream.png" width="180" alt="Past Dream" /><br /><b>Past Dream</b><br /><sub>a 1996 operating system that never was</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-aero.png" width="180" alt="Frutiger Aero" /><br /><b>Frutiger Aero</b><br /><sub>glass, bubbles and gloss — the future of 2007</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/cassi-ui.png" width="180" alt="CassiUI" /><br /><b>CassiUI</b><br /><sub>an olive LCD screen with pixel type</sub></td></tr>
-<tr><td align="center" valign="top"><img src="docs/screenshots/themes/cutelight.png" width="180" alt="Cutelight" /><br /><b>Cutelight</b><br /><sub>light and cute: baby blue, floating cards</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/boringlight.png" width="180" alt="BoringLight" /><br /><b>BoringLight</b><br /><sub>lavender, gray and indigo — no frills</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/contrast.png" width="180" alt="High Contrast" /><br /><b>High Contrast</b><br /><sub>black, white and yellow — readable anywhere</sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/cutelight.png" width="180" alt="Cutelight" /><br /><b>Cutelight</b><br /><sub>light and cute: baby blue, floating cards</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/boringlight.png" width="180" alt="BoringLight" /><br /><b>BoringLight</b><br /><sub>lavender, gray and indigo — no frills</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/contrast.png" width="180" alt="High Contrast" /><br /><b>High Contrast</b><br /><sub>black, white and yellow — readable anywhere</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-inferno.png" width="180" alt="Frutiger Inferno" /><br /><b>Frutiger Inferno</b><br /><sub>Aero's evil twin: red glass, embers and lava</sub></td></tr>
 </table>
 
 Make your own: a theme is one CSS file of design tokens (plus an optional font). Drop it in the themes folder
@@ -94,9 +94,7 @@ for a real app — and it went pretty far: tray popover, OS keychain, UDP broadc
 The bet is hedged, though. `packages/tuya-core` knows nothing about the runtime — networking comes in through a small
 `Transport` interface (there are Node and txiki implementations). If tinyjs doesn't work out, only the shell changes.
 
-Things we learned the hard way are documented in the code — e.g. `file://` + WebView2 blocks CSS masks and web fonts under CORS,
-so icons and fonts are embedded as `data:` URIs by `npm run assets`; and windows can't be transparent on Windows, so themes
-paint their own background edge to edge.
+Things we learned the hard way are documented in the code and in [THEMING.md](apps/menubar/THEMING.md).
 
 ## Getting started
 
@@ -141,7 +139,7 @@ apps/
     src/backend/          account · network · control (local/cloud routes) · view · tray · favorites
                           · quick-actions · remembered (state of IR devices) · user-themes
     src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, onboarding…
-    src/frontend/themes/  the seven themes + tokens.json, the theme contract
+    src/frontend/themes/  the eight themes + tokens.json, the theme contract
 docs/
   ROADMAP.md        what's next, what was done and what was dropped
 ```

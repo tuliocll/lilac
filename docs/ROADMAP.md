@@ -72,6 +72,7 @@ Want to pick something up? Open an issue first so we can line it up.
 - [x] The cloud session no longer dies after ~2 h (the refresh was sent with the expired token).
 - [x] "Shortcuts in the list" at the bottom of the device page (instead of the ⚡ nobody understood).
 - [x] Past Dream without the blue frame around it; the hard shadow drawn as a border (Windows has no transparent windows).
+- [x] Frutiger Inferno, the evil twin of Frutiger Aero (eight themes now).
 - [x] Docs in English and Portuguese; repository at [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
 
 ## Dropped (and why)
