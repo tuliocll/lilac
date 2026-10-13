@@ -10,6 +10,8 @@
 <img src="docs/screenshots/past-dream-onboarding.png" width="230" alt="Tema Past Dream — boas-vindas" />
 <img src="docs/screenshots/past-dream-light.png" width="230" alt="Tema Past Dream — lâmpada colorida" />
 
+**[⬇️ Baixar para Windows, macOS ou Linux](https://github.com/tuliocll/lilac/releases)** · [como instalar](#baixar)
+
 <sub>Telas renderizadas com dados de exemplo. 🇺🇸 <a href="README.md">Read in English</a></sub>
 
 </div>
@@ -22,6 +24,35 @@
 > parte do código, dos testes e destes documentos. Tem uma suíte de testes de verdade (inclusive interoperabilidade com o
 > [tinytuya](https://github.com/jasonacox/tinytuya)), mas é **experimental** — espere arestas e leia o código antes de confiar
 > nele para algo importante.
+
+## Baixar
+
+Não precisa saber programar: baixe o arquivo do seu computador na **[página de Releases](https://github.com/tuliocll/lilac/releases)**
+(a versão mais nova fica no topo; clique em **Assets** se os arquivos estiverem escondidos).
+
+| Seu computador | Arquivo para baixar | Como abrir |
+|---|---|---|
+| **Windows 10/11** | `Lilac-…-windows.zip` | Descompacte, abra a pasta e dê dois cliques no **`lilac.exe`** |
+| **macOS** | `Lilac-…-macos.dmg` | Abra e arraste o **Lilac** para Aplicativos |
+| **Linux** | `Lilac-…-linux-x86_64.tar.gz` | Extraia e rode o **`lilac`** |
+
+**Windows: por que tem dois `.exe`?** A pasta tem o `lilac.exe` e o `launcher.exe`, e é assim mesmo.
+O `lilac.exe` é o app de verdade (tudo vai dentro dele, até o ícone). O `launcher.exe` é um ajudante que o tinyjs usa
+para desenhar a janela: sozinho ele não faz nada, mas o `lilac.exe` precisa dele. Então:
+
+- abra sempre o **`lilac.exe`**;
+- deixe **os dois arquivos na mesma pasta** (mover só o `lilac.exe` faz ele parar de funcionar; mova a pasta inteira);
+- para criar um atalho, clique com o botão direito no `lilac.exe` → *Enviar para* → *Área de trabalho*. Fixar a janela
+  aberta na barra de tarefas também funciona.
+
+No Linux é igual: o `lilac` é o app e o `launcher` fica do lado.
+
+**"O Windows protegeu o computador" / "não pode ser aberto"?** As versões ainda não são assinadas, então o sistema avisa
+na primeira vez. No Windows clique em **Mais informações → Executar assim mesmo**. No macOS abra **Ajustes do Sistema →
+Privacidade e Segurança** e clique em **Abrir Mesmo Assim** ao lado do Lilac. Só precisa fazer isso uma vez.
+
+Depois de aberto, o Lilac fica na bandeja do sistema (perto do relógio) ou na barra de menus no macOS: é só clicar no
+ícone lilás.
 
 ## O que ele faz
 
@@ -83,7 +114,7 @@ O resto ganha a página genérica.
 | **macOS 15+** | 🤞 plataforma principal do tinyjs, mas não testado aqui |
 | **Linux** (glibc 2.35+, `libwebkit2gtk-4.1`) | 🤞 beta no tinyjs, não testado aqui |
 
-Ainda não há versões assinadas: quando vierem, o SmartScreen do Windows e o Gatekeeper do macOS vão avisar antes da primeira execução.
+Ainda não há versões assinadas, então o SmartScreen do Windows e o Gatekeeper do macOS avisam antes da primeira execução (veja [Baixar](#baixar)).
 
 ## Por que tinyjs?
 

@@ -10,6 +10,8 @@
 <img src="docs/screenshots/past-dream-devices.png" width="230" alt="Past Dream theme — device list" />
 <img src="docs/screenshots/contrast-light.png" width="230" alt="High Contrast theme — colour light page" />
 
+**[⬇️ Download for Windows, macOS or Linux](https://github.com/tuliocll/lilac/releases)** · [how to install](#download)
+
 <sub>Screenshots rendered with sample data. 🇧🇷 <a href="README.pt-BR.md">Leia em português</a></sub>
 
 </div>
@@ -22,6 +24,33 @@
 > the code, the tests and these docs. It has a real test suite (including interop tests against
 > [tinytuya](https://github.com/jasonacox/tinytuya)), but it is **experimental** — expect rough edges and read the code before
 > trusting it with anything important.
+
+## Download
+
+No programming needed: grab the file for your computer from the **[Releases page](https://github.com/tuliocll/lilac/releases)**
+(the newest version is at the top; open **Assets** if the files are hidden).
+
+| Your computer | File to download | How to start it |
+|---|---|---|
+| **Windows 10/11** | `Lilac-…-windows.zip` | Unzip it, open the folder and double-click **`lilac.exe`** |
+| **macOS** | `Lilac-…-macos.dmg` | Open it and drag **Lilac** into Applications |
+| **Linux** | `Lilac-…-linux-x86_64.tar.gz` | Extract it and run **`lilac`** |
+
+**Windows: why are there two `.exe` files?** The folder has `lilac.exe` and `launcher.exe`, and that's expected.
+`lilac.exe` is the app itself (everything is packed inside it, even the icon). `launcher.exe` is a small helper that tinyjs
+uses to draw the window: it does nothing on its own, but `lilac.exe` needs it. So:
+
+- always open **`lilac.exe`**;
+- keep **both files in the same folder** (moving `lilac.exe` alone breaks it — move the whole folder instead);
+- for a desktop shortcut, right-click `lilac.exe` → *Send to* → *Desktop*. Pinning the open window to the taskbar works too.
+
+Linux works the same way: `lilac` is the app and `launcher` stays next to it.
+
+**"Windows protected your PC" / "can't be opened"?** The builds aren't signed yet, so the system warns on the first run.
+On Windows click **More info → Run anyway**. On macOS open **System Settings → Privacy & Security** and click
+**Open Anyway** next to Lilac. You only need to do this once.
+
+Once it's open, Lilac lives in the system tray (next to the clock) or the menu bar on macOS — click the lilac icon.
 
 ## What it does
 
@@ -83,7 +112,7 @@ generic page.
 | **macOS 15+** | 🤞 tinyjs' primary platform, but untested here |
 | **Linux** (glibc 2.35+, `libwebkit2gtk-4.1`) | 🤞 tinyjs beta, untested here |
 
-There are no signed builds yet: when they come, Windows SmartScreen and macOS Gatekeeper will warn before the first run.
+There are no signed builds yet, so Windows SmartScreen and macOS Gatekeeper warn before the first run (see [Download](#download)).
 
 ## Why tinyjs?
 
