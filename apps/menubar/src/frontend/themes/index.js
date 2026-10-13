@@ -30,6 +30,13 @@ Lilac.builtinThemes = [
     swatches: ['#2c1215', '#c41e28', '#ff6a1a', '#ffb03a', '#ffffff'],
   },
   {
+    id: 'confused-past',
+    name: 'ConfusedPast',
+    description: { 'pt-BR': 'Colagem mixed media: papel rasgado, fita crepe e batom', en: 'Mixed-media collage: torn paper, tape and lipstick' },
+    href: ['themes/confused-past/fonts.css', 'themes/confused-past/theme.css'],
+    swatches: ['#f3f1ec', '#161616', '#b3121f', '#c8c8c8', '#d6b07a'],
+  },
+  {
     id: 'cassi-ui',
     name: 'CassiUI',
     description: { 'pt-BR': 'Tela de LCD em tons de oliva, letra pixelada', en: 'An olive LCD screen with pixel type' },

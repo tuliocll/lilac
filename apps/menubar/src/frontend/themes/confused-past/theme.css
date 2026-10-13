@@ -1,0 +1,224 @@
+/*
+ * ConfusedPast — colagem mixed media: papel branco com grão, recortes rasgados
+ * colados meio tortos, fita crepe, letra de máquina de escrever, título de
+ * revista, batom vermelho, estrela cromada e uma oncinha aqui e ali.
+ */
+/* fontes embutidas em fonts.css (gerado a partir de fonts.json) */
+
+[data-theme="confused-past"] {
+  /* paleta */
+  --paper: #f3f1ec;
+  --scrap: #fbfaf7;
+  --ink: #161616;
+  --graphite: #5e5e5e;
+  --pencil: #b9b6ae;
+  --lipstick: #b3121f;
+  --tape: rgba(226, 216, 188, 0.82);
+  /* texturas */
+  --grain: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1.2px) 0 0 / 3px 3px;
+  --chrome: linear-gradient(135deg, #f7f7f7 0%, #9a9a9a 22%, #ffffff 40%, #6f6f6f 58%, #e9e9e9 76%, #8c8c8c 100%);
+  --lips: radial-gradient(120% 90% at 35% 30%, #ff6a6a 0%, #c8141f 35%, #7d0a12 100%);
+  --flame: radial-gradient(60% 75% at 50% 70%, #fff4c2 0%, #ffbf3d 35%, #e2571b 65%, #f3efe6 66%);
+  --faded-sky: linear-gradient(180deg, #7fb2d4 0%, #b9d4e4 55%, #eef2f2 100%);
+  --marble: linear-gradient(160deg, #f4f3f0 0%, #cfccc6 35%, #ecebe7 55%, #a9a6a0 80%, #e7e5e0 100%);
+  --leopard:
+    radial-gradient(circle at 30% 30%, #3a2a1a 0 18%, transparent 20%) 0 0 / 11px 11px,
+    radial-gradient(circle at 70% 70%, #3a2a1a 0 14%, transparent 16%) 4px 3px / 13px 12px,
+    radial-gradient(circle at 50% 50%, #8a5a2b 0 26%, transparent 28%) 2px 6px / 10px 10px,
+    #d6b07a;
+  --leopard-pink:
+    radial-gradient(circle at 30% 30%, #3d2b33 0 18%, transparent 20%) 0 0 / 11px 11px,
+    radial-gradient(circle at 70% 70%, #3d2b33 0 14%, transparent 16%) 4px 3px / 13px 12px,
+    radial-gradient(circle at 50% 50%, #9d7183 0 26%, transparent 28%) 2px 6px / 10px 10px,
+    #d7b8c3;
+  --pasted: 1px 2px 3px rgba(0, 0, 0, 0.12);
+
+  --font-ui: "Courier Prime", "Courier New", monospace;
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-size: 13px;
+  --title-size: 22px;
+  --title-weight: 400;
+
+  --desktop-bg: var(--paper);
+  --window-margin: 0px;
+  --window-bg: var(--grain), var(--paper);
+  --window-fg: var(--ink);
+  --window-border: 1px solid var(--pencil);
+  --window-radius: 0px;
+  --window-shadow: none;
+  --window-areas: "title" "tools" "body" "status";
+  --window-columns: minmax(0, 1fr);
+  --window-rows: auto auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: transparent;
+  --titlebar-fg: var(--ink);
+  --titlebar-border: 0;
+  --titlebar-padding: 10px 10px 4px 14px;
+  --wc-display: flex;
+  --wc-bg: var(--ink);
+  --wc-fg: var(--scrap);
+  --wc-border: 0;
+  --wc-radius: 0;
+  --dot-display: none;
+  --dot-idle: var(--ink);
+  --dot-busy: var(--lipstick);
+
+  --toolbar-bg: transparent;
+  --toolbar-border: 0;
+  --toolbar-padding: 4px 12px 8px;
+
+  --body-padding: 6px 12px;
+  --gap: 12px;
+  --muted: var(--graphite);
+  --accent: var(--lipstick);
+  --accent-fg: var(--scrap);
+  --link: var(--lipstick);
+
+  --surface-bg: var(--grain), var(--scrap);
+  --surface-hover: var(--grain), #ffffff;
+  --surface-border: 0;
+  --surface-radius: 0;
+  --surface-shadow: var(--pasted);
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0;
+  --list-padding: 4px 6px;
+  --list-gap: 10px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: var(--ink);
+  --btn-fg: var(--scrap);
+  --btn-border: 0;
+  --btn-radius: 0;
+  --btn-shadow: var(--pasted);
+  --btn-shadow-active: none;
+  --btn-press-offset: translate(1px, 1px);
+  --btn-hover-bg: #333333;
+  --btn-primary-bg: var(--lipstick);
+  --btn-primary-fg: var(--scrap);
+
+  --input-bg: var(--scrap);
+  --input-fg: var(--ink);
+  --input-border: 1px solid var(--ink);
+  --input-radius: 0;
+  --focus-ring: 2px dashed var(--lipstick);
+  --selected-ring: inset 0 0 0 2px var(--lipstick);
+
+  --badge-bg: var(--tape);
+  --badge-fg: var(--ink);
+  --badge-border: 0;
+  --badge-radius: 0;
+  --ok-bg: var(--ink);
+  --ok-fg: var(--scrap);
+  --warn-bg: var(--tape);
+  --warn-fg: var(--ink);
+  --warn-text: #8a5a00;
+  --err-fg: var(--lipstick);
+
+  --icon-tile-size: 38px;
+  --icon-tile-border: 0;
+  --icon-tile-radius: 0;
+  --icon-fg: var(--ink);
+
+  --statusbar-bg: transparent;
+  --statusbar-fg: var(--ink);
+  --statusbar-border: 0;
+  --statusbar-padding: 6px 14px 10px;
+
+  --scrollbar-size: 8px;
+  --scrollbar-thumb: var(--ink);
+  --scrollbar-track: transparent;
+  --scrollbar-border: 0;
+
+  --qr-frame: var(--scrap);
+  --link-local: var(--ink);
+  --link-cloud: var(--lipstick);
+  --link-ring: var(--scrap);
+  --quick-size: 32px;
+  --swatch-border: 1px solid var(--ink);
+
+  --tone-sun: var(--flame);
+  --tone-sky: var(--faded-sky);
+  --tone-mint: var(--marble);
+  --tone-peach: var(--leopard);
+  --tone-lilac: var(--leopard-pink);
+  --tone-pink: var(--lips);
+  --tone-neutral: var(--chrome);
+
+  --toggle-w: 44px;
+  --toggle-h: 22px;
+  --toggle-radius: 0;
+  --toggle-border: 1px solid var(--ink);
+  --toggle-track: var(--scrap);
+  --toggle-track-on: var(--lipstick);
+  --toggle-thumb: var(--chrome);
+
+  --slider-h: 22px;
+  --slider-radius: 0;
+  --slider-border: 1px solid var(--ink);
+  --slider-track: var(--grain), var(--scrap);
+  --slider-fill: linear-gradient(180deg, var(--lipstick), #8d0d17);
+  --slider-thumb: var(--chrome);
+  --slider-thumb-w: 16px;
+  --slider-thumb-h: 30px;
+  --slider-thumb-radius: 0;
+  --slider-thumb-border: 1px solid var(--ink);
+
+  --power-size: 112px;
+  --power-bg: var(--chrome);
+  --power-fg: var(--ink);
+  --power-on-bg: var(--lips);
+  --power-on-fg: var(--scrap);
+  --power-border: 0;
+  --power-shadow: 2px 4px 8px rgba(0, 0, 0, 0.25);
+  --power-on-shadow: 2px 4px 10px rgba(120, 0, 10, 0.4);
+
+  --hero-font: var(--font-display);
+  --hero-size: 64px;
+  --chip-min-h: 74px;
+  --step-dot: var(--pencil);
+  --step-dot-active: var(--lipstick);
+  --art-size: 88px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* o título é um recorte de revista colado com fita crepe */
+[data-theme="confused-past"] .titlebar-title {
+  background: var(--tape);
+  padding: 2px 12px 0;
+  transform: rotate(-1.5deg);
+  box-shadow: var(--pasted);
+}
+
+/* botões da janela: quadradinhos de papel preto, cada um num ângulo */
+[data-theme="confused-past"] .wc { transform: rotate(3deg); }
+[data-theme="confused-past"] .wc:first-child { transform: rotate(-4deg); }
+
+/* recortes rasgados: bordas irregulares e colados meio tortos */
+[data-theme="confused-past"] .device,
+[data-theme="confused-past"] .card {
+  clip-path: polygon(
+    0 2px, 18% 0, 41% 3px, 63% 0, 86% 2px, 100% 0,
+    calc(100% - 3px) 22%, 100% 47%, calc(100% - 4px) 71%, 100% 100%,
+    79% calc(100% - 3px), 54% 100%, 30% calc(100% - 2px), 9% 100%, 0 calc(100% - 3px),
+    4px 74%, 0 51%, 3px 26%
+  );
+}
+[data-theme="confused-past"] .list .device:nth-child(3n + 1) { transform: rotate(-0.6deg); }
+[data-theme="confused-past"] .list .device:nth-child(3n + 2) { transform: rotate(0.5deg); }
+[data-theme="confused-past"] .list .device:nth-child(3n) { transform: rotate(-0.2deg); }
+
+/* os ícones viram pedacinhos de foto: chama de vela, céu, mármore, oncinha, batom, cromo */
+[data-theme="confused-past"] .device-icon,
+[data-theme="confused-past"] .art-tile { transform: rotate(-3deg); box-shadow: var(--pasted); }
+
+/* botões de texto são letras recortadas: cada um num ângulo */
+[data-theme="confused-past"] .btn:nth-of-type(odd) { transform: rotate(-1deg); }
+[data-theme="confused-past"] .btn:nth-of-type(even) { transform: rotate(1deg); }
+
+/* rodapé datilografado */
+[data-theme="confused-past"] .statusbar { border-top: 1px dashed var(--pencil); }

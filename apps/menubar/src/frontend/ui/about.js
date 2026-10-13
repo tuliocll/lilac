@@ -15,6 +15,8 @@
     { name: 'Silkscreen', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/silkscreen', what: { 'pt-BR': 'fonte do tema CassiUI', en: 'CassiUI theme font' } },
     { name: 'Nunito', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/nunito', what: { 'pt-BR': 'fonte do tema Cutelight', en: 'Cutelight theme font' } },
     { name: 'Varela Round', lic: 'OFL-1.1', url: 'https://github.com/alefalefalef/Varela-Round-Hebrew', what: { 'pt-BR': 'fonte dos temas Frutiger Aero e Inferno', en: 'Frutiger Aero and Inferno theme font' } },
+    { name: 'Courier Prime', lic: 'OFL-1.1', url: 'https://github.com/quoteunquoteapps/CourierPrime', what: { 'pt-BR': 'fonte do tema ConfusedPast', en: 'ConfusedPast theme font' } },
+    { name: 'DM Serif Display', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/dm-fonts', what: { 'pt-BR': 'títulos do tema ConfusedPast', en: 'ConfusedPast theme headings' } },
   ];
 
   function credit({ name, lic, url, what }) {

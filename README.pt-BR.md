@@ -71,7 +71,7 @@ Depois de aberto, o Lilac fica na bandeja do sistema (perto do relógio) ou na b
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
   energia e leituras de consumo, a lâmpada ganha brilho e tom de branco… DPs que o perfil não conhece aparecem em “Avançado”,
   com o controle inferido pelo tipo. Só aparecem os controles que o aparelho realmente informa.
-- 🎨 **Oito temas**, escolhidos nas boas-vindas ou nas configurações — e temas da comunidade entram por uma pasta.
+- 🎨 **Nove temas**, escolhidos nas boas-vindas ou nas configurações — e temas da comunidade entram por uma pasta.
 - 🔑 **Sem conta? Importe as chaves** do `devices.json` do tinytuya.
 - 🌍 **Idiomas**: português e inglês, trocáveis nas configurações.
 
@@ -82,6 +82,7 @@ Toda tela funciona em todos os temas — escolha um nas boas-vindas ou em Config
 <table>
 <tr><td align="center" valign="top"><img src="docs/screenshots/themes/moonlight.pt-BR.png" width="180" alt="Moonlight" /><br /><b>Moonlight</b><br /><sub>escuro e discreto — o original</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/past-dream.pt-BR.png" width="180" alt="Past Dream" /><br /><b>Past Dream</b><br /><sub>um sistema de 1996 que nunca existiu</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-aero.pt-BR.png" width="180" alt="Frutiger Aero" /><br /><b>Frutiger Aero</b><br /><sub>vidro, bolhas e brilho — o futuro de 2007</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/cassi-ui.pt-BR.png" width="180" alt="CassiUI" /><br /><b>CassiUI</b><br /><sub>uma tela de LCD oliva, letra pixelada</sub></td></tr>
 <tr><td align="center" valign="top"><img src="docs/screenshots/themes/cutelight.pt-BR.png" width="180" alt="Cutelight" /><br /><b>Cutelight</b><br /><sub>claro e fofo: azul-bebê, cartões flutuando</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/boringlight.pt-BR.png" width="180" alt="BoringLight" /><br /><b>BoringLight</b><br /><sub>lavanda, cinza e índigo — sem firula</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/contrast.pt-BR.png" width="180" alt="Alto Contraste" /><br /><b>Alto Contraste</b><br /><sub>preto, branco e amarelo — legível em qualquer luz</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-inferno.pt-BR.png" width="180" alt="Frutiger Inferno" /><br /><b>Frutiger Inferno</b><br /><sub>o irmão do mal do Aero: vidro vermelho, brasa e lava</sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/confused-past.pt-BR.png" width="180" alt="ConfusedPast" /><br /><b>ConfusedPast</b><br /><sub>colagem mixed media: papel rasgado, fita crepe e batom</sub></td></tr>
 </table>
 
 Crie o seu: um tema é um arquivo CSS de tokens de design (e, se quiser, uma fonte). Coloque na pasta de temas
@@ -170,7 +171,7 @@ apps/
     src/backend/          account · network · control (rotas local/nuvem) · view · tray · favorites
                           · quick-actions · remembered (estado dos aparelhos IR) · user-themes
     src/frontend/ui/      um módulo pequeno por tela: devices, device-page, controls, settings, onboarding…
-    src/frontend/themes/  os oito temas + tokens.json, o contrato de temas
+    src/frontend/themes/  os nove temas + tokens.json, o contrato de temas
 docs/
   ROADMAP.md        o que vem, o que foi feito e o que foi descartado
 ```
@@ -215,7 +216,8 @@ mais controles infravermelhos, protocolo 3.5, atualizações da nuvem em tempo r
 [tinytuya](https://github.com/jasonacox/tinytuya) (referência do protocolo local) ·
 [@noble/ciphers & hashes](https://paulmillr.com/noble/) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) ·
 fontes [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew),
-[Silkscreen](https://github.com/googlefonts/silkscreen) e [Nunito](https://github.com/googlefonts/nunito) (todas OFL).
+[Silkscreen](https://github.com/googlefonts/silkscreen), [Nunito](https://github.com/googlefonts/nunito),
+[Courier Prime](https://github.com/quoteunquoteapps/CourierPrime) e [DM Serif Display](https://github.com/googlefonts/dm-fonts) (todas OFL).
 
 MIT © Tulio Calil · [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
 Projeto independente, **sem vínculo com a Tuya**. Tuya e Smart Life são marcas de seus donos.

@@ -1,0 +1,5 @@
+[
+  { "family": "Courier Prime", "file": "fonts/CourierPrime-400.woff2", "weight": "400" },
+  { "family": "Courier Prime", "file": "fonts/CourierPrime-700.woff2", "weight": "600 700" },
+  { "family": "DM Serif Display", "file": "fonts/DMSerifDisplay-400.woff2", "weight": "400 700" }
+]
