@@ -33,7 +33,7 @@ icons/*.svg       glyphs (used as masks — the colour comes from the theme)
 3. Tweaks that go beyond tokens live below, always prefixed with `[data-theme="my-theme"]`
    (e.g. stripes on the title bar, `::-webkit-scrollbar-button`, uppercase pixel labels).
 4. Custom font? Put the `.woff2` in `fonts/` (with its licence), declare it in `fonts.json` and run `npm run assets`
-   (WebView2 blocks fonts over `file://`, so they get embedded as `data:` URIs). Credit it in `ui/about.js` and the README.
+   (it gets embedded in `fonts.css` as a `data:` URI). Credit it in `ui/about.js` and the README.
 5. Register it in `themes/index.js` (with a `description` in pt-BR and en, and a few `swatches`) and run `npm test`.
 
 The layout is themeable too: `--window-areas`, `--window-columns` and `--window-rows` decide whether the toolbar sits
@@ -41,9 +41,9 @@ beside the title (Moonlight) or below it (Past Dream).
 
 ### Lessons from the built-in themes
 
-- **No transparency on Windows.** The window is opaque there, so anything outside `.window` shows up as a white edge.
-  Keep `--window-margin: 0` and an opaque `--desktop-bg`. Want a hard drop shadow? Draw it as a thicker border
-  (Past Dream: `border-width: 2px 5px 5px 2px`).
+- **The window is opaque (for now).** tinyjs supports transparent windows (`chrome.transparent`), but Lilac doesn't turn
+  it on yet, so anything outside `.window` shows up as a white edge. Keep `--window-margin: 0` and an opaque
+  `--desktop-bg`. Want a hard drop shadow? Draw it as a thicker border (Past Dream: `border-width: 2px 5px 5px 2px`).
 - **Tokens that go into a `background` list can't carry their own size.** The slider paints
   `var(--slider-fill) 0 0 / var(--fill) 100% no-repeat, var(--slider-track)`, so `--slider-fill` must be a plain image
   (a gradient), while `--slider-track`, the last layer, may include `center / 100% 3px no-repeat`.
