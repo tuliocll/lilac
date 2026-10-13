@@ -12,6 +12,7 @@
     { name: '@noble/ciphers · @noble/hashes', lic: 'MIT', url: 'https://paulmillr.com/noble/', what: { 'pt-BR': 'criptografia em JS puro', en: 'pure-JS cryptography' } },
     { name: 'qrcode-generator', lic: 'MIT', url: 'https://github.com/kazuhikoarase/qrcode-generator', what: { 'pt-BR': 'QR code do login', en: 'login QR code' } },
     { name: 'Pixelify Sans', lic: 'OFL-1.1', url: 'https://github.com/eifetx/Pixelify-Sans', what: { 'pt-BR': 'fonte do tema Past Dream', en: 'Past Dream theme font' } },
+    { name: 'Varela Round', lic: 'OFL-1.1', url: 'https://github.com/alefalefalef/Varela-Round-Hebrew', what: { 'pt-BR': 'fonte do tema Frutiger Aero', en: 'Frutiger Aero theme font' } },
   ];
 
   function credit({ name, lic, url, what }) {

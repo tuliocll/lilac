@@ -16,6 +16,13 @@ TuyaBar.builtinThemes = [
     swatches: ['#2e5f7c', '#fbf6e9', '#b8a4ff', '#ffd23f', '#ff8fc4'],
   },
   {
+    id: 'frutiger-aero',
+    name: 'Frutiger Aero',
+    description: { 'pt-BR': 'Vidro, bolhas e brilho — o futuro de 2007', en: 'Glass, bubbles and gloss — the future of 2007' },
+    href: ['themes/frutiger-aero/fonts.css', 'themes/frutiger-aero/theme.css'],
+    swatches: ['#7d8996', '#5fb8ff', '#9fd83e', '#ffe14a', '#ffffff'],
+  },
+  {
     id: 'contrast',
     name: { 'pt-BR': 'Alto Contraste', en: 'High Contrast' },
     description: { 'pt-BR': 'Preto, branco e amarelo — legível em qualquer luz', en: 'Black, white and yellow — readable in any light' },
