@@ -23,14 +23,14 @@
   --title-size: 15px;
   --title-weight: 600;
 
-  /* a janela ocupa o painel inteiro: nada de "desktop" em volta */
-  --desktop-bg: var(--cream);
-  --window-margin: 0px;
+  /* fundo transparente: só sobra a janela e a sombra dura (a margem é o espaço dela) */
+  --desktop-bg: transparent;
+  --window-margin: 0 5px 5px 0;
   --window-bg: var(--cream);
   --window-fg: var(--ink);
   --window-border: 2px solid var(--ink);
-  --window-radius: 0px;
-  --window-shadow: none;
+  --window-radius: 6px;
+  --window-shadow: 5px 5px 0 var(--ink);
   --window-areas: "title" "tools" "body" "status";
   --window-columns: minmax(0, 1fr);
   --window-rows: auto auto minmax(0, 1fr) auto;
