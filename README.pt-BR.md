@@ -39,6 +39,18 @@
   Temas da comunidade entram por uma pasta, sem recompilar.
 - 🌍 **Idiomas**: português e inglês, trocáveis nas configurações.
 
+## Temas
+
+Toda tela funciona em todos os temas — escolha um nas boas-vindas ou em Configurações → Aparência.
+
+<table>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/moonlight.pt-BR.png" width="180" alt="Moonlight" /><br /><b>Moonlight</b><br /><sub>escuro e discreto — o original</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/past-dream.pt-BR.png" width="180" alt="Past Dream" /><br /><b>Past Dream</b><br /><sub>um sistema de 1996 que nunca existiu</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-aero.pt-BR.png" width="180" alt="Frutiger Aero" /><br /><b>Frutiger Aero</b><br /><sub>vidro, bolhas e brilho — o futuro de 2007</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/cassi-ui.pt-BR.png" width="180" alt="CassiUI" /><br /><b>CassiUI</b><br /><sub>uma tela de LCD oliva, letra pixelada</sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/cutelight.pt-BR.png" width="180" alt="Cutelight" /><br /><b>Cutelight</b><br /><sub>claro e fofo: azul-bebê, cartões flutuando</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/boringlight.pt-BR.png" width="180" alt="BoringLight" /><br /><b>BoringLight</b><br /><sub>lavanda, cinza e índigo — sem firula</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/contrast.pt-BR.png" width="180" alt="Alto Contraste" /><br /><b>Alto Contraste</b><br /><sub>preto, branco e amarelo — legível em qualquer luz</sub></td></tr>
+</table>
+
+Crie o seu: um tema é um arquivo CSS de tokens de design (e, se quiser, uma fonte). Coloque na pasta de temas
+(Configurações → *Pasta de temas*) — sem recompilar — ou mande um PR. Veja o [THEMING.md](apps/menubar/THEMING.md).
+
 ## O que funciona (tabela honesta)
 
 | | Situação |

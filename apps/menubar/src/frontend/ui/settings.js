@@ -10,8 +10,9 @@
 
   // ------------------------------------------------------------ aparência
 
+  /** Toda grade de temas (configurações e boas-vindas) — escolher aplica na hora. */
   function renderThemes() {
-    $('theme-list').replaceChildren(...TuyaBar.themes.list().map(themeOption));
+    for (const list of document.querySelectorAll('.theme-list')) list.replaceChildren(...TuyaBar.themes.list().map(themeOption));
     $('user-themes-info').textContent = userThemes.error
       ? t('settings.themesUnavailable')
       : userThemes.count
@@ -170,5 +171,5 @@
     renderHotkey();
   });
 
-  TuyaBar.settings = { loadUserThemes, renderAccount, hotkeyEnabled };
+  TuyaBar.settings = { renderThemes, loadUserThemes, renderAccount, hotkeyEnabled };
 })();

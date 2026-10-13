@@ -40,6 +40,18 @@
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 
+## Themes
+
+Every screen works in every theme — pick one in the welcome tour or in Settings → Appearance.
+
+<table>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/moonlight.png" width="180" alt="Moonlight" /><br /><b>Moonlight</b><br /><sub>dark and quiet — the original</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/past-dream.png" width="180" alt="Past Dream" /><br /><b>Past Dream</b><br /><sub>a 1996 operating system that never was</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/frutiger-aero.png" width="180" alt="Frutiger Aero" /><br /><b>Frutiger Aero</b><br /><sub>glass, bubbles and gloss — the future of 2007</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/cassi-ui.png" width="180" alt="CassiUI" /><br /><b>CassiUI</b><br /><sub>an olive LCD screen with pixel type</sub></td></tr>
+<tr><td align="center" valign="top"><img src="docs/screenshots/themes/cutelight.png" width="180" alt="Cutelight" /><br /><b>Cutelight</b><br /><sub>light and cute: baby blue, floating cards</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/boringlight.png" width="180" alt="BoringLight" /><br /><b>BoringLight</b><br /><sub>lavender, gray and indigo — no frills</sub></td><td align="center" valign="top"><img src="docs/screenshots/themes/contrast.png" width="180" alt="High Contrast" /><br /><b>High Contrast</b><br /><sub>black, white and yellow — readable anywhere</sub></td></tr>
+</table>
+
+Make your own: a theme is one CSS file of design tokens (plus an optional font). Drop it in the themes folder
+(Settings → *Themes folder*) — no rebuild — or send a PR. See [THEMING.md](apps/menubar/THEMING.md).
+
 ## What works (honest table)
 
 | | Status |

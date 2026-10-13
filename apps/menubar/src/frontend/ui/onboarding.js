@@ -1,6 +1,7 @@
-// Boas-vindas em três passos: o que é, por que conectar, como conectar.
+// Boas-vindas em quatro passos: o que é, por que conectar, escolher o visual, como conectar.
 (() => {
   const { $ } = TuyaBar.dom;
+  const LAST = 4;
   let step = 1;
 
   function show(n) {
@@ -11,6 +12,7 @@
   }
 
   function open() {
+    TuyaBar.settings.renderThemes(); // o passo 3 usa a mesma grade de temas das configurações
     show(1);
     TuyaBar.nav.go('onboarding');
     TuyaBar.status.clear();
@@ -22,8 +24,8 @@
     else TuyaBar.nav.go('devices', { replace: true });
   }
 
-  $('ob-next').addEventListener('click', () => show(Math.min(3, step + 1)));
-  $('ob-skip').addEventListener('click', () => show(3));
+  $('ob-next').addEventListener('click', () => show(Math.min(LAST, step + 1)));
+  $('ob-skip').addEventListener('click', () => show(LAST));
   $('ob-connect').addEventListener('click', () => finish('login'));
   $('ob-explore').addEventListener('click', () => finish('devices'));
 

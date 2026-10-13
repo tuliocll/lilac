@@ -15,6 +15,8 @@ themes/
   tokens.json     CONTRATO: todos os tokens que um tema precisa definir
   moonlight/      tema padrão (também define os valores-base em :root)
   past-dream/     tema retrô (fonte embutida via fonts.json)
+  frutiger-aero/  vidro e brilho        cassi-ui/    LCD oliva
+  cutelight/      claro e fofo          boringlight/ lavanda e índigo (sem fonte própria)
   contrast/       alto contraste
   index.js        temas que vêm com o app
 ui/i18n.js        dicionários pt-BR / en
