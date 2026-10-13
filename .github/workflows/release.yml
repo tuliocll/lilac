@@ -38,45 +38,20 @@ jobs:
         if: matrix.name == 'linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0
 
-      # O instalador do tinyjs consulta a API do GitHub sem token, e os runners compartilhados
-      # estouram o limite de 60 req/h por IP. Aqui o token do job vai SÓ para api.github.com
-      # (uma função `curl` na frente do script); os outros endereços seguem sem token.
+      # Desde o tinyjs 0.51.1 o instalador descobre a versão pelo redirect de /releases/latest,
+      # sem a API do GitHub, então não precisa mais de token (tarwin/tinyjsapp, issue do rate limit).
       - name: Instala o tinyjs (macOS/Linux)
         if: matrix.name != 'windows'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -fsSL --retry 3 https://tinyjs.app/install -o tinyjs-install.sh
-          echo "::group::instalador do tinyjs"; cat tinyjs-install.sh; echo "::endgroup::"
-          {
-            echo 'curl() { case "$*" in *api.github.com*) command curl -H "Authorization: Bearer $GH_TOKEN" "$@" ;; *) command curl "$@" ;; esac; }'
-            cat tinyjs-install.sh
-          } > tinyjs-install-auth.sh
-          GH_TOKEN="$GH_TOKEN" sh tinyjs-install-auth.sh
+          curl -fsSL --retry 3 https://tinyjs.app/install | sh
           echo "$TINYJS_HOME" >> "$GITHUB_PATH"
           echo "$TINYJS_HOME/bin" >> "$GITHUB_PATH"
 
-      # Mesma história no Windows: nas linhas do instalador que chamam a API do GitHub,
-      # "Authorization" é juntado aos cabeçalhos que já existem (a linha já passa -Headers).
       - name: Instala o tinyjs (Windows)
         if: matrix.name == 'windows'
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          $script = Invoke-RestMethod https://tinyjs.app/install.ps1 -MaximumRetryCount 3
-          Write-Host "::group::instalador do tinyjs"; Write-Host $script; Write-Host "::endgroup::"
-          $auth = 'Authorization = "Bearer $env:GH_TOKEN"'
-          $lines = foreach ($line in $script -split "`r?`n") {
-            if ($line -match 'Invoke-RestMethod' -and $line -match 'api\.github\.com') {
-              if ($line -match '-Headers\s+@\{') { $line -replace '-Headers\s+@\{', ('-Headers @{ ' + $auth + '; ') }
-              elseif ($line -match '-Headers\s+(\$[\w:]+)') { $line -replace '-Headers\s+(\$[\w:]+)', ('-Headers ($1 + @{ ' + $auth + ' })') }
-              else { $line -replace 'Invoke-RestMethod', ('Invoke-RestMethod -Headers @{ ' + $auth + ' }') }
-            } else { $line }
-          }
-          $script = $lines -join "`n"
-          Write-Host "linhas autenticadas:"; ($lines | Where-Object { $_ -match 'Authorization' }) | ForEach-Object { Write-Host "  $_" }
-          Invoke-Expression $script
+          irm https://tinyjs.app/install.ps1 -MaximumRetryCount 3 | iex
           "$env:TINYJS_HOME" | Out-File -FilePath $env:GITHUB_PATH -Append
           "$env:TINYJS_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
