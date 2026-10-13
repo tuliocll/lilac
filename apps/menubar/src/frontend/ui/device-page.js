@@ -91,10 +91,12 @@
   }
 
   /** Avisos: do perfil (ex.: hubs), da rota (nuvem) e de por que não dá para controlar. */
-  function notes({ gadget, route, reason, version, error }) {
+  function notes({ gadget, route, reason, version, error, remembered }) {
     const list = [];
     if (gadget?.profile.note) list.push(h('p', 'dp-note card', pick(gadget.profile.note)));
-    if (route === 'cloud' && reason) {
+    // IR: um aviso só — o do estado lembrado já diz o essencial
+    if (remembered && route) list.push(h('p', 'dp-note card', t('device.remembered')));
+    else if (route === 'cloud' && reason) {
       list.push(h('p', 'dp-note card', t('device.cloud', { why: t(`device.why.${reason}`, { version, error }) })));
     }
     if (!route && reason) {

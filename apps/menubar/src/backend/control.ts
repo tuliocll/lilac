@@ -9,11 +9,12 @@
  * (heartbeat, reconexão com espera crescente, IP novo quando o roteador troca).
  * Ao fechar, a conexão ainda dura 30 s — voltar à página fica instantâneo.
  */
-import { createLocalDevice, isLocalVersionSupported, LocalError, type CloudDevice, type Dps, type LocalDevice } from '@tuyabar/core';
+import { createLocalDevice, irAcCommands, isLocalVersionSupported, LocalError, type CloudCommand, type CloudDevice, type Dps, type LocalDevice } from '@tuyabar/core';
 import { onlySupported, resolve, toDisplay, toRaw, type ResolvedGadget } from '@tuyabar/gadgets';
 import { cloudClient, findDevice } from './account.ts';
 import { push } from './app.ts';
 import { deviceTcpPort, locate, networkTransport } from './network.ts';
+import { remember, rememberedValues, remembersState } from './remembered.ts';
 
 export type Route = 'local' | 'cloud';
 /** por que um aparelho não está sendo controlado (ou está pela nuvem) */
@@ -28,6 +29,8 @@ export interface OpenResult {
   reason?: Reason;
   version?: string;
   error?: string;
+  /** o aparelho não informa estado: os valores são os últimos que o app enviou */
+  remembered?: boolean;
 }
 
 interface Session {
@@ -119,12 +122,14 @@ export async function setControl(id: string, code: string, value: unknown): Prom
     const applied = await localDevice(session).set({ [String(control.dpId)]: toRaw(control, value, 'local') });
     applyDps(session, applied);
   } else {
-    await cloudClient()!.sendCommands(session.device.id, [{ code, value: toRaw(control, value, 'cloud') }]);
+    await cloudClient()!.sendCommands(session.device.id, cloudCommands(session.device, code, toRaw(control, value, 'cloud')));
     applyValues(session, { [code]: value });
     // a nuvem demora a refletir; confere daqui a pouco
-    setTimeout(() => {
-      if (sessions.has(id)) pollCloud(session).catch(() => {});
-    }, 1500);
+    if (!remembersState(session.device)) {
+      setTimeout(() => {
+        if (sessions.has(id)) pollCloud(session).catch(() => {});
+      }, 1500);
+    }
   }
   return session.values;
 }
@@ -170,15 +175,30 @@ export function onValuesChange(listener: (id: string) => void) {
   return () => valueListeners.delete(listener);
 }
 
-/** Últimos valores conhecidos (sessão, ou o status que a nuvem mandou no inventário). */
+/** Últimos valores conhecidos (sessão, lembrados, ou o status que a nuvem mandou no inventário). */
 export function currentValues(device: CloudDevice): Values {
-  return lastKnown.get(device.id) ?? cloudValues(resolveDevice(device), device.status);
+  if (lastKnown.has(device.id)) return lastKnown.get(device.id)!;
+  if (remembersState(device)) return rememberedValues(device.id);
+  return cloudValues(resolveDevice(device), device.status);
 }
 
 /** Controles que este aparelho reporta (para lista, ações rápidas e bandeja). */
 export function supportedGadget(device: CloudDevice): ResolvedGadget {
   const seen = new Set([...Object.keys(device.status), ...Object.keys(lastKnown.get(device.id) ?? {})]);
-  return onlySupported(resolveDevice(device), seen);
+  return filterSupported(device, resolveDevice(device), seen);
+}
+
+/**
+ * Só os controles que o aparelho reporta. Quem não informa estado (IR) não
+ * "reporta" nada: aí vale a especificação inteira.
+ */
+function filterSupported(device: CloudDevice, gadget: ResolvedGadget, seen: Iterable<string>): ResolvedGadget {
+  return remembersState(device) ? gadget : onlySupported(gadget, seen);
+}
+
+/** O comando que a nuvem entende: igual ao DP, exceto nos ares IR (ver core/cloud/infrared.ts). */
+function cloudCommands(device: CloudDevice, code: string, value: unknown): CloudCommand[] {
+  return remembersState(device) ? irAcCommands(code, value) : [{ code, value }];
 }
 
 /** Todos os controles do modelo do aparelho. */
@@ -247,8 +267,8 @@ function createSession(device: CloudDevice, route: Route, watched: boolean): Ses
     device,
     route,
     full,
-    gadget: onlySupported(full, seen),
-    values: cloudValues(full, device.status),
+    gadget: filterSupported(device, full, seen),
+    values: remembersState(device) ? rememberedValues(device.id) : cloudValues(full, device.status),
     seen,
     watched,
     timers: {},
@@ -260,21 +280,25 @@ function createSession(device: CloudDevice, route: Route, watched: boolean): Ses
 }
 
 function describe(session: Session): OpenResult {
-  return { gadget: session.gadget, values: session.values, route: session.route };
+  const result: OpenResult = { gadget: session.gadget, values: session.values, route: session.route };
+  if (remembersState(session.device)) result.remembered = true;
+  return result;
 }
 
 /** Sem rota de controle: mostra o último estado conhecido pela nuvem. */
 function readOnly(device: CloudDevice, reason?: Reason, version?: string, error?: string): OpenResult {
-  const gadget = onlySupported(resolveDevice(device), Object.keys(device.status));
-  return { gadget, values: cloudValues(gadget, device.status), route: null, reason, version, error };
+  const gadget = filterSupported(device, resolveDevice(device), Object.keys(device.status));
+  const values = remembersState(device) ? rememberedValues(device.id) : cloudValues(gadget, device.status);
+  return { gadget, values, route: null, reason, version, error };
 }
 
 async function pollCloud(session: Session) {
   clearTimeout(session.timers.poll);
+  if (remembersState(session.device)) return; // a nuvem não tem o que contar
   const { [session.device.id]: current } = await cloudClient()!.statusOf([session.device.id]);
   if (current) {
     for (const code of Object.keys(current.status)) session.seen.add(code);
-    session.gadget = onlySupported(session.full, session.seen);
+    session.gadget = filterSupported(session.device, session.full, session.seen);
     applyValues(session, cloudValues(session.full, current.status));
   }
   if (session.watched) session.timers.poll = setTimeout(() => pollCloud(session).catch(() => {}), CLOUD_POLL_MS);
@@ -346,13 +370,14 @@ function applyDps(session: Session, dps: Dps) {
     session.seen.add(control.code);
     values[control.code] = toDisplay(control, raw);
   }
-  session.gadget = onlySupported(session.full, session.seen);
+  session.gadget = filterSupported(session.device, session.full, session.seen);
   applyValues(session, values);
 }
 
 function applyValues(session: Session, values: Values) {
   Object.assign(session.values, values);
   lastKnown.set(session.device.id, { ...session.values });
+  if (remembersState(session.device)) remember(session.device.id, session.values);
   push('state', { id: session.device.id, values: session.values });
   for (const listener of valueListeners) listener(session.device.id);
 }

@@ -17,6 +17,7 @@ export * from './discovery.ts';
 export * from './cloud/app-credentials.ts';
 export * from './cloud/sharing.ts';
 export * from './cloud/categories.ts';
+export * from './cloud/infrared.ts';
 export { toBase64, fromBase64, uuidv4 } from './cloud/encoding.ts';
 export { hashKey, deriveSecret, restfulSign, encryptPayload, decryptPayload } from './cloud/signing.ts';
 export * from './local/device.ts';

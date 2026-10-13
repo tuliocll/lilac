@@ -15,7 +15,9 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
 
 ## Descobertas (out/2026)
 
-- [ ] **IR pela nuvem — funciona!** Controles virtuais criados no Smart Life (marca/modelo) expõem
+- [x] **Ar IR pela nuvem** (liga/desliga, temperatura, modo, vento; estado lembrado) — falta confirmar
+      no aparelho real o significado de cada número de `M`.
+- [ ] **Resto do IR pela nuvem —** Controles virtuais criados no Smart Life (marca/modelo) expõem
       comandos padrão da Tuya pela API de compartilhamento, seja qual for o emissor (Wi-Fi ou Zigbee):
       - Ar (`infrared_ac`): `PowerOn`/`PowerOff`, `T` (temperatura), `M` (modo 0–4), `F` (vento 0–3).
         Testado: liga e desliga. Falta confirmar `T`, `M` e o significado de cada número de modo.

@@ -10,6 +10,7 @@
  */
 import type { SharingAppCredentials } from './app-credentials.ts';
 import { uuidv4 } from './encoding.ts';
+import { irAcDps, isIrAc } from './infrared.ts';
 import { CloudError, type SharingSession } from './login.ts';
 import { decryptPayload, deriveSecret, encryptPayload, hashKey, restfulSign } from './signing.ts';
 
@@ -170,7 +171,8 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
   /** DPs pela "estratégia local" do produto (com dpId). */
   async function localStrategy(deviceId: string) {
     const r = await request('GET', `/v1.0/m/life/devices/${deviceId}/status`);
-    const relations: any[] = r.result?.dpStatusRelationDTOS ?? [];
+    // controles IR devolvem um item sem código ({ supportLocal: false }): não é DP
+    const relations: any[] = (r.result?.dpStatusRelationDTOS ?? []).filter((d: any) => d?.statusCode);
     return {
       dps: relations.map<DpSpec>((d) => ({
         dpId: Number(d.dpId),
@@ -200,11 +202,15 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
   }
 
   /** Junta as duas fontes: a estratégia local traz os dpIds, a especificação diz o que é gravável. */
-  async function describe(deviceId: string) {
+  async function describe(deviceId: string, category?: string) {
     const [strategy, spec] = await Promise.all([
       localStrategy(deviceId).catch(() => ({ dps: [] as DpSpec[], supportLocal: false })),
       specification(deviceId).catch(() => null),
     ]);
+    // ar por infravermelho: os comandos (PowerOn, T, M, F) viram DPs comuns — ver infrared.ts
+    if (spec && isIrAc(category, spec.functions.map((f) => f.code))) {
+      return { dps: irAcDps(spec.functions), supportLocal: false, writableKnown: true };
+    }
     const writable = new Set(spec?.functions.map((f) => f.code));
     let dps = strategy.dps.map((d) => ({ ...d, writable: writable.has(d.code) }));
 
@@ -224,7 +230,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
       const queue: any[] = [...(r.result ?? [])];
       const worker = async () => {
         for (let d = queue.shift(); d; d = queue.shift()) {
-          const described = await describe(d.id);
+          const described = await describe(d.id, d.category);
           devices.push({
             id: d.id,
             name: d.name,

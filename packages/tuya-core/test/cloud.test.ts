@@ -85,7 +85,22 @@ function fakeCloud(session: SharingSession, { expiredTokens = new Set<string>() 
       result = [
         { id: 'eb8bc0f725df3a2deek6uu', name: 'Ar do quarto', local_key: 'k3y!', category: 'kt', product_id: 'p', product_name: 'AC', sub: false, online: true, status: [{ code: 'switch', value: false }] },
         { id: 'ir-ac-1', name: 'Ar escritório', category: 'infrared_ac', product_id: 'q', product_name: 'IR AC', sub: true, online: true, status: [{ code: 'temp', value: 24 }] },
+        { id: 'ir-real', name: 'Ar quarto', category: 'infrared_ac', product_id: '1n02zg', product_name: 'Air Conditioner', sub: true, online: true, status: [] },
       ];
+    else if (url.pathname.endsWith('/specifications') && url.pathname.includes('ir-real'))
+      // resposta real (Smart Life, out/2026)
+      result = {
+        category: 'infrared_ac',
+        functions: [
+          { code: 'F', type: 'ENUM', values: '{"min":0,"max":3,"scale":0,"step":1,"type":"Integer"}' },
+          { code: 'M', type: 'ENUM', values: '{"min":0,"max":4,"scale":0,"step":1,"type":"Integer"}' },
+          { code: 'PowerOff', type: 'STRING', values: 'PowerOff' },
+          { code: 'PowerOn', type: 'STRING', values: 'PowerOn' },
+          { code: 'T', type: 'ENUM', values: '{"min":16,"max":30,"scale":0,"step":1,"type":"Integer"}' },
+        ],
+        status: [{ code: 'power', type: 'BOOLEAN', values: '{}' }],
+      };
+    else if (url.pathname.endsWith('/status') && url.pathname.includes('ir-real')) result = { dpStatusRelationDTOS: [{ supportLocal: false }], productKey: '1n02zg' };
     else if (url.pathname.endsWith('/specifications'))
       result = url.pathname.includes('ir-ac')
         ? {
@@ -129,7 +144,7 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
   const { fetchFn, calls } = fakeCloud(session);
   const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
   const inv = await client.inventory();
-  assert.equal(inv.length, 2);
+  assert.equal(inv.length, 3);
   const d = inv.find((x) => x.id === 'eb8bc0f725df3a2deek6uu')!;
   assert.equal(d.name, 'Ar do quarto');
   assert.equal(d.localKey, 'k3y!');
@@ -146,6 +161,11 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
   assert.equal(ir.sub, true);
   assert.deepEqual(ir.dps.map((x) => [x.code, x.writable]).sort(), [['switch', true], ['temp', true]]);
   assert.deepEqual(ir.status, { temp: 24 });
+
+  // ar IR de verdade: estratégia local com item sem código (ignorado) e comandos PowerOn/T/M/F
+  const real = inv.find((x) => x.id === 'ir-real')!;
+  assert.deepEqual(real.dps.map((x) => x.code), ['power', 'temp', 'mode', 'wind']);
+  assert.equal(real.writableKnown, true);
 });
 
 const baseSession = (over: Partial<SharingSession> = {}): SharingSession => ({

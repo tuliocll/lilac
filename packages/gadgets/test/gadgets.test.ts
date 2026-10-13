@@ -131,3 +131,22 @@ test('ar por infravermelho usa o perfil de clima com os códigos da nuvem', () =
   const types = Object.fromEntries(g.controls.map((c) => [c.code, [c.type, c.slot]]));
   assert.deepEqual(types, { power: ['power', 'header'], temp: ['setpoint', 'hero'], wind: ['select', 'chips'] });
 });
+
+test('ar IR: os DPs traduzidos montam a página de ar completa e gravável', async () => {
+  const { irAcDps } = await import('@tuyabar/core');
+  const dps = irAcDps([{ code: 'PowerOn' }, { code: 'PowerOff' }, { code: 'T', values: { min: 16, max: 30 } }, { code: 'M', values: { max: 4 } }, { code: 'F', values: { max: 3 } }]);
+  const g = resolve({ category: 'infrared_ac', dps, writableKnown: true });
+  assert.equal(g.profile.id, 'climate');
+  const byCode = Object.fromEntries(g.controls.map((c) => [c.code, c]));
+  assert.equal(byCode.power!.type, 'power');
+  assert.equal(byCode.temp!.type, 'setpoint');
+  assert.equal(byCode.temp!.min, 16);
+  assert.equal(byCode.mode!.type, 'select');
+  assert.equal(byCode.wind!.type, 'select');
+  assert.equal(byCode.wind!.options!.length, 4);
+  assert.ok(g.controls.every((c) => c.writable));
+  // valores de tela → brutos que irAcCommands espera
+  assert.equal(toRaw(byCode.temp!, 23, 'cloud'), 23);
+  assert.equal(toRaw(byCode.mode!, 'cold', 'cloud'), 'cold');
+  assert.equal(toRaw(byCode.power!, true, 'cloud'), true);
+});
