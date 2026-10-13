@@ -1,0 +1,68 @@
+From 593e3a721c9475d23bededa3d4ca59fce9aae7a2 Mon Sep 17 00:00:00 2001
+From: Tulio Calil <tuliocll@gmail.com>
+Date: Tue, 13 Oct 2026 10:08:25 -0300
+Subject: [PATCH] =?UTF-8?q?README:=20como=20instalar=20uma=20vers=C3=A3o?=
+ =?UTF-8?q?=20pronta=20(e=20por=20que=20o=20Windows=20tem=20dois=20.exe)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+O build do tinyjs no Windows é o lilac.exe (o app) + launcher.exe (o
+hospedeiro do WebView2 que desenha a janela). Explica qual abrir e que os
+dois precisam ficar juntos; e o equivalente no macOS e no Linux.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01NXiFBhHosn1RUp1enfXXuy
+---
+ README.md       | 11 +++++++++++
+ README.pt-BR.md | 12 ++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/README.md b/README.md
+index 3249930..32de047 100644
+--- a/README.md
++++ b/README.md
+@@ -85,6 +85,17 @@ generic page.
+ 
+ There are no signed builds yet: when they come, Windows SmartScreen and macOS Gatekeeper will warn before the first run.
+ 
++### Installing a release
++
++Builds are on the [Releases](https://github.com/tuliocll/lilac/releases) page.
++
++- **Windows:** unzip it anywhere and run **`lilac.exe`**. You'll see a second file, `launcher.exe`: that's normal.
++  `lilac.exe` is the app itself (backend, interface and icon all packed inside), and `launcher.exe` is the small helper
++  tinyjs uses to draw the window with WebView2. It doesn't do anything on its own, but `lilac.exe` needs it, so keep
++  both in the same folder. Shortcuts and pins should point at `lilac.exe` (pinning the open window works too).
++- **macOS:** open the `.dmg` and drag Lilac to Applications. Everything lives inside `Lilac.app`.
++- **Linux:** extract the `.tar.gz`; same idea as Windows — run `lilac` and keep `launcher` next to it.
++
+ ## Why tinyjs?
+ 
+ Picking [tinyjs](https://tinyjs.app) was **an experiment**: a ~6 MB desktop runtime with a JavaScript backend
+diff --git a/README.pt-BR.md b/README.pt-BR.md
+index 16f3b2d..92800e0 100644
+--- a/README.pt-BR.md
++++ b/README.pt-BR.md
+@@ -85,6 +85,18 @@ O resto ganha a página genérica.
+ 
+ Ainda não há versões assinadas: quando vierem, o SmartScreen do Windows e o Gatekeeper do macOS vão avisar antes da primeira execução.
+ 
++### Instalando uma versão pronta
++
++Os builds ficam na página de [Releases](https://github.com/tuliocll/lilac/releases).
++
++- **Windows:** descompacte onde quiser e abra o **`lilac.exe`**. Vai aparecer um segundo arquivo, `launcher.exe`: é
++  normal. O `lilac.exe` é o app de verdade (backend, interface e ícone vão todos dentro dele), e o `launcher.exe` é o
++  ajudante que o tinyjs usa para desenhar a janela com o WebView2. Sozinho ele não faz nada, mas o `lilac.exe` precisa
++  dele, então deixe os dois na mesma pasta. Atalhos e fixar na barra de tarefas devem apontar para o `lilac.exe`
++  (fixar a janela aberta também funciona).
++- **macOS:** abra o `.dmg` e arraste o Lilac para Aplicativos. Tudo fica dentro do `Lilac.app`.
++- **Linux:** extraia o `.tar.gz`; a ideia é a mesma do Windows: rode o `lilac` e mantenha o `launcher` ao lado.
++
+ ## Por que tinyjs?
+ 
+ Usar o [tinyjs](https://tinyjs.app) foi **um teste**: um runtime desktop de ~6 MB, com backend em JavaScript
+-- 
+2.43.0
+

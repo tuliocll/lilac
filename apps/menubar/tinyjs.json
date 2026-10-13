@@ -12,7 +12,8 @@
   "activation": "accessory",
   "chrome": {
     "frame": false,
-    "windowControls": false
+    "windowControls": false,
+    "transparent": true
   },
   "macos": {
     "chrome": {
