@@ -23,14 +23,15 @@
   --title-size: 15px;
   --title-weight: 600;
 
-  /* fundo transparente: só sobra a janela e a sombra dura (a margem é o espaço dela) */
-  --desktop-bg: transparent;
-  --window-margin: 0 5px 5px 0;
+  /* o Windows não tem janela transparente: a janela ocupa tudo e a "sombra dura"
+     vira borda grossa à direita e embaixo (regra .window no fim do arquivo) */
+  --desktop-bg: var(--ink);
+  --window-margin: 0px;
   --window-bg: var(--cream);
   --window-fg: var(--ink);
   --window-border: 2px solid var(--ink);
-  --window-radius: 6px;
-  --window-shadow: 5px 5px 0 var(--ink);
+  --window-radius: 0px;
+  --window-shadow: none;
   --window-areas: "title" "tools" "body" "status";
   --window-columns: minmax(0, 1fr);
   --window-rows: auto auto minmax(0, 1fr) auto;
@@ -204,3 +205,6 @@
 
 /* o QR vira uma janelinha dentro da janela */
 [data-theme="past-dream"] .qr { box-shadow: 4px 4px 0 var(--ink); }
+
+/* sombra dura da janela, desenhada como borda (cabe dentro da janela) */
+[data-theme="past-dream"] .window { border-width: 2px 5px 5px 2px; }
