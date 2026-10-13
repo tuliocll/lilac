@@ -158,7 +158,8 @@ own their state with small explicit APIs, and every UI module hangs off a single
 - **New theme**: see [THEMING.md](apps/menubar/THEMING.md). Every UI change must work in every theme and language;
   the contract tests enforce it.
 - **New language**: copy the `en` block in `apps/menubar/src/frontend/ui/i18n.js`.
-- Run `npm run assets`, `npm test` and `npm run typecheck` before opening a PR.
+- Run `npm run assets`, `npm test` and `npm run typecheck` before opening a PR. Touched networking? Also run
+  `npm run test:txiki` (needs [txiki.js](https://github.com/saghul/txiki.js)'s `tjs` in your PATH, or `TJS=/path/to/tjs`).
 
 ## Privacy & security
 

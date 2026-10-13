@@ -5,9 +5,11 @@ Want to pick something up? Open an issue first so we can line it up.
 
 ## Before going public
 
-- [ ] **Validate on real tinyjs.** The UI has only been tested against a simulated `tiny`, and the backend's TCP has never run
-      on txiki. Biggest risk in the project: if TCP fails there, all local control goes with it.
-      Also check: the tray icon (`assets/tray.png` — relative to what?) and the app icon in the build.
+- [x] **The backend's networking on txiki** — `npm run test:txiki` runs `tuya-core` + the txiki transport inside `tjs`
+      (txiki 26.6, Linux) against fake 3.3/3.4 devices: UDP discovery, status, control, concurrent commands, connection and
+      auth errors. All green.
+- [ ] **Validate the app on real tinyjs (Windows).** Still open: the UI against the real `tiny`, the txiki version bundled in
+      tinyjs, the tray icon (`assets/tray.png` — relative to what?) and the app icon in the build.
 - [ ] **Local control with a real device** (3.4 — e.g. Wi-Fi bulbs/breakers). It passes against the fake device and tinytuya,
       but has never switched on a real light.
 - [ ] **Our own clientId.** We currently use Home Assistant's (fine for testing, not for distribution).
@@ -59,7 +61,8 @@ Want to pick something up? Open an issue first so we can line it up.
       Either document it as "development only" or use the OS vault.
 - [ ] **Split `backend/control.ts`** (sessions × route choice) — together with the cloud fallback.
 - [ ] **One JSON file per language** (today `ui/i18n.js` has everything in one file).
-- [ ] **Tests for the txiki transport** — there are none; and decide whether the old txiki API still needs supporting.
+- [ ] **txiki test in CI** — build txiki (≈2 min, cacheable) and run `npm run test:txiki`; and decide whether the old txiki
+      socket API (`tjs.listen`/`tjs.connect` with read/write) still needs supporting — txiki 26.6 has the new one.
 
 ## Done (Oct 2026)
 

@@ -159,7 +159,8 @@ na ordem de dependência.
 - **Novo tema**: [THEMING.pt-BR.md](apps/menubar/THEMING.pt-BR.md). Toda mudança de interface precisa funcionar em todos os
   temas e idiomas — os testes de contrato garantem.
 - **Novo idioma**: copie o bloco `en` em `apps/menubar/src/frontend/ui/i18n.js`.
-- Rode `npm run assets`, `npm test` e `npm run typecheck` antes de abrir um PR.
+- Rode `npm run assets`, `npm test` e `npm run typecheck` antes de abrir um PR. Mexeu na rede? Rode também
+  `npm run test:txiki` (precisa do `tjs` do [txiki.js](https://github.com/saghul/txiki.js) no PATH, ou `TJS=/caminho/do/tjs`).
 
 ## Privacidade e segurança
 

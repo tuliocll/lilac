@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "test": "tsx --test packages/*/test/*.test.ts apps/*/test/*.test.ts",
+    "test:txiki": "tsx packages/transport-txiki/smoke/run.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "discover": "tsx apps/cli/src/discover.ts",
     "fake-device": "tsx apps/cli/src/fake-device.ts",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "esbuild": "^0.24.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0"
   },
