@@ -1,6 +1,6 @@
 // Temas que vêm com o app. Temas da comunidade entram pela pasta do usuário
 // (ver THEMING.md) e são somados a estes em tempo de execução.
-TuyaBar.builtinThemes = [
+Lilac.builtinThemes = [
   {
     id: 'moonlight',
     name: 'Moonlight',

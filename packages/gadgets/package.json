@@ -1,5 +1,5 @@
 {
-  "name": "@tuyabar/gadgets",
+  "name": "@lilac/gadgets",
   "version": "0.0.1",
   "description": "Perfis de gadgets: ícone, nome, cor, layout e controles por tipo de dispositivo Tuya.",
   "type": "module",
@@ -10,7 +10,7 @@
     "build": "node scripts/build.mjs"
   },
   "dependencies": {
-    "@tuyabar/core": "0.0.1"
+    "@lilac/core": "0.0.1"
   },
   "license": "MIT"
 }

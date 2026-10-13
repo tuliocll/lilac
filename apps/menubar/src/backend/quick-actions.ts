@@ -7,7 +7,7 @@
  * Sem escolha salva, o aparelho ganha o liga/desliga principal (se tiver).
  * Uma lista vazia salva significa "o usuário tirou todas" — respeitamos.
  */
-import type { ResolvedControl, ResolvedGadget } from '@tuyabar/gadgets';
+import type { ResolvedControl, ResolvedGadget } from '@lilac/gadgets';
 import { app } from './app.ts';
 
 export interface QuickAction {

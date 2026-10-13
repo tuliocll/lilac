@@ -1,10 +1,10 @@
-// Idiomas do TuyaBar. Para adicionar um: copie o bloco "en" e traduza.
+// Idiomas do Lilac. Para adicionar um: copie o bloco "en" e traduza.
 // O teste de i18n garante que todos os idiomas têm as mesmas chaves.
 //
 // No HTML: data-i18n="chave" (texto), data-i18n-html (texto com <b>),
 // data-i18n-placeholder, data-i18n-title, data-i18n-aria.
 
-TuyaBar.i18n = (() => {
+Lilac.i18n = (() => {
   const DICT = {
     'pt-BR': {
       'lang.name': 'Português (Brasil)',
@@ -21,7 +21,7 @@ TuyaBar.i18n = (() => {
       'action.settings': 'Configurações',
       'action.back': 'Voltar',
       'action.quit': 'Fechar app',
-      'action.quit.title': 'Encerrar o TuyaBar',
+      'action.quit.title': 'Encerrar o Lilac',
       'action.next': 'Próximo',
       'action.skip': 'Pular',
       'action.send': 'Enviar',
@@ -36,7 +36,7 @@ TuyaBar.i18n = (() => {
       'ob.2.b2': 'As chaves ficam no cofre do seu sistema',
       'ob.2.b3': 'Depois disso, funciona até sem internet',
       'ob.theme.title': 'Escolha o seu visual',
-      'ob.theme.body': 'O TuyaBar tem temas de vários jeitos — de um sistema de 1996 a uma tela de LCD. Toque para experimentar; dá para trocar depois nas Configurações.',
+      'ob.theme.body': 'O Lilac tem temas de vários jeitos — de um sistema de 1996 a uma tela de LCD. Toque para experimentar; dá para trocar depois nas Configurações.',
       'ob.3.title': 'Como conectar',
       'ob.3.s1': 'No app <b>Smart Life</b>, vá em <b>Eu</b> → ⚙ <b>Configurações</b> → <b>Conta e segurança</b>',
       'ob.3.s2': 'Copie o <b>Código de usuário</b> e cole aqui',
@@ -89,7 +89,7 @@ TuyaBar.i18n = (() => {
       'device.reason.error': 'Não consegui falar com o aparelho: {error}',
       'device.reason.unknown': 'Este aparelho não está na sua conta Smart Life, então não temos a chave para controlá-lo.',
       'device.noControls': 'Nenhum controle disponível para este aparelho.',
-      'device.remembered': 'Mostra o último comando enviado pelo TuyaBar — o infravermelho não informa o estado.',
+      'device.remembered': 'Mostra o último comando enviado pelo Lilac — o infravermelho não informa o estado.',
       'device.setError': 'Não aplicou: {error}',
       'device.min': 'mín.',
       'device.max': 'máx.',
@@ -169,7 +169,7 @@ TuyaBar.i18n = (() => {
       'action.settings': 'Settings',
       'action.back': 'Back',
       'action.quit': 'Quit app',
-      'action.quit.title': 'Quit TuyaBar',
+      'action.quit.title': 'Quit Lilac',
       'action.next': 'Next',
       'action.skip': 'Skip',
       'action.send': 'Send',
@@ -184,7 +184,7 @@ TuyaBar.i18n = (() => {
       'ob.2.b2': 'Keys live in your system’s vault',
       'ob.2.b3': 'After that, it works even offline',
       'ob.theme.title': 'Pick your look',
-      'ob.theme.body': 'TuyaBar comes with themes of all kinds — from a 1996 operating system to an LCD screen. Tap to try one; you can change it later in Settings.',
+      'ob.theme.body': 'Lilac comes with themes of all kinds — from a 1996 operating system to an LCD screen. Tap to try one; you can change it later in Settings.',
       'ob.3.title': 'How to connect',
       'ob.3.s1': 'In the <b>Smart Life</b> app, open <b>Me</b> → ⚙ <b>Settings</b> → <b>Account and Security</b>',
       'ob.3.s2': 'Copy the <b>User Code</b> and paste it here',
@@ -237,7 +237,7 @@ TuyaBar.i18n = (() => {
       'device.reason.error': 'Couldn’t reach the device: {error}',
       'device.reason.unknown': 'This device isn’t in your Smart Life account, so we don’t have its key.',
       'device.noControls': 'No controls available for this device.',
-      'device.remembered': "Shows the last command TuyaBar sent — infrared doesn't report state.",
+      'device.remembered': "Shows the last command Lilac sent — infrared doesn't report state.",
       'device.setError': 'Not applied: {error}',
       'device.min': 'min',
       'device.max': 'max',

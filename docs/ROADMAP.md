@@ -38,7 +38,7 @@ Quer pegar algum item? Abra uma issue antes para a gente alinhar.
       liga; PC dormiu → desliga o ar. (Depende do tinyjs expor esses eventos.)
 - [ ] **Cenas** — "Sair de casa", "Cinema"… e disparar as cenas *tap-to-run* que já existem no Smart Life.
 - [ ] **Atalho global por ação** — ex.: `Ctrl+Alt+L` alterna a luz da mesa.
-- [ ] **Integração com outras ferramentas** — `tuyabar://toggle/luz-garagem` ou servidor local
+- [ ] **Integração com outras ferramentas** — `lilac://toggle/luz-garagem` ou servidor local
       (Stream Deck, Raycast, AutoHotkey, scripts).
 - [ ] **Estado na barra** — no macOS, texto ao lado do ícone ("❄ 23°"); no Windows, ícone que muda.
 - [ ] **Timer** — "desligar o ar em 1 h" (countdown do aparelho quando houver; senão, o app agenda).

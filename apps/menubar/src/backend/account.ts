@@ -13,7 +13,7 @@ import {
   type CloudDevice,
   type SharingClient,
   type SharingSession,
-} from '@tuyabar/core';
+} from '@lilac/core';
 import qrcode from 'qrcode-generator';
 import { push } from './app.ts';
 

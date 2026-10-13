@@ -37,5 +37,5 @@ export function renderTray() {
     { separator: true },
     { id: 'quit', label: labels.quit },
   ];
-  app().tray.set({ title: 'Tuya', tooltip: 'TuyaBar', primaryAction: true, menu });
+  app().tray.set({ title: 'Tuya', tooltip: 'Lilac', primaryAction: true, menu });
 }

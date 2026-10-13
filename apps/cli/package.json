@@ -1,11 +1,11 @@
 {
-  "name": "@tuyabar/cli",
+  "name": "@lilac/cli",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "dependencies": {
-    "@tuyabar/core": "0.0.1",
-    "@tuyabar/transport-node": "0.0.1",
+    "@lilac/core": "0.0.1",
+    "@lilac/transport-node": "0.0.1",
     "qrcode-generator": "^2.0.4"
   }
 }

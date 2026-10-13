@@ -1,7 +1,7 @@
 {
-  "name": "tuyabar",
-  "title": "TuyaBar",
-  "id": "dev.tuliocalil.tuyabar",
+  "name": "lilac",
+  "title": "Lilac",
+  "id": "dev.tuliocalil.lilac",
   "version": "0.0.1",
   "size": "360x560",
   "backend": "src/main.ts",

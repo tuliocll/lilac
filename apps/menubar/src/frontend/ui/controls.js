@@ -2,8 +2,8 @@
 // (ver packages/gadgets: ResolvedControl), o slot onde ele vai e `send(valor)`,
 // e devolve { el, update(valor) }. Sem estilo aqui — só classes do base.css.
 (() => {
-  const { h, button, glyph } = TuyaBar.dom;
-  const { t, pick } = TuyaBar.i18n;
+  const { h, button, glyph } = Lilac.dom;
+  const { t, pick } = Lilac.i18n;
 
   // ------------------------------------------------------------ formatação
 
@@ -16,7 +16,7 @@
 
   function formatNumber(c, value) {
     const digits = decimals(c);
-    return value.toLocaleString(TuyaBar.i18n.lang(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    return value.toLocaleString(Lilac.i18n.lang(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
 
   /** Limites na escala de tela. */
@@ -309,5 +309,5 @@
     return factory(control, control.slot, send);
   }
 
-  TuyaBar.controls = { create, format };
+  Lilac.controls = { create, format };
 })();

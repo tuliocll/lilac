@@ -4,8 +4,8 @@
  *   npm run devices -- --keys     (mostra as local keys)
  *   npm run devices -- --dps      (mostra os DPs de cada um)
  */
-import { categoryLabel, createSharingClient, discover, HOME_ASSISTANT_CREDENTIALS, type CloudDevice, type SharingSession } from '@tuyabar/core';
-import { createNodeTransport } from '@tuyabar/transport-node';
+import { categoryLabel, createSharingClient, discover, HOME_ASSISTANT_CREDENTIALS, type CloudDevice, type SharingSession } from '@lilac/core';
+import { createNodeTransport } from '@lilac/transport-node';
 import { flag, load, save } from './store.ts';
 
 const showKeys = flag('keys');

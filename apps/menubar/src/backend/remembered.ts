@@ -3,7 +3,7 @@
  * infravermelho): guardamos o último valor que o app enviou. Se alguém usar o
  * controle remoto físico, isto fica desatualizado — a página avisa.
  */
-import { IR_AC_CATEGORY, type CloudDevice } from '@tuyabar/core';
+import { IR_AC_CATEGORY, type CloudDevice } from '@lilac/core';
 import { app } from './app.ts';
 
 type Values = Record<string, unknown>;

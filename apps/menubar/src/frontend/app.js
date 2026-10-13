@@ -1,14 +1,14 @@
-// Inicialização do TuyaBar e eventos gerais do backend.
+// Inicialização do Lilac e eventos gerais do backend.
 // As telas moram em ui/*.js; a ordem dos <script> no index.html é a de dependência.
 (() => {
-  const { $, logError } = TuyaBar.dom;
-  const { t } = TuyaBar.i18n;
-  const status = TuyaBar.status;
+  const { $, logError } = Lilac.dom;
+  const { t } = Lilac.i18n;
+  const status = Lilac.status;
 
   // ---- eventos do backend
 
   tiny.api.on('persist', (data) =>
-    TuyaBar.vault.write(data).catch((error) => {
+    Lilac.vault.write(data).catch((error) => {
       logError('vault')(error);
       status.show('status.vaultError', undefined, { warn: true });
     }),
@@ -21,7 +21,7 @@
 
   tiny.api.on('scan-end', () => {
     $('scan').disabled = false;
-    const reachable = TuyaBar.devices.all().filter((d) => d.route === 'local').length;
+    const reachable = Lilac.devices.all().filter((d) => d.route === 'local').length;
     status.show('status.foundLocal', { count: reachable });
   });
 
@@ -43,7 +43,7 @@
   });
 
   tiny.api.on('open', async ({ scan }) => {
-    await TuyaBar.panel.open();
+    await Lilac.panel.open();
     if (scan) tiny.api.call('scan');
   });
 
@@ -57,29 +57,29 @@
     tiny.api
       .call('trayLabels', { open: t('tray.open'), scan: t('tray.scan'), quit: t('tray.quit'), favorites: t('tray.favorites') })
       .catch(logError('trayLabels'));
-  TuyaBar.i18n.onChange(sendTrayLabels);
+  Lilac.i18n.onChange(sendTrayLabels);
 
   // ---- boot
 
   async function boot() {
     // tema e idioma antes de mostrar a janela: nada de "piscar"
-    await Promise.all([TuyaBar.themes.init(), TuyaBar.i18n.init()]);
-    tiny.win.setSize(TuyaBar.panel.size.W, TuyaBar.panel.size.H);
-    await TuyaBar.devices.init();
+    await Promise.all([Lilac.themes.init(), Lilac.i18n.init()]);
+    tiny.win.setSize(Lilac.panel.size.W, Lilac.panel.size.H);
+    await Lilac.devices.init();
     sendTrayLabels();
-    if (await TuyaBar.settings.hotkeyEnabled()) TuyaBar.panel.setHotkey(true);
+    if (await Lilac.settings.hotkeyEnabled()) Lilac.panel.setHotkey(true);
 
-    const saved = await TuyaBar.vault.read();
+    const saved = await Lilac.vault.read();
     const { loggedIn } = await tiny.api.call('restore', saved);
-    TuyaBar.settings.renderAccount();
+    Lilac.settings.renderAccount();
 
     status.clear();
-    if (loggedIn) TuyaBar.nav.go('devices', { replace: true });
-    else if (await TuyaBar.onboarding.wasSeen()) TuyaBar.login.open();
-    else TuyaBar.onboarding.open();
+    if (loggedIn) Lilac.nav.go('devices', { replace: true });
+    else if (await Lilac.onboarding.wasSeen()) Lilac.login.open();
+    else Lilac.onboarding.open();
 
-    TuyaBar.panel.open(); // em `tinyjs dev` a janela aparece direto
-    TuyaBar.settings.loadUserThemes();
+    Lilac.panel.open(); // em `tinyjs dev` a janela aparece direto
+    Lilac.settings.loadUserThemes();
   }
 
   boot().catch((error) => {

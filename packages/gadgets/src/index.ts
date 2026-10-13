@@ -2,7 +2,7 @@
  * Perfis de gadgets: ícone, nome, tom, layout e controles por tipo de aparelho.
  * Os perfis ficam em ../gadgets/<id>/gadget.json e viram registry.gen.ts no build.
  */
-import type { DpSpec } from '@tuyabar/core';
+import type { DpSpec } from '@lilac/core';
 import { COMMON, PROFILES } from './registry.gen.ts';
 import { pickProfile, resolveGadget } from './resolve.ts';
 

@@ -2,8 +2,8 @@
 // Favoritos ficam numa seção própria, no topo, na ordem que o usuário
 // escolher no modo "Organizar" (setas ↑ ↓ — funcionam com teclado e mouse).
 (() => {
-  const { $, h, button, glyph, gadgetIcon, logError } = TuyaBar.dom;
-  const { t, pick } = TuyaBar.i18n;
+  const { $, h, button, glyph, gadgetIcon, logError } = Lilac.dom;
+  const { t, pick } = Lilac.i18n;
 
   let devices = [];
   let layout = 'list';
@@ -42,7 +42,7 @@
 
     li.append(icon, name, meta, move ? moveButtons(d, move) : quickActions(d));
     if (!move) {
-      const open = () => TuyaBar.devicePage.open(d);
+      const open = () => Lilac.devicePage.open(d);
       name.addEventListener('click', open);
       li.addEventListener('click', (e) => e.target === li && open());
       for (const part of [icon, meta]) part.addEventListener('click', open);
@@ -69,7 +69,7 @@
       if (action.active !== undefined) b.setAttribute('aria-pressed', String(action.active));
       b.setAttribute('aria-label', `${label}: ${t(action.active ? 'device.on' : 'device.off')}`);
     } else {
-      const value = TuyaBar.controls.format(control, action.value);
+      const value = Lilac.controls.format(control, action.value);
       if (control.icon) b.append(glyph(control.icon));
       b.append(h('span', 'text', value));
       b.setAttribute('aria-pressed', String(Boolean(action.active)));
@@ -83,7 +83,7 @@
       try {
         await tiny.api.call('runQuickAction', { id: d.id, index });
       } catch (error) {
-        TuyaBar.status.show('quick.failed', { error: error.message ?? error }, { warn: true });
+        Lilac.status.show('quick.failed', { error: error.message ?? error }, { warn: true });
       } finally {
         b.removeAttribute('aria-busy');
       }
@@ -195,7 +195,7 @@
     devices = list;
     render();
   });
-  TuyaBar.i18n.onChange(render);
+  Lilac.i18n.onChange(render);
 
-  TuyaBar.devices = { init, all: () => devices, linkText };
+  Lilac.devices = { init, all: () => devices, linkText };
 })();

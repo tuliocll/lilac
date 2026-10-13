@@ -1,8 +1,8 @@
 // Navegação entre telas: cada tela é uma <section class="view" data-for="…">
 // e o CSS mostra a que bate com body[data-view]. "Voltar" usa uma pilha.
 (() => {
-  const { $ } = TuyaBar.dom;
-  const { t } = TuyaBar.i18n;
+  const { $ } = Lilac.dom;
+  const { t } = Lilac.i18n;
 
   const TITLES = {
     onboarding: 'title.onboarding',
@@ -44,7 +44,7 @@
   const onLeave = (view, fn) => leaveListeners.set(view, fn);
 
   for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', back);
-  TuyaBar.i18n.onChange(renderTitle);
+  Lilac.i18n.onChange(renderTitle);
 
-  TuyaBar.nav = { go, back, onLeave, current: () => current };
+  Lilac.nav = { go, back, onLeave, current: () => current };
 })();

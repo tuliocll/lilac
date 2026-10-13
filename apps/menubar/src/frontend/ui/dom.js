@@ -38,5 +38,5 @@
   /** Repassa erros de promessas para o log do tinyjs em vez de engoli-los. */
   const logError = (where) => (error) => tiny.log(`[${where}] ${error?.message ?? error}`);
 
-  TuyaBar.dom = { $, h, button, glyph, gadgetIcon, logError };
+  Lilac.dom = { $, h, button, glyph, gadgetIcon, logError };
 })();

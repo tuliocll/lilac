@@ -4,8 +4,8 @@
  *   npm run discover -- 20      (escuta 20s)
  *   npm run discover -- 20 -v   (mostra também datagramas não reconhecidos)
  */
-import { discover, toHex } from '@tuyabar/core';
-import { createNodeTransport } from '@tuyabar/transport-node';
+import { discover, toHex } from '@lilac/core';
+import { createNodeTransport } from '@lilac/transport-node';
 
 const seconds = Number(process.argv.find((a) => /^\d+$/.test(a)) ?? 10);
 const verbose = process.argv.includes('-v') || process.argv.includes('--verbose') || process.env.npm_config_verbose === 'true';

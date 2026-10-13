@@ -1,7 +1,7 @@
 // A janela como popover da bandeja: abre colada ao ícone, some ao perder o
 // foco, atalho global opcional.
 (() => {
-  const { config } = TuyaBar;
+  const { config } = Lilac;
   const { width: W, height: H } = config.panel;
 
   /** Algo na tela precisa que o painel continue aberto (ex.: QR do login). */
@@ -48,5 +48,5 @@
   document.addEventListener('keydown', (e) => e.key === 'Escape' && hide());
   for (const b of document.querySelectorAll('[data-action="hide"]')) b.addEventListener('click', hide);
 
-  TuyaBar.panel = { open, hide, keepOpen, setHotkey, size: { W, H } };
+  Lilac.panel = { open, hide, keepOpen, setHotkey, size: { W, H } };
 })();

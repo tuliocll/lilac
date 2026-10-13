@@ -1,5 +1,5 @@
 {
-  "name": "tuyabar",
+  "name": "lilac",
   "private": true,
   "version": "0.0.1",
   "description": "Controle local de dispositivos Tuya direto da barra de menu/bandeja.",
@@ -16,7 +16,7 @@
     "login": "tsx apps/cli/src/login.ts",
     "devices": "tsx apps/cli/src/devices.ts",
     "control": "tsx apps/cli/src/control.ts",
-    "assets": "npm run assets -w @tuyabar/menubar"
+    "assets": "npm run assets -w @lilac/menubar"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
@@ -26,7 +26,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tuliocalil/tuyabar"
+    "url": "https://github.com/tuliocalil/lilac"
   },
   "author": "Tulio Calil"
 }

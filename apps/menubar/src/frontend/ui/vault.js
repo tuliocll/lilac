@@ -25,5 +25,5 @@
     for (const device of previous) if (!(device.id in keys)) await secrets.delete(`key:${device.id}`);
   }
 
-  TuyaBar.vault = { read, write };
+  Lilac.vault = { read, write };
 })();

@@ -9,8 +9,8 @@
  * (heartbeat, reconexão com espera crescente, IP novo quando o roteador troca).
  * Ao fechar, a conexão ainda dura 30 s — voltar à página fica instantâneo.
  */
-import { createLocalDevice, irAcCommands, isLocalVersionSupported, LocalError, type CloudCommand, type CloudDevice, type Dps, type LocalDevice } from '@tuyabar/core';
-import { onlySupported, resolve, toDisplay, toRaw, type ResolvedGadget } from '@tuyabar/gadgets';
+import { createLocalDevice, irAcCommands, isLocalVersionSupported, LocalError, type CloudCommand, type CloudDevice, type Dps, type LocalDevice } from '@lilac/core';
+import { onlySupported, resolve, toDisplay, toRaw, type ResolvedGadget } from '@lilac/gadgets';
 import { cloudClient, findDevice } from './account.ts';
 import { push } from './app.ts';
 import { deviceTcpPort, locate, networkTransport } from './network.ts';

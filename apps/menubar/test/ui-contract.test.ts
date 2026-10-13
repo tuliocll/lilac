@@ -60,9 +60,9 @@ test('ícones e fontes embutidos estão em dia (npm run assets)', () => {
 // ------------------------------------------------------------------ i18n
 
 function loadI18n() {
-  const ctx: any = { TuyaBar: {}, navigator: { languages: ['pt-BR'] }, document: {} };
+  const ctx: any = { Lilac: {}, navigator: { languages: ['pt-BR'] }, document: {} };
   vm.runInNewContext(read('ui/i18n.js'), ctx);
-  return ctx.TuyaBar.i18n as { DICT: Record<string, Record<string, string>>; LANGS: string[] };
+  return ctx.Lilac.i18n as { DICT: Record<string, Record<string, string>>; LANGS: string[] };
 }
 
 test('todos os idiomas têm exatamente as mesmas chaves', () => {
@@ -92,14 +92,14 @@ test('texto visível no HTML vem do dicionário (sem texto solto)', () => {
   // texto entre tags que não está num elemento com data-i18n
   const loose = [...html.matchAll(/>([^<>]*[A-Za-zÀ-ú]{3,}[^<>]*)</g)]
     .map((m) => m[1]!.trim())
-    .filter((t) => t && !['TuyaBar'].includes(t));
+    .filter((t) => t && !['Lilac'].includes(t));
   assert.deepEqual(loose, [], 'use data-i18n="chave" em vez de texto fixo');
 });
 
 test('temas embutidos descrevem-se nos dois idiomas e têm pasta', () => {
-  const ctx: any = { TuyaBar: {} };
+  const ctx: any = { Lilac: {} };
   vm.runInNewContext(read('themes/index.js'), ctx);
-  for (const t of ctx.TuyaBar.builtinThemes) {
+  for (const t of ctx.Lilac.builtinThemes) {
     assert.ok(t.description['pt-BR'] && t.description.en, `tema ${t.id}`);
     assert.ok(themeDirs.includes(t.id), `tema ${t.id} sem pasta`);
   }

@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
-import { aesEcbEncrypt, encode55AA, te, UDP_KEY, type CloudDevice, type RemoteInfo, type Transport } from '@tuyabar/core';
+import { aesEcbEncrypt, encode55AA, te, UDP_KEY, type CloudDevice, type RemoteInfo, type Transport } from '@lilac/core';
 import { createNodeTransport } from '../../../packages/transport-node/src/index.ts';
 import { startFakeDevice } from '../../../packages/tuya-core/test/fake-local-device.ts';
 import * as account from '../src/backend/account.ts';

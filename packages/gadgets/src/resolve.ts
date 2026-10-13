@@ -3,7 +3,7 @@
  * liga cada controle declarado ao DP que existe e converte valores
  * entre o formato do aparelho e o da tela.
  */
-import type { DpSpec } from '@tuyabar/core';
+import type { DpSpec } from '@lilac/core';
 import { decodeColor, encodeColor, type Route } from './color.ts';
 import type { CommonLabels, ControlType, GadgetProfile, I18nText, ResolvedControl, ResolvedGadget } from './types.ts';
 

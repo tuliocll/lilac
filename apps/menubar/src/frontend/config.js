@@ -1,9 +1,9 @@
 // Namespace único da interface: cada arquivo em ui/ pendura seu módulo aqui
-// (window.TuyaBar.dom, .i18n, .themes…). A ordem dos <script> no index.html
+// (window.Lilac.dom, .i18n, .themes…). A ordem dos <script> no index.html
 // é a ordem de dependência.
-window.TuyaBar = {
+window.Lilac = {
   config: {
-    repo: 'https://github.com/tuliocalil/tuyabar',
+    repo: 'https://github.com/tuliocalil/lilac',
     author: 'Tulio Calil',
     authorUrl: 'https://tuliocalil.com',
     /** atalho global para abrir o painel (quando ligado nas configurações) */

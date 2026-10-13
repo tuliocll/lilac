@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import type { DpSpec } from '@tuyabar/core';
+import type { DpSpec } from '@lilac/core';
 import { COMMON, decodeColor, encodeColor, onlySupported, PROFILES, resolve, toDisplay, toRaw } from '../src/index.ts';
 
 const LANGS = ['pt-BR', 'en'];
@@ -133,7 +133,7 @@ test('ar por infravermelho usa o perfil de clima com os códigos da nuvem', () =
 });
 
 test('ar IR: os DPs traduzidos montam a página de ar completa e gravável', async () => {
-  const { irAcDps } = await import('@tuyabar/core');
+  const { irAcDps } = await import('@lilac/core');
   const dps = irAcDps([{ code: 'PowerOn' }, { code: 'PowerOff' }, { code: 'T', values: { min: 16, max: 30 } }, { code: 'M', values: { max: 4 } }, { code: 'F', values: { max: 3 } }]);
   const g = resolve({ category: 'infrared_ac', dps, writableKnown: true });
   assert.equal(g.profile.id, 'climate');

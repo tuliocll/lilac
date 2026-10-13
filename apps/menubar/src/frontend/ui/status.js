@@ -1,8 +1,8 @@
 // Barra de status (rodapé) e indicador de atividade na barra de título.
 // Mensagens guardam a chave de tradução para serem re-traduzidas ao trocar de idioma.
 (() => {
-  const { $ } = TuyaBar.dom;
-  const { t } = TuyaBar.i18n;
+  const { $ } = Lilac.dom;
+  const { t } = Lilac.i18n;
 
   let last = { text: '' };
   let busyCount = 0;
@@ -38,6 +38,6 @@
     };
   }
 
-  TuyaBar.i18n.onChange(render);
-  TuyaBar.status = { show, showText, busy, clear: () => showText('') };
+  Lilac.i18n.onChange(render);
+  Lilac.status = { show, showText, busy, clear: () => showText('') };
 })();

@@ -1,9 +1,9 @@
 /**
  * O que a lista de aparelhos mostra: inventário + presença na rede + favoritos.
  */
-import { categoryKind, categoryLabel, type DeviceKind, type DiscoveredDevice } from '@tuyabar/core';
-import { profileFor, type ResolvedControl } from '@tuyabar/gadgets';
-import type { CloudDevice } from '@tuyabar/core';
+import { categoryKind, categoryLabel, type DeviceKind, type DiscoveredDevice } from '@lilac/core';
+import { profileFor, type ResolvedControl } from '@lilac/gadgets';
+import type { CloudDevice } from '@lilac/core';
 import { devices } from './account.ts';
 import { chooseRoute, currentValues, supportedGadget, type Reason, type Route } from './control.ts';
 import { favorites } from './favorites.ts';

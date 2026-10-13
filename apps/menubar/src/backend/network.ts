@@ -3,8 +3,8 @@
  * Os aparelhos anunciam a cada ~5 s, então IP, versão e "está na rede?"
  * ficam sempre atualizados — inclusive quando o roteador troca um IP.
  */
-import { watchBroadcasts, type BroadcastWatcher, type DiscoveredDevice, type Transport } from '@tuyabar/core';
-import { createTxikiTransport } from '@tuyabar/transport-txiki';
+import { watchBroadcasts, type BroadcastWatcher, type DiscoveredDevice, type Transport } from '@lilac/core';
+import { createTxikiTransport } from '@lilac/transport-txiki';
 
 let transport: Transport = createTxikiTransport();
 let tcpPort = 6668;

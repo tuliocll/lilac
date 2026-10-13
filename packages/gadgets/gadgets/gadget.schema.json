@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Gadget do TuyaBar",
+  "title": "Gadget do Lilac",
   "type": "object",
   "required": ["id", "name", "tone", "layout", "match", "controls"],
   "properties": {

@@ -8,7 +8,7 @@
  *
  * UDP com broadcast já foi validado no Windows; o TCP é o que o controle local usa.
  */
-import type { RemoteInfo, TcpConnectOptions, TcpSocket, Transport, UdpBindOptions, UdpSocket } from '@tuyabar/core';
+import type { RemoteInfo, TcpConnectOptions, TcpSocket, Transport, UdpBindOptions, UdpSocket } from '@lilac/core';
 
 declare const tjs: any;
 

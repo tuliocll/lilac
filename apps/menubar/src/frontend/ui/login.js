@@ -1,8 +1,8 @@
 // Login por QR no Smart Life: código de usuário → QR → confirmação no celular.
 (() => {
-  const { $ } = TuyaBar.dom;
-  const { t } = TuyaBar.i18n;
-  const status = TuyaBar.status;
+  const { $ } = Lilac.dom;
+  const { t } = Lilac.i18n;
+  const status = Lilac.status;
 
   let countdown = null;
   let expiresAt = 0;
@@ -18,7 +18,7 @@
     $('qr-step').hidden = true;
     $('qr-btn').disabled = false;
     $('qr').replaceChildren();
-    TuyaBar.panel.keepOpen('qr', false);
+    Lilac.panel.keepOpen('qr', false);
   }
 
   function tick() {
@@ -30,7 +30,7 @@
   function open() {
     showError('');
     reset();
-    TuyaBar.nav.go('login');
+    Lilac.nav.go('login');
     $('user-code').focus();
   }
 
@@ -47,7 +47,7 @@
       $('login-form').hidden = true;
       $('qr-step').hidden = false;
       // o usuário está olhando para o celular: o painel não pode sumir agora
-      TuyaBar.panel.keepOpen('qr', true);
+      Lilac.panel.keepOpen('qr', true);
       expiresAt = Date.now() + expiresInMs;
       tick();
       countdown = setInterval(tick, 1000);
@@ -69,12 +69,12 @@
   $('skip').addEventListener('click', () => {
     tiny.api.call('loginCancel');
     reset();
-    TuyaBar.nav.go('devices', { replace: true });
+    Lilac.nav.go('devices', { replace: true });
   });
 
   tiny.api.on('login-ok', ({ username }) => {
     reset();
-    TuyaBar.nav.go('devices', { replace: true });
+    Lilac.nav.go('devices', { replace: true });
     status.show('status.connectedAs', { user: username });
   });
 
@@ -83,8 +83,8 @@
     showError(message);
   });
 
-  TuyaBar.i18n.onChange(() => !$('qr-step').hidden && tick());
-  TuyaBar.nav.onLeave('login', reset);
+  Lilac.i18n.onChange(() => !$('qr-step').hidden && tick());
+  Lilac.nav.onLeave('login', reset);
 
-  TuyaBar.login = { open };
+  Lilac.login = { open };
 })();

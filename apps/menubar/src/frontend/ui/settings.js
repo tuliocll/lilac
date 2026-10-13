@@ -1,9 +1,9 @@
 // Configurações: aparência, idioma, comportamento (abrir com o sistema,
 // atalho global) e conta (sair, conectar, importar chaves).
 (() => {
-  const { $, h, button, glyph, logError } = TuyaBar.dom;
-  const { t, pick } = TuyaBar.i18n;
-  const status = TuyaBar.status;
+  const { $, h, button, glyph, logError } = Lilac.dom;
+  const { t, pick } = Lilac.i18n;
+  const status = Lilac.status;
 
   let account = null;
   let userThemes = { dir: null, count: 0, error: null };
@@ -12,7 +12,7 @@
 
   /** Toda grade de temas (configurações e boas-vindas) — escolher aplica na hora. */
   function renderThemes() {
-    for (const list of document.querySelectorAll('.theme-list')) list.replaceChildren(...TuyaBar.themes.list().map(themeOption));
+    for (const list of document.querySelectorAll('.theme-list')) list.replaceChildren(...Lilac.themes.list().map(themeOption));
     $('user-themes-info').textContent = userThemes.error
       ? t('settings.themesUnavailable')
       : userThemes.count
@@ -23,7 +23,7 @@
   function themeOption(theme) {
     const b = button('card theme-option');
     b.setAttribute('role', 'radio');
-    b.setAttribute('aria-checked', String(theme.id === TuyaBar.themes.current()));
+    b.setAttribute('aria-checked', String(theme.id === Lilac.themes.current()));
     const swatches = h('span', 'swatches');
     swatches.setAttribute('aria-hidden', 'true');
     // amostras = dados do manifesto do tema (não são cores da interface)
@@ -40,7 +40,7 @@
     b.title = desc;
     b.setAttribute('aria-description', desc);
     b.append(name, swatches);
-    b.addEventListener('click', () => TuyaBar.themes.select(theme.id));
+    b.addEventListener('click', () => Lilac.themes.select(theme.id));
     return b;
   }
 
@@ -48,7 +48,7 @@
     try {
       const { dir, themes, error } = await tiny.api.call('userThemes');
       userThemes = { dir, count: themes.length, error };
-      await TuyaBar.themes.addUserThemes(themes);
+      await Lilac.themes.addUserThemes(themes);
       if (error) tiny.log(`[themes] ${error}`);
     } catch (error) {
       userThemes.error = String(error.message ?? error);
@@ -57,7 +57,7 @@
   }
 
   $('open-themes-dir').addEventListener('click', () => userThemes.dir && tiny.app.shell.open(userThemes.dir));
-  TuyaBar.themes.onChange(renderThemes);
+  Lilac.themes.onChange(renderThemes);
 
   // ------------------------------------------------------------ idioma
 
@@ -65,15 +65,15 @@
     const select = $('language');
     const auto = h('option', '', t('settings.language.auto'));
     auto.value = 'auto';
-    const languages = TuyaBar.i18n.LANGS.map((code) => {
-      const option = h('option', '', TuyaBar.i18n.DICT[code]['lang.name']);
+    const languages = Lilac.i18n.LANGS.map((code) => {
+      const option = h('option', '', Lilac.i18n.DICT[code]['lang.name']);
       option.value = code;
       return option;
     });
     select.replaceChildren(auto, ...languages);
-    select.value = TuyaBar.i18n.preference();
+    select.value = Lilac.i18n.preference();
   }
-  $('language').addEventListener('change', (e) => TuyaBar.i18n.set(e.target.value));
+  $('language').addEventListener('change', (e) => Lilac.i18n.set(e.target.value));
 
   // ------------------------------------------------------------ comportamento
 
@@ -99,13 +99,13 @@
 
   async function renderHotkey() {
     $('hotkey').setAttribute('aria-checked', String(await hotkeyEnabled()));
-    $('hotkey-label').textContent = t('settings.hotkey', { keys: TuyaBar.config.hotkey.toUpperCase().replaceAll('+', ' + ') });
+    $('hotkey-label').textContent = t('settings.hotkey', { keys: Lilac.config.hotkey.toUpperCase().replaceAll('+', ' + ') });
   }
 
   $('hotkey').addEventListener('click', async () => {
     const enable = !(await hotkeyEnabled());
     await tiny.store.set('hotkey', enable).catch(() => {});
-    await TuyaBar.panel.setHotkey(enable);
+    await Lilac.panel.setHotkey(enable);
     renderHotkey();
   });
 
@@ -125,17 +125,17 @@
     account = null;
     renderAccount();
     status.show('status.loggedOut');
-    TuyaBar.login.open();
+    Lilac.login.open();
   });
 
-  $('login-from-settings').addEventListener('click', () => TuyaBar.login.open());
-  $('connect').addEventListener('click', () => TuyaBar.login.open());
+  $('login-from-settings').addEventListener('click', () => Lilac.login.open());
+  $('connect').addEventListener('click', () => Lilac.login.open());
 
   $('import-keys').addEventListener('click', async () => {
     // o diálogo tira o foco da janela; sem isso o painel sumiria
-    TuyaBar.panel.keepOpen('dialog', true);
+    Lilac.panel.keepOpen('dialog', true);
     const path = await tiny.dialog.openFile({ types: ['json'] }).catch(() => null);
-    TuyaBar.panel.keepOpen('dialog', false);
+    Lilac.panel.keepOpen('dialog', false);
     if (!path) return;
     try {
       const { count } = await tiny.api.call('importKeys', { path });
@@ -157,19 +157,19 @@
     renderLanguages();
     renderStartup();
     renderHotkey();
-    TuyaBar.nav.go('settings');
+    Lilac.nav.go('settings');
   }
 
   $('open-settings').addEventListener('click', open);
-  $('open-intro').addEventListener('click', () => TuyaBar.onboarding.open());
-  $('open-about').addEventListener('click', () => TuyaBar.about.open());
+  $('open-intro').addEventListener('click', () => Lilac.onboarding.open());
+  $('open-about').addEventListener('click', () => Lilac.about.open());
 
-  TuyaBar.i18n.onChange(() => {
+  Lilac.i18n.onChange(() => {
     renderAccount();
     renderThemes();
     renderLanguages();
     renderHotkey();
   });
 
-  TuyaBar.settings = { renderThemes, loadUserThemes, renderAccount, hotkeyEnabled };
+  Lilac.settings = { renderThemes, loadUserThemes, renderAccount, hotkeyEnabled };
 })();

@@ -1,5 +1,5 @@
 /**
- * Backend do TuyaBar (txiki.js dentro do tinyjs).
+ * Backend do Lilac (txiki.js dentro do tinyjs).
  * Aqui só ficam a API chamada pela página e os eventos do tinyjs;
  * a lógica mora em ./backend/*.
  *

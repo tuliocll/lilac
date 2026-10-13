@@ -3,7 +3,7 @@
  *
  * ⚠️  O clientId abaixo é o do Home Assistant (registrado por eles na Tuya),
  * o único público hoje. Ele serve para o spike, para testar com a própria conta.
- * Antes de publicar o TuyaBar é preciso solicitar um clientId/schema próprios à
+ * Antes de publicar o Lilac é preciso solicitar um clientId/schema próprios à
  * Tuya — distribuir um app se apresentando como Home Assistant não é ok.
  */
 export interface SharingAppCredentials {

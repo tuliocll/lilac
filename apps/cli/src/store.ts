@@ -4,14 +4,19 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-export const DIR = join(homedir(), '.tuyabar');
+export const DIR = join(homedir(), '.lilac');
+/** pasta do tempo em que o projeto se chamava TuyaBar — lida só se a nova ainda não tiver o arquivo */
+const OLD_DIR = join(homedir(), '.tuyabar');
 
 export async function load<T>(name: string): Promise<T | null> {
-  try {
-    return JSON.parse(await readFile(join(DIR, name), 'utf8')) as T;
-  } catch {
-    return null;
+  for (const dir of [DIR, OLD_DIR]) {
+    try {
+      return JSON.parse(await readFile(join(dir, name), 'utf8')) as T;
+    } catch {
+      // tenta a próxima
+    }
   }
+  return null;
 }
 
 export async function save(name: string, data: unknown): Promise<void> {

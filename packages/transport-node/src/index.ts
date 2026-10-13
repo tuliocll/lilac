@@ -1,7 +1,7 @@
 /** Transporte para Node.js (CLI, testes e um futuro daemon). */
 import dgram from 'node:dgram';
 import net from 'node:net';
-import type { RemoteInfo, TcpConnectOptions, TcpSocket, Transport, UdpBindOptions, UdpSocket } from '@tuyabar/core';
+import type { RemoteInfo, TcpConnectOptions, TcpSocket, Transport, UdpBindOptions, UdpSocket } from '@lilac/core';
 
 export function createNodeTransport(): Transport {
   return { bindUdp, connectTcp };

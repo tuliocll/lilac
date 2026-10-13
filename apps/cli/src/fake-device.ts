@@ -7,8 +7,8 @@
  * e v3.5 (6667, frame 6699 com GCM).
  */
 import { randomBytes } from 'node:crypto';
-import { aesEcbEncrypt, Cmd, encode55AA, encode6699, te, UDP_KEY } from '@tuyabar/core';
-import { createNodeTransport } from '@tuyabar/transport-node';
+import { aesEcbEncrypt, Cmd, encode55AA, encode6699, te, UDP_KEY } from '@lilac/core';
+import { createNodeTransport } from '@lilac/transport-node';
 
 const ip = process.argv[2] ?? '192.168.0.250';
 const fakes = [

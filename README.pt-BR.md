@@ -1,6 +1,6 @@
 <div align="center">
 
-# TuyaBar
+# Lilac
 
 **Controle seus gadgets Tuya / Smart Life pela barra de tarefas — pela sua própria rede.**
 
@@ -115,8 +115,8 @@ O backlog vivo fica em [docs/ROADMAP.md](docs/ROADMAP.md).
 ## Privacidade e segurança
 
 - Local keys e o token da sessão ficam no **cofre de credenciais do sistema**, nunca em JSON. A CLI guarda uma cópia de
-  desenvolvimento em `~/.tuyabar/`.
-- ⚠️ **Sobre o `clientId` do login por QR:** o fluxo exige um ID de app parceiro registrado na Tuya. Por enquanto o TuyaBar usa o do
+  desenvolvimento em `~/.lilac/`.
+- ⚠️ **Sobre o `clientId` do login por QR:** o fluxo exige um ID de app parceiro registrado na Tuya. Por enquanto o Lilac usa o do
   Home Assistant (o único público) — ok para testar com a sua conta, **não ok para um lançamento público**. Obter credenciais
   próprias está no roadmap; fica num arquivo só (`packages/tuya-core/src/cloud/app-credentials.ts`).
 

@@ -1,5 +1,5 @@
 {
-  "name": "@tuyabar/core",
+  "name": "@lilac/core",
   "version": "0.0.1",
   "description": "Protocolo local Tuya em TypeScript puro, sem dependências de runtime (Node, txiki, Bun...).",
   "type": "module",

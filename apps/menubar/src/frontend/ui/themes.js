@@ -41,7 +41,7 @@
   const saved = () => tiny.store.get('theme').catch(() => null);
 
   async function init() {
-    for (const theme of TuyaBar.builtinThemes) register(theme);
+    for (const theme of Lilac.builtinThemes) register(theme);
     apply((await saved()) || DEFAULT);
   }
 
@@ -57,7 +57,7 @@
     if (choice && choice !== current && themes.has(choice)) apply(choice);
   }
 
-  TuyaBar.themes = {
+  Lilac.themes = {
     init,
     select,
     addUserThemes,

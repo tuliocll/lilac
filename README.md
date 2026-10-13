@@ -1,6 +1,6 @@
 <div align="center">
 
-# TuyaBar
+# Lilac
 
 **Control your Tuya / Smart Life gadgets from the menu bar — over your own network.**
 
@@ -129,7 +129,7 @@ apps/
 ```
 
 The code is plain functions and closures — no class hierarchies. `tuya-core` has no runtime dependency, the backend modules
-own their state with small explicit APIs, and every UI module hangs off a single `window.TuyaBar` namespace in dependency order.
+own their state with small explicit APIs, and every UI module hangs off a single `window.Lilac` namespace in dependency order.
 
 ## Contributing
 
@@ -143,9 +143,9 @@ own their state with small explicit APIs, and every UI module hangs off a single
 ## Privacy & security
 
 - Local keys and the session token live in the **OS credential store** (Keychain / Credential Manager / Secret Service), never in
-  plain JSON. The CLI keeps a dev copy in `~/.tuyabar/`.
+  plain JSON. The CLI keeps a dev copy in `~/.lilac/`.
 - The cloud is used to fetch keys and names; day-to-day control goes straight to your devices.
-- ⚠️ **About the QR login `clientId`:** the Smart Life QR flow requires a partner app ID registered with Tuya. For now TuyaBar uses
+- ⚠️ **About the QR login `clientId`:** the Smart Life QR flow requires a partner app ID registered with Tuya. For now Lilac uses
   Home Assistant's (the only public one) — fine for testing with your own account, **not fine for a public release**. Getting our
   own credentials from Tuya is on the roadmap; it lives in one file (`packages/tuya-core/src/cloud/app-credentials.ts`).
 

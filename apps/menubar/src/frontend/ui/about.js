@@ -1,8 +1,8 @@
 // Sobre e créditos.
 (() => {
-  const { $, h, button } = TuyaBar.dom;
-  const { t, pick } = TuyaBar.i18n;
-  const { config } = TuyaBar;
+  const { $, h, button } = Lilac.dom;
+  const { t, pick } = Lilac.i18n;
+  const { config } = Lilac;
 
   const CREDITS = [
     { name: 'tinyjs', lic: 'MIT', url: 'https://tinyjs.app', what: { 'pt-BR': 'janela nativa + backend JS em ~6 MB', en: 'native window + JS backend in ~6 MB' } },
@@ -34,11 +34,11 @@
 
   function open() {
     render();
-    TuyaBar.nav.go('about');
+    Lilac.nav.go('about');
   }
 
   $('open-repo').addEventListener('click', () => tiny.app.shell.open(config.repo));
-  TuyaBar.i18n.onChange(render);
+  Lilac.i18n.onChange(render);
 
-  TuyaBar.about = { open };
+  Lilac.about = { open };
 })();

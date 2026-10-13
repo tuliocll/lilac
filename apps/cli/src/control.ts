@@ -17,8 +17,8 @@ import {
   type CloudDevice,
   type Dps,
   type SharingSession,
-} from '@tuyabar/core';
-import { createNodeTransport } from '@tuyabar/transport-node';
+} from '@lilac/core';
+import { createNodeTransport } from '@lilac/transport-node';
 import { flag, load, save } from './store.ts';
 
 const inspect = flag('inspect');

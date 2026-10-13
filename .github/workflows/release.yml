@@ -68,15 +68,15 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME}"
           case "${{ matrix.name }}" in
-            macos)   cp dist/*.dmg "../../TuyaBar-$VERSION-macos.dmg" ;;
-            windows) (cd dist && 7z a "../../../TuyaBar-$VERSION-windows.zip" . -x!*.dmg) ;;
-            linux)   tar -czf "../../TuyaBar-$VERSION-linux-x86_64.tar.gz" -C dist . ;;
+            macos)   cp dist/*.dmg "../../Lilac-$VERSION-macos.dmg" ;;
+            windows) (cd dist && 7z a "../../../Lilac-$VERSION-windows.zip" . -x!*.dmg) ;;
+            linux)   tar -czf "../../Lilac-$VERSION-linux-x86_64.tar.gz" -C dist . ;;
           esac
 
       - uses: actions/upload-artifact@v4
         with:
-          name: tuyabar-${{ matrix.name }}
-          path: TuyaBar-*
+          name: lilac-${{ matrix.name }}
+          path: Lilac-*
 
   release:
     needs: build
@@ -89,4 +89,4 @@ jobs:
       - name: Publica a release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "TuyaBar $GITHUB_REF_NAME" --generate-notes --prerelease
+        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "Lilac $GITHUB_REF_NAME" --generate-notes --prerelease

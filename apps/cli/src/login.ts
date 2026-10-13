@@ -7,7 +7,7 @@
  *   Eu → ⚙ Configurações → Conta e segurança → Código de usuário
  */
 import { createInterface } from 'node:readline/promises';
-import { HOME_ASSISTANT_CREDENTIALS as APP, pollLogin, requestLoginQr } from '@tuyabar/core';
+import { HOME_ASSISTANT_CREDENTIALS as APP, pollLogin, requestLoginQr } from '@lilac/core';
 import { renderQr } from './qr-terminal.ts';
 import { DIR, save } from './store.ts';
 

@@ -5,9 +5,9 @@
 //   header → barra de ferramentas · aside/hero → destaque · chips → grade
 //   main → lista · readouts → leituras · advanced → recolhido
 (() => {
-  const { $, h, button, glyph, gadgetIcon, logError } = TuyaBar.dom;
-  const { t, pick } = TuyaBar.i18n;
-  const status = TuyaBar.status;
+  const { $, h, button, glyph, gadgetIcon, logError } = Lilac.dom;
+  const { t, pick } = Lilac.i18n;
+  const status = Lilac.status;
 
   const SLOT_ORDER = ['aside', 'hero', 'chips', 'main', 'readouts'];
 
@@ -18,7 +18,7 @@
 
   async function open(device) {
     page = { device, controls: [], values: {} };
-    TuyaBar.nav.go('device', { title: device.name });
+    Lilac.nav.go('device', { title: device.name });
     const container = $('device-page');
     container.replaceChildren(h('p', 'muted center', t('device.connecting')));
     $('device-header').replaceChildren(favoriteButton(device));
@@ -38,7 +38,7 @@
     if (page) tiny.api.call('closeDevice', { id: page.device.id }).catch(logError('closeDevice'));
     page = null;
   }
-  TuyaBar.nav.onLeave('device', leave);
+  Lilac.nav.onLeave('device', leave);
 
   // ------------------------------------------------------------ montagem
 
@@ -54,7 +54,7 @@
     page.values = { ...result.values };
     page.controls = (gadget?.controls ?? []).map((control) => ({
       control,
-      ...TuyaBar.controls.create(control, (value) => change(control, value)),
+      ...Lilac.controls.create(control, (value) => change(control, value)),
     }));
 
     const slots = {
@@ -84,7 +84,7 @@
   function header(device, gadget) {
     const titles = h('div', 'titles');
     const type = gadget ? pick(gadget.profile.name) : device.type;
-    const link = [TuyaBar.devices.linkText(device), device.ip].filter(Boolean).join(' · ');
+    const link = [Lilac.devices.linkText(device), device.ip].filter(Boolean).join(' · ');
     titles.append(h('div', 'name', device.name), h('div', 'sub', type), h('div', 'sub', link));
     const el = h('div', 'dp-head');
     el.append(gadgetIcon(gadget?.profile.id ?? device.gadget, gadget?.profile.tone ?? device.tone), titles);
@@ -163,7 +163,7 @@
       const label = pick(candidate.control.label);
       if (candidate.mode === 'toggle') return label;
       const value = saved ? saved.value : page.values[candidate.code];
-      return `${label}: ${TuyaBar.controls.format(candidate.control, value)}`;
+      return `${label}: ${Lilac.controls.format(candidate.control, value)}`;
     };
 
     async function toggle(candidate) {
@@ -252,7 +252,7 @@
   });
 
   // textos dinâmicos: remonta no idioma novo
-  TuyaBar.i18n.onChange(() => page && open(page.device));
+  Lilac.i18n.onChange(() => page && open(page.device));
 
-  TuyaBar.devicePage = { open };
+  Lilac.devicePage = { open };
 })();

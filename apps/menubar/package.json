@@ -1,5 +1,5 @@
 {
-  "name": "@tuyabar/menubar",
+  "name": "@lilac/menubar",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -9,9 +9,9 @@
     "assets": "node ../../packages/gadgets/scripts/build.mjs && node scripts/build-assets.mjs"
   },
   "dependencies": {
-    "@tuyabar/core": "0.0.1",
-    "@tuyabar/transport-txiki": "0.0.1",
+    "@lilac/core": "0.0.1",
+    "@lilac/transport-txiki": "0.0.1",
     "qrcode-generator": "^2.0.4",
-    "@tuyabar/gadgets": "0.0.1"
+    "@lilac/gadgets": "0.0.1"
   }
 }
