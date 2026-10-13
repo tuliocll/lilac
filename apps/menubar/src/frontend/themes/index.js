@@ -37,6 +37,13 @@ TuyaBar.builtinThemes = [
     swatches: ['#e4eefc', '#ffffff', '#8a78f2', '#22c55e', '#ffb627'],
   },
   {
+    id: 'boringlight',
+    name: 'BoringLight',
+    description: { 'pt-BR': 'Lavanda, cinza e índigo — sem firula', en: 'Lavender, gray and indigo — no frills' },
+    href: 'themes/boringlight/theme.css',
+    swatches: ['#dfe0f5', '#f3f3f6', '#5b55e8', '#b9b7f7'],
+  },
+  {
     id: 'contrast',
     name: { 'pt-BR': 'Alto Contraste', en: 'High Contrast' },
     description: { 'pt-BR': 'Preto, branco e amarelo — legível em qualquer luz', en: 'Black, white and yellow — readable in any light' },

@@ -1,0 +1,183 @@
+/*
+ * BoringLight — o kit de componentes de sempre, sem firula: fundo lavanda,
+ * cartões cinza-claro com sombra suave, um único índigo para tudo que é
+ * ação, pílulas e botões redondos. Fonte do sistema.
+ */
+
+[data-theme="boringlight"] {
+  /* paleta */
+  --lavender: #dfe0f5;
+  --paper: #f3f3f6;
+  --indigo: #5b55e8;
+  --indigo-soft: #b9b7f7;
+  --text: #3d3d4e;
+  --gray: #8e8ea0;
+  --rule: #d6d6e0;
+  --soft: 0 4px 14px rgba(80, 80, 140, 0.12), 0 1px 2px rgba(80, 80, 140, 0.06);
+
+  --font-ui: "Segoe UI", -apple-system, system-ui, sans-serif;
+  --font-display: var(--font-ui);
+  --font-size: 13px;
+  --title-size: 17px;
+  --title-weight: 600;
+
+  --desktop-bg: var(--lavender);
+  --window-margin: 0px;
+  --window-bg: var(--lavender);
+  --window-fg: var(--text);
+  --window-border: 0;
+  --window-radius: 0px;
+  --window-shadow: none;
+  --window-areas: "title tools" "body body" "status status";
+  --window-columns: minmax(0, 1fr) auto;
+  --window-rows: auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: transparent;
+  --titlebar-fg: var(--indigo);
+  --titlebar-border: 0;
+  --titlebar-padding: 16px 6px 8px 16px;
+  --wc-display: none;
+  --wc-bg: transparent;
+  --wc-fg: var(--gray);
+  --wc-border: 0;
+  --wc-radius: 50%;
+  --dot-display: none;
+  --dot-idle: var(--gray);
+  --dot-busy: var(--indigo);
+
+  --toolbar-bg: transparent;
+  --toolbar-border: 0;
+  --toolbar-padding: 14px 14px 8px 0;
+
+  --body-padding: 6px 14px 4px;
+  --gap: 12px;
+  --muted: var(--gray);
+  --accent: var(--indigo);
+  --accent-fg: #ffffff;
+  --link: var(--indigo);
+
+  --surface-bg: var(--paper);
+  --surface-hover: #f8f8fb;
+  --surface-border: 0;
+  --surface-radius: 16px;
+  --surface-shadow: var(--soft);
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0;
+  /* respiro para a sombra dos cartões não ser cortada */
+  --list-padding: 4px 6px 10px;
+  --list-gap: 10px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: var(--paper);
+  --btn-fg: var(--indigo);
+  --btn-border: 0;
+  --btn-radius: 999px;
+  --btn-shadow: var(--soft);
+  --btn-shadow-active: 0 1px 3px rgba(80, 80, 140, 0.15);
+  --btn-press-offset: scale(0.97);
+  --btn-hover-bg: #f8f8fb;
+  --btn-primary-bg: var(--indigo);
+  --btn-primary-fg: #ffffff;
+
+  --input-bg: var(--paper);
+  --input-fg: var(--text);
+  --input-border: 0;
+  --input-radius: 999px;
+  --focus-ring: 2px solid var(--indigo-soft);
+  --selected-ring: inset 0 0 0 2px var(--indigo);
+
+  --badge-bg: var(--indigo-soft);
+  --badge-fg: #ffffff;
+  --badge-border: 0;
+  --badge-radius: 999px;
+  --ok-bg: #e3e2fc;
+  --ok-fg: var(--indigo);
+  --warn-bg: #fdf0d5;
+  --warn-fg: #9a6200;
+  --warn-text: #9a6200;
+  --err-fg: #d6455d;
+
+  /* ícones como os botões redondos da referência: cinza claro, desenho índigo */
+  --icon-tile-size: 36px;
+  --icon-tile-border: 0;
+  --icon-tile-radius: 50%;
+  --icon-fg: var(--indigo);
+
+  --statusbar-bg: transparent;
+  --statusbar-fg: var(--gray);
+  --statusbar-border: 0;
+  --statusbar-padding: 8px 16px 12px;
+
+  --scrollbar-size: 6px;
+  --scrollbar-thumb: var(--indigo-soft);
+  --scrollbar-track: transparent;
+  --scrollbar-border: 0;
+
+  --qr-frame: #ffffff;
+  --link-local: var(--indigo);
+  --link-cloud: var(--indigo-soft);
+  --link-ring: var(--paper);
+  --quick-size: 32px;
+  --swatch-border: 2px solid var(--paper);
+
+  /* tudo quase igual — é BoringLight; só um leve tom por tipo */
+  --tone-sun: #f6f1e4;
+  --tone-sky: #e9ecfa;
+  --tone-mint: #e7f3ee;
+  --tone-peach: #f7ebe6;
+  --tone-lilac: #ecebfb;
+  --tone-pink: #f6e9f0;
+  --tone-neutral: var(--paper);
+
+  --toggle-w: 52px;
+  --toggle-h: 28px;
+  --toggle-radius: 999px;
+  --toggle-border: 0;
+  --toggle-track: var(--paper);
+  --toggle-track-on: var(--indigo);
+  --toggle-thumb: var(--indigo);
+
+  --slider-h: 14px;
+  --slider-radius: 999px;
+  --slider-border: 0;
+  /* linha fina cinza; a parte preenchida vira linha índigo */
+  --slider-track: linear-gradient(180deg, transparent calc(50% - 1px), var(--rule) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+  --slider-fill: linear-gradient(180deg, transparent calc(50% - 2px), var(--indigo) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px));
+  --slider-thumb: var(--indigo);
+  --slider-thumb-w: 30px;
+  --slider-thumb-h: 12px;
+  --slider-thumb-radius: 999px;
+  --slider-thumb-border: 0;
+
+  --power-size: 112px;
+  --power-bg: var(--paper);
+  --power-fg: var(--indigo);
+  --power-on-bg: var(--indigo);
+  --power-on-fg: #ffffff;
+  --power-border: 0;
+  --power-shadow: var(--soft);
+  --power-on-shadow: 0 6px 18px rgba(91, 85, 232, 0.35);
+
+  --hero-font: var(--font-ui);
+  --hero-size: 56px;
+  --chip-min-h: 74px;
+  --step-dot: var(--indigo-soft);
+  --step-dot-active: var(--indigo);
+  --art-size: 86px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* interruptor como na referência: desligado = trilho claro e bolinha índigo; ligado = trilho índigo e bolinha branca */
+[data-theme="boringlight"] .switch { box-shadow: var(--soft); }
+[data-theme="boringlight"] .switch[aria-checked="true"]::after { background: #ffffff; }
+
+/* o índice do campo afunda um pouco (as caixas de texto da referência) */
+[data-theme="boringlight"] input,
+[data-theme="boringlight"] select { box-shadow: inset 0 1px 3px rgba(80, 80, 140, 0.12); }
+
+[data-theme="boringlight"] .list::-webkit-scrollbar-thumb { border-radius: 999px; }

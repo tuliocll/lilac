@@ -35,7 +35,7 @@
 - 🔑 **Sem conta? Importe as chaves** do `devices.json` do tinytuya.
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
   energia e leituras de consumo, a lâmpada ganha brilho e tom de branco… DPs que o perfil não conhece aparecem em “Avançado”.
-- 🎨 **Temas**: *Moonlight* (escuro, discreto), *Past Dream* (um sistema de 1996 que nunca existiu), *Frutiger Aero* (vidro, bolhas e brilho), *CassiUI* (uma tela de LCD oliva), *Cutelight* (claro, suave e fofo) e *Alto Contraste*.
+- 🎨 **Temas**: *Moonlight* (escuro, discreto), *Past Dream* (um sistema de 1996 que nunca existiu), *Frutiger Aero* (vidro, bolhas e brilho), *CassiUI* (uma tela de LCD oliva), *Cutelight* (claro, suave e fofo), *BoringLight* (lavanda, cinza e índigo — sem firula) e *Alto Contraste*.
   Temas da comunidade entram por uma pasta, sem recompilar.
 - 🌍 **Idiomas**: português e inglês, trocáveis nas configurações.
 

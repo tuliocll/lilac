@@ -35,7 +35,7 @@
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan chips, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
   under “Advanced”, with a control inferred from their type.
-- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was), *Frutiger Aero* (glass, bubbles and gloss), *CassiUI* (an olive LCD screen), *Cutelight* (light, soft and cute) and *High Contrast*.
+- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was), *Frutiger Aero* (glass, bubbles and gloss), *CassiUI* (an olive LCD screen), *Cutelight* (light, soft and cute), *BoringLight* (lavender, gray and indigo — no frills) and *High Contrast*.
   Community themes can be dropped into a folder — no rebuild.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
