@@ -15,6 +15,8 @@
   --steel: #7f9294;
   --rust: #a0786a;
   --blue: #4a6fa5;
+  /* a "sombrinha" da referência: caixa afundada, sombra interna no topo e à esquerda */
+  --sunken: inset 3px 3px 0 #757c5c;
   --dots: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 6px);
 
   --font-ui: "Segoe UI", -apple-system, system-ui, sans-serif;
@@ -62,7 +64,7 @@
   --surface-hover: var(--olive-light);
   --surface-border: 3px solid var(--ink);
   --surface-radius: 0px;
-  --surface-shadow: none;
+  --surface-shadow: var(--sunken);
 
   --list-bg: transparent;
   --list-border: 0;
@@ -75,8 +77,8 @@
   --btn-fg: var(--ink);
   --btn-border: 3px solid var(--ink);
   --btn-radius: 0px;
-  --btn-shadow: none;
-  --btn-shadow-active: none;
+  --btn-shadow: var(--sunken);
+  --btn-shadow-active: inset 4px 4px 0 #757c5c;
   --btn-press-offset: translateY(1px);
   --btn-hover-bg: var(--olive-light);
   --btn-primary-bg: var(--ink);
@@ -87,7 +89,7 @@
   --input-border: 3px solid var(--ink);
   --input-radius: 0px;
   --focus-ring: 2px dashed var(--ink);
-  --selected-ring: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--olive-light);
+  --selected-ring: inset 0 0 0 3px var(--ink), var(--sunken);
 
   --badge-bg: var(--olive);
   --badge-fg: var(--ink);
@@ -185,6 +187,12 @@
 
 /* interruptor: desligado = peça vazada; ligado = peça cheia */
 [data-theme="cassi-ui"] .switch[aria-checked="true"]::after { background: var(--ink); }
+
+/* campos e interruptores também afundam; a bolinha do interruptor é redonda, como na referência */
+[data-theme="cassi-ui"] input,
+[data-theme="cassi-ui"] select,
+[data-theme="cassi-ui"] .switch { box-shadow: var(--sunken); }
+[data-theme="cassi-ui"] .switch::after { border-radius: 50%; top: 4px; bottom: 4px; left: 5px; }
 
 /* nada redondo no LCD */
 [data-theme="cassi-ui"] .round { border-radius: 0; }
