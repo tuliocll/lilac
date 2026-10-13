@@ -19,6 +19,7 @@ themes/
   past-dream/     retro OS (embedded font via fonts.json)
   frutiger-aero/  glass and gloss        cassi-ui/     olive LCD
   cutelight/      light and cute         boringlight/  lavender and indigo (no custom font)
+  frutiger-inferno/  Aero's evil twin (reuses the Aero font)
   contrast/       high contrast
   index.js        themes that ship with the app
 ui/i18n.js        pt-BR / en dictionaries

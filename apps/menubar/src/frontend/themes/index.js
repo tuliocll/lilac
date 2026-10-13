@@ -23,6 +23,13 @@ Lilac.builtinThemes = [
     swatches: ['#7d8996', '#5fb8ff', '#9fd83e', '#ffe14a', '#ffffff'],
   },
   {
+    id: 'frutiger-inferno',
+    name: 'Frutiger Inferno',
+    description: { 'pt-BR': 'O irmão do mal do Aero: vidro vermelho, brasa e lava', en: "Aero's evil twin: red glass, embers and lava" },
+    href: ['themes/frutiger-aero/fonts.css', 'themes/frutiger-inferno/theme.css'],
+    swatches: ['#2c1215', '#c41e28', '#ff6a1a', '#ffb03a', '#ffffff'],
+  },
+  {
     id: 'cassi-ui',
     name: 'CassiUI',
     description: { 'pt-BR': 'Tela de LCD em tons de oliva, letra pixelada', en: 'An olive LCD screen with pixel type' },
