@@ -56,7 +56,8 @@ jobs:
           echo "$TINYJS_HOME" >> "$GITHUB_PATH"
           echo "$TINYJS_HOME/bin" >> "$GITHUB_PATH"
 
-      # Mesma história no Windows: autentica só a chamada à API do GitHub do instalador.
+      # Mesma história no Windows: nas linhas do instalador que chamam a API do GitHub,
+      # "Authorization" é juntado aos cabeçalhos que já existem (a linha já passa -Headers).
       - name: Instala o tinyjs (Windows)
         if: matrix.name == 'windows'
         shell: pwsh
@@ -65,8 +66,16 @@ jobs:
         run: |
           $script = Invoke-RestMethod https://tinyjs.app/install.ps1 -MaximumRetryCount 3
           Write-Host "::group::instalador do tinyjs"; Write-Host $script; Write-Host "::endgroup::"
-          $auth = 'Invoke-RestMethod -Headers @{ Authorization = "Bearer $env:GH_TOKEN" } "https://api.github.com'
-          $script = $script.Replace('Invoke-RestMethod "https://api.github.com', $auth)
+          $auth = 'Authorization = "Bearer $env:GH_TOKEN"'
+          $lines = foreach ($line in $script -split "`r?`n") {
+            if ($line -match 'Invoke-RestMethod' -and $line -match 'api\.github\.com') {
+              if ($line -match '-Headers\s+@\{') { $line -replace '-Headers\s+@\{', ('-Headers @{ ' + $auth + '; ') }
+              elseif ($line -match '-Headers\s+(\$[\w:]+)') { $line -replace '-Headers\s+(\$[\w:]+)', ('-Headers ($1 + @{ ' + $auth + ' })') }
+              else { $line -replace 'Invoke-RestMethod', ('Invoke-RestMethod -Headers @{ ' + $auth + ' }') }
+            } else { $line }
+          }
+          $script = $lines -join "`n"
+          Write-Host "linhas autenticadas:"; ($lines | Where-Object { $_ -match 'Authorization' }) | ForEach-Object { Write-Host "  $_" }
           Invoke-Expression $script
           "$env:TINYJS_HOME" | Out-File -FilePath $env:GITHUB_PATH -Append
           "$env:TINYJS_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
