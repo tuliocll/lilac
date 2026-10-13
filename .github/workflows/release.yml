@@ -38,18 +38,36 @@ jobs:
         if: matrix.name == 'linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0
 
+      # O instalador do tinyjs consulta a API do GitHub sem token, e os runners compartilhados
+      # estouram o limite de 60 req/h por IP. Aqui o token do job vai SÓ para api.github.com
+      # (uma função `curl` na frente do script); os outros endereços seguem sem token.
       - name: Instala o tinyjs (macOS/Linux)
         if: matrix.name != 'windows'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -fsSL https://tinyjs.app/install | sh
+          curl -fsSL --retry 3 https://tinyjs.app/install -o tinyjs-install.sh
+          echo "::group::instalador do tinyjs"; cat tinyjs-install.sh; echo "::endgroup::"
+          {
+            echo 'curl() { case "$*" in *api.github.com*) command curl -H "Authorization: Bearer $GH_TOKEN" "$@" ;; *) command curl "$@" ;; esac; }'
+            cat tinyjs-install.sh
+          } > tinyjs-install-auth.sh
+          GH_TOKEN="$GH_TOKEN" sh tinyjs-install-auth.sh
           echo "$TINYJS_HOME" >> "$GITHUB_PATH"
           echo "$TINYJS_HOME/bin" >> "$GITHUB_PATH"
 
+      # Mesma história no Windows: autentica só a chamada à API do GitHub do instalador.
       - name: Instala o tinyjs (Windows)
         if: matrix.name == 'windows'
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          irm https://tinyjs.app/install.ps1 | iex
+          $script = Invoke-RestMethod https://tinyjs.app/install.ps1 -MaximumRetryCount 3
+          Write-Host "::group::instalador do tinyjs"; Write-Host $script; Write-Host "::endgroup::"
+          $auth = 'Invoke-RestMethod -Headers @{ Authorization = "Bearer $env:GH_TOKEN" } "https://api.github.com'
+          $script = $script.Replace('Invoke-RestMethod "https://api.github.com', $auth)
+          Invoke-Expression $script
           "$env:TINYJS_HOME" | Out-File -FilePath $env:GITHUB_PATH -Append
           "$env:TINYJS_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
