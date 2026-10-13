@@ -1,8 +1,9 @@
-// Gera CSS com ícones e fontes embutidos como data: URI.
+// Gera CSS com ícones e fontes embutidos como data: URI, e o ícone da bandeja
+// embutido no backend.
 //
-// Por quê: o tinyjs serve a interface via file://, e no Chromium (WebView2 no
-// Windows) mask-image e @font-face são carregados em modo CORS — de file:// eles
-// falham. data: URI funciona em todos os webviews.
+// Por quê: cada tema vira um arquivo só, sem caminho relativo para resolver (o
+// mesmo vale para temas da pasta do usuário). O ícone da bandeja vai dentro do
+// backend porque o app compilado não leva a pasta assets/ junto (ver tray.ts).
 //
 //   node scripts/build-assets.mjs          (gera)
 //   node scripts/build-assets.mjs --check  (falha se algo estiver desatualizado)
@@ -49,6 +50,15 @@ for (const id of readdirSync(join(front, 'themes'))) {
   }
   css.push('');
   outputs.push([join(front, 'themes', id, 'fonts.css'), css.join('\n')]);
+}
+
+// ---- ícone da bandeja: assets/tray.png → src/backend/tray-icon.gen.ts
+{
+  const png = readFileSync(join(front, '..', '..', 'assets', 'tray.png')).toString('base64');
+  outputs.push([
+    join(front, '..', 'backend', 'tray-icon.gen.ts'),
+    `// GERADO por scripts/build-assets.mjs a partir de assets/tray.png — não edite.\nexport const TRAY_PNG_BASE64 =\n  '${png}';\n`,
+  ]);
 }
 
 let stale = 0;

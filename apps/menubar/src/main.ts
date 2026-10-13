@@ -18,7 +18,7 @@ import { loadQuickActions, MAX_QUICK_ACTIONS, quickActionsFor, quickModeFor, sav
 import { readText } from './backend/files.ts';
 import { loadRemembered } from './backend/remembered.ts';
 import { onNetworkChange, restartListening, startListening } from './backend/network.ts';
-import { FAVORITE_PREFIX, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
+import { FAVORITE_PREFIX, prepareTrayIcon, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
 import { loadUserThemes } from './backend/user-themes.ts';
 import { deviceList } from './backend/view.ts';
 
@@ -38,7 +38,7 @@ function start(app: TinyApp) {
   setApp(app);
   starting ??= (async () => {
     app.setHideOnClose(true);
-    await Promise.all([loadFavorites(), loadQuickActions(), loadRemembered()]);
+    await Promise.all([loadFavorites(), loadQuickActions(), loadRemembered(), prepareTrayIcon()]);
     renderTray();
     onNetworkChange(pushDevices);
     control.onValuesChange(() => {

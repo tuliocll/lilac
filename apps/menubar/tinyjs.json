@@ -26,5 +26,5 @@
   "linux": {
     "icon": "assets/icon-512.png"
   },
-  "debug": true
+  "contextMenu": false
 }
