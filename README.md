@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="apps/menubar/assets/icon.svg" width="96" alt="" />
+
 # Lilac
 
 **Control your Tuya / Smart Life gadgets from the menu bar — over your own network.**

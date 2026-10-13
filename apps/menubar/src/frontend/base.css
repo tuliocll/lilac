@@ -459,7 +459,7 @@ body.has-devices .empty { display: none; }
 
 .about { overflow-y: auto; }
 .about-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.about-hero .art-tile { --art-size: 64px; }
+.about-logo { width: 72px; height: 72px; }
 .credits { margin: 0; padding: 8px 12px; list-style: none; display: grid; gap: 6px; }
 .credits li { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; }
 .credits a, .credits button { color: var(--link); text-decoration: underline; text-underline-offset: 3px; text-align: left; }

@@ -4,10 +4,26 @@
   "id": "dev.tuliocalil.lilac",
   "version": "0.0.1",
   "size": "360x560",
+  "icon": "assets/icon.png",
   "backend": "src/main.ts",
-  "frontend": { "dir": "src/frontend" },
+  "frontend": {
+    "dir": "src/frontend"
+  },
   "activation": "accessory",
-  "chrome": { "frame": false, "windowControls": false },
-  "macos": { "chrome": { "vibrancy": "hud" } },
+  "chrome": {
+    "frame": false,
+    "windowControls": false
+  },
+  "macos": {
+    "chrome": {
+      "vibrancy": "hud"
+    }
+  },
+  "windows": {
+    "icon": "assets/icon.ico"
+  },
+  "linux": {
+    "icon": "assets/icon-512.png"
+  },
   "debug": true
 }

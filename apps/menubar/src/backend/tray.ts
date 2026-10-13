@@ -18,6 +18,7 @@ export interface TrayLabels {
 let labels: TrayLabels = { open: 'Abrir painel', scan: 'Procurar aparelhos', quit: 'Sair', favorites: 'Favoritos' };
 
 export const FAVORITE_PREFIX = 'fav:';
+const TRAY_ICON = 'assets/tray.png';
 
 export function setTrayLabels(next: TrayLabels) {
   labels = next;
@@ -37,5 +38,6 @@ export function renderTray() {
     { separator: true },
     { id: 'quit', label: labels.quit },
   ];
-  app().tray.set({ title: 'Tuya', tooltip: 'Lilac', primaryAction: true, menu });
+  // ícone: o cacho de lilás (assets/tray.png); no macOS vira "template" e segue o tema da barra
+  app().tray.set({ icon: TRAY_ICON, tooltip: 'Lilac', primaryAction: true, menu });
 }

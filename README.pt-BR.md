@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="apps/menubar/assets/icon.svg" width="96" alt="" />
+
 # Lilac
 
 **Controle seus gadgets Tuya / Smart Life pela barra de tarefas — pela sua própria rede.**

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<!-- Lilac — um cacho de lilás em hexágonos, que também é um telhado -->
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1633"/><stop offset="1" stop-color="#120e22"/></linearGradient></defs>
+<rect width="256" height="256" rx="56" fill="url(#bg)"/>
+<path d="M150.52 49.00 L150.52 75.00 L128.00 88.00 L105.48 75.00 L105.48 49.00 L128.00 36.00 Z" fill="#c2afff"/><path d="M126.00 91.48 L126.00 117.48 L103.48 130.48 L80.97 117.48 L80.97 91.48 L103.48 78.48 Z" fill="#a083fb"/><path d="M175.03 91.48 L175.03 117.48 L152.52 130.48 L130.00 117.48 L130.00 91.48 L152.52 78.48 Z" fill="#a083fb"/><path d="M101.48 133.96 L101.48 159.96 L78.97 172.96 L56.45 159.96 L56.45 133.96 L78.97 120.96 Z" fill="#8461f0"/><path d="M150.52 133.96 L150.52 159.96 L128.00 172.96 L105.48 159.96 L105.48 133.96 L128.00 120.96 Z" fill="#8461f0"/><path d="M199.55 133.96 L199.55 159.96 L177.03 172.96 L154.52 159.96 L154.52 133.96 L177.03 120.96 Z" fill="#8461f0"/>
+<rect x="120" y="183.0" width="16" height="43.0" rx="3" fill="#8461f0"/>
+</svg>
