@@ -27,7 +27,7 @@ Lilac.builtinThemes = [
     name: 'Frutiger Inferno',
     description: { 'pt-BR': 'O irmão do mal do Aero: vidro vermelho, brasa e lava', en: "Aero's evil twin: red glass, embers and lava" },
     href: ['themes/frutiger-aero/fonts.css', 'themes/frutiger-inferno/theme.css'],
-    swatches: ['#12070a', '#b3121f', '#ff6a1a', '#ffb03a', '#ffffff'],
+    swatches: ['#2c1215', '#c41e28', '#ff6a1a', '#ffb03a', '#ffffff'],
   },
   {
     id: 'cassi-ui',

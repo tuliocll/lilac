@@ -1,7 +1,7 @@
 /*
  * Frutiger Inferno — o irmão do mal do Frutiger Aero: o mesmo vidro e os mesmos
- * botões em pílula com brilho, só que vermelho-sangue, preto e brasa, com lava
- * subindo pelo fundo da janela (aqueles temas de Windows 7 baixados de fórum).
+ * botões em pílula com brilho, só que em vinho escuro, vermelho e brasa, com um
+ * brilho de lava discreto no pé da janela (aqueles temas de Windows 7 baixados de fórum).
  */
 /* usa a mesma fonte do Frutiger Aero (themes/frutiger-aero/fonts.css) */
 
@@ -15,23 +15,20 @@
   --white: #ffffff;
   /* brilho: metade de cima clara, "quebra" no meio, base mais escura */
   --gloss-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.12) 49%, rgba(0, 0, 0, 0.18) 51%, rgba(255, 255, 255, 0.08) 100%);
-  --gloss-red: linear-gradient(180deg, #ff9a9a 0%, #e0262f 49%, #a50d16 51%, #e3333b 100%);
+  --gloss-red: linear-gradient(180deg, #e8676d 0%, #c41e28 49%, #a3141d 51%, #c8323a 100%);
   --gloss-ember: linear-gradient(180deg, #ffd3a1 0%, #ff7a26 49%, #d94a00 51%, #ff8a3a 100%);
   --gloss-flame: linear-gradient(180deg, #fff1b8 0%, #ffbf3a 49%, #e58f00 51%, #ffc94f 100%);
   --gloss-wine: linear-gradient(180deg, #e6a3b8 0%, #9c2a4c 49%, #6e1130 51%, #a8385b 100%);
   --gloss-coal: linear-gradient(180deg, #8a7a7d 0%, #3a2c2f 49%, #1d1214 51%, #40302f 100%);
   --gloss-rose: linear-gradient(180deg, #ffd0d8 0%, #ff6f8a 49%, #d83a5a 51%, #ff7d95 100%);
-  --smoke: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
-  --smoke-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.1) 100%);
-  --rim: 1px solid rgba(255, 190, 170, 0.45);
-  --lift: 0 2px 8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --smoke: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.04) 100%);
+  --smoke-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.07) 100%);
+  --rim: 1px solid rgba(255, 170, 150, 0.22);
+  --lift: 0 1px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   /* lava: brasas na base da janela por cima do vidro vermelho */
   --lava:
-    radial-gradient(80% 22% at 18% 94%, rgba(255, 220, 120, 0.85) 0%, rgba(255, 120, 20, 0.55) 35%, transparent 70%),
-    radial-gradient(70% 20% at 80% 95%, rgba(255, 200, 90, 0.75) 0%, rgba(255, 90, 0, 0.45) 40%, transparent 72%),
-    radial-gradient(150% 45% at 50% 104%, rgba(255, 70, 0, 0.7) 0%, rgba(170, 20, 0, 0.4) 45%, transparent 75%),
-    radial-gradient(90% 45% at 50% -8%, rgba(255, 50, 50, 0.45) 0%, transparent 70%),
-    linear-gradient(180deg, #4a0710 0%, var(--ash) 50%, #2e0805 100%);
+    radial-gradient(120% 14% at 50% 100%, rgba(255, 110, 30, 0.38) 0%, rgba(200, 40, 10, 0.16) 50%, transparent 80%),
+    linear-gradient(180deg, #2c1215 0%, #1d0d10 60%, #221010 100%);
 
   --font-ui: "Varela Round", "Segoe UI", -apple-system, system-ui, sans-serif;
   --font-display: var(--font-ui);
@@ -43,14 +40,14 @@
   --window-margin: 0px;
   --window-bg: var(--lava);
   --window-fg: var(--white);
-  --window-border: 1px solid rgba(255, 80, 60, 0.55);
+  --window-border: 1px solid rgba(255, 90, 70, 0.4);
   --window-radius: 0px;
   --window-shadow: none;
   --window-areas: "title" "tools" "body" "status";
   --window-columns: minmax(0, 1fr);
   --window-rows: auto auto minmax(0, 1fr) auto;
 
-  --titlebar-bg: linear-gradient(180deg, rgba(220, 30, 40, 0.65) 0%, rgba(120, 8, 16, 0.45) 100%);
+  --titlebar-bg: linear-gradient(180deg, rgba(200, 30, 40, 0.38) 0%, rgba(120, 10, 18, 0.12) 100%);
   --titlebar-fg: var(--white);
   --titlebar-border: 0;
   --titlebar-padding: 8px 10px 8px 14px;
@@ -69,7 +66,7 @@
 
   --body-padding: 6px 12px;
   --gap: 10px;
-  --muted: #e8c4c0;
+  --muted: #cfb3b0;
   --accent: var(--ember);
   --accent-fg: var(--white);
   --link: #ffc9a8;
@@ -127,9 +124,9 @@
   --statusbar-padding: 6px 14px 10px;
 
   --scrollbar-size: 12px;
-  --scrollbar-thumb: var(--gloss-red);
+  --scrollbar-thumb: var(--gloss-coal);
   --scrollbar-track: rgba(0, 0, 0, 0.35);
-  --scrollbar-border: 1px solid rgba(255, 160, 150, 0.45);
+  --scrollbar-border: 1px solid rgba(255, 160, 150, 0.25);
 
   --qr-frame: var(--white);
   --link-local: var(--flame);
@@ -187,7 +184,7 @@
 /* ---- detalhes que vão além de tokens ---- */
 
 /* letra branca sobre vidro escuro: sombra preta forte, como nos temas da época */
-[data-theme="frutiger-inferno"] body { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+[data-theme="frutiger-inferno"] body { text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); }
 [data-theme="frutiger-inferno"] .qr { text-shadow: none; color: var(--ash); }
 [data-theme="frutiger-inferno"] select option { text-shadow: none; color: var(--white); background: var(--blood); }
 
@@ -197,9 +194,9 @@
 
 /* ícones dos aparelhos com brilho de bolha e um halo de brasa */
 [data-theme="frutiger-inferno"] .device-icon,
-[data-theme="frutiger-inferno"] .art-tile { box-shadow: 0 0 10px rgba(255, 60, 20, 0.35), 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+[data-theme="frutiger-inferno"] .art-tile { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45); }
 
-/* o rodapé vira uma barra de tarefas vermelha */
-[data-theme="frutiger-inferno"] .statusbar { background: linear-gradient(180deg, rgba(120, 8, 16, 0.25) 0%, rgba(200, 24, 32, 0.45) 100%); border-top: 1px solid rgba(255, 120, 100, 0.5); }
+/* rodapé discreto: só uma linha de brasa em cima */
+[data-theme="frutiger-inferno"] .statusbar { border-top: 1px solid rgba(255, 110, 90, 0.25); }
 
 [data-theme="frutiger-inferno"] .list::-webkit-scrollbar-thumb { border-radius: 999px; }
