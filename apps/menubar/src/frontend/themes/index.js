@@ -23,6 +23,13 @@ TuyaBar.builtinThemes = [
     swatches: ['#7d8996', '#5fb8ff', '#9fd83e', '#ffe14a', '#ffffff'],
   },
   {
+    id: 'cassi-ui',
+    name: 'CassiUI',
+    description: { 'pt-BR': 'Tela de LCD em tons de oliva, letra pixelada', en: 'An olive LCD screen with pixel type' },
+    href: ['themes/cassi-ui/fonts.css', 'themes/cassi-ui/theme.css'],
+    swatches: ['#9aa283', '#22261a', '#6b7258', '#7f9294', '#4a6fa5'],
+  },
+  {
     id: 'contrast',
     name: { 'pt-BR': 'Alto Contraste', en: 'High Contrast' },
     description: { 'pt-BR': 'Preto, branco e amarelo — legível em qualquer luz', en: 'Black, white and yellow — readable in any light' },

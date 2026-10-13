@@ -1,0 +1,193 @@
+/*
+ * CassiUI — uma tela de LCD: tudo em tons de oliva, contorno grosso e escuro,
+ * cantos retos, nada de sombra. Selecionado = invertido (fundo escuro, letra
+ * clara). Trilhos pontilhados, botões e textos em letra pixelada.
+ */
+/* fonte embutida em fonts.css (gerado a partir de fonts.json) */
+
+[data-theme="cassi-ui"] {
+  /* paleta */
+  --olive: #9aa283;
+  --olive-light: #a9b092;
+  --olive-dark: #858d6e;
+  --ink: #22261a;
+  --faded: #535a43;
+  --steel: #7f9294;
+  --rust: #a0786a;
+  --blue: #4a6fa5;
+  --dots: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 6px);
+
+  --font-ui: "Segoe UI", -apple-system, system-ui, sans-serif;
+  --font-display: "Silkscreen", var(--font-ui);
+  --font-size: 13px;
+  --title-size: 16px;
+  --title-weight: 700;
+
+  --desktop-bg: var(--ink);
+  --window-margin: 0px;
+  --window-bg: var(--olive);
+  --window-fg: var(--ink);
+  --window-border: 3px solid var(--ink);
+  --window-radius: 0px;
+  --window-shadow: none;
+  --window-areas: "title" "tools" "body" "status";
+  --window-columns: minmax(0, 1fr);
+  --window-rows: auto auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: var(--olive);
+  --titlebar-fg: var(--ink);
+  --titlebar-border: 3px solid var(--ink);
+  --titlebar-padding: 6px 8px 6px 12px;
+  --wc-display: flex;
+  --wc-bg: var(--olive);
+  --wc-fg: var(--ink);
+  --wc-border: 2px solid var(--ink);
+  --wc-radius: 0px;
+  --dot-display: none;
+  --dot-idle: var(--ink);
+  --dot-busy: var(--blue);
+
+  --toolbar-bg: var(--olive);
+  --toolbar-border: 0;
+  --toolbar-padding: 8px 10px 2px;
+
+  --body-padding: 8px 10px;
+  --gap: 10px;
+  --muted: var(--faded);
+  --accent: var(--ink);
+  --accent-fg: var(--olive);
+  --link: var(--ink);
+
+  --surface-bg: var(--olive);
+  --surface-hover: var(--olive-light);
+  --surface-border: 3px solid var(--ink);
+  --surface-radius: 0px;
+  --surface-shadow: none;
+
+  --list-bg: transparent;
+  --list-border: 0;
+  --list-radius: 0;
+  --list-padding: 0;
+  --list-gap: 8px;
+
+  --btn-font: var(--font-display);
+  --btn-bg: var(--olive);
+  --btn-fg: var(--ink);
+  --btn-border: 3px solid var(--ink);
+  --btn-radius: 0px;
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --btn-press-offset: translateY(1px);
+  --btn-hover-bg: var(--olive-light);
+  --btn-primary-bg: var(--ink);
+  --btn-primary-fg: var(--olive);
+
+  --input-bg: var(--olive);
+  --input-fg: var(--ink);
+  --input-border: 3px solid var(--ink);
+  --input-radius: 0px;
+  --focus-ring: 2px dashed var(--ink);
+  --selected-ring: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--olive-light);
+
+  --badge-bg: var(--olive);
+  --badge-fg: var(--ink);
+  --badge-border: 2px solid var(--ink);
+  --badge-radius: 0px;
+  --ok-bg: var(--ink);
+  --ok-fg: var(--olive);
+  --warn-bg: var(--rust);
+  --warn-fg: var(--ink);
+  --warn-text: #7a2a1a;
+  --err-fg: #8a2a1a;
+
+  --icon-tile-size: 34px;
+  --icon-tile-border: 2px solid var(--ink);
+  --icon-tile-radius: 0px;
+  --icon-fg: var(--ink);
+
+  --statusbar-bg: var(--olive);
+  --statusbar-fg: var(--ink);
+  --statusbar-border: 3px solid var(--ink);
+  --statusbar-padding: 5px 10px;
+
+  --scrollbar-size: 12px;
+  --scrollbar-thumb: var(--ink);
+  --scrollbar-track: repeating-linear-gradient(180deg, var(--ink) 0 3px, transparent 3px 6px) center / 2px 100% no-repeat;
+  --scrollbar-border: 0;
+
+  --qr-frame: var(--olive-light);
+  --link-local: var(--ink);
+  --link-cloud: var(--blue);
+  --link-ring: var(--olive);
+  --quick-size: 30px;
+  --swatch-border: 2px solid var(--ink);
+
+  /* o LCD só tem tons de oliva — cada tipo ganha uma variação discreta */
+  --tone-sun: #b3b48a;
+  --tone-sky: var(--steel);
+  --tone-mint: var(--olive-light);
+  --tone-peach: var(--rust);
+  --tone-lilac: #8f93a0;
+  --tone-pink: #a58f8a;
+  --tone-neutral: var(--olive-dark);
+
+  --toggle-w: 44px;
+  --toggle-h: 22px;
+  --toggle-radius: 0px;
+  --toggle-border: 3px solid var(--ink);
+  --toggle-track: var(--olive);
+  --toggle-track-on: var(--olive);
+  --toggle-thumb: var(--olive);
+
+  --slider-h: 18px;
+  --slider-radius: 0px;
+  --slider-border: 0;
+  /* trilho pontilhado; a parte preenchida vira linha cheia */
+  --slider-track: var(--dots) center / 100% 3px no-repeat;
+  --slider-fill: linear-gradient(180deg, transparent calc(50% - 2px), var(--ink) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px));
+  --slider-thumb: var(--ink);
+  --slider-thumb-w: 14px;
+  --slider-thumb-h: 14px;
+  --slider-thumb-radius: 0px;
+  --slider-thumb-border: 0;
+
+  --power-size: 108px;
+  --power-bg: var(--olive);
+  --power-fg: var(--ink);
+  --power-on-bg: var(--ink);
+  --power-on-fg: var(--olive);
+  --power-border: 4px solid var(--ink);
+  --power-shadow: none;
+  --power-on-shadow: none;
+
+  --hero-font: var(--font-display);
+  --hero-size: 54px;
+  --chip-min-h: 72px;
+  --step-dot: var(--olive-dark);
+  --step-dot-active: var(--ink);
+  --art-size: 84px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* letra pixelada em caixa alta nos rótulos, como na referência */
+[data-theme="cassi-ui"] .titlebar-title,
+[data-theme="cassi-ui"] .section-title,
+[data-theme="cassi-ui"] .list-heading,
+[data-theme="cassi-ui"] .badge,
+[data-theme="cassi-ui"] .status { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; }
+
+/* o "botão" de energia é quadrado, como tudo no LCD */
+[data-theme="cassi-ui"] .ctl-power,
+[data-theme="cassi-ui"] .ctl-power-mini { border-radius: 0; }
+
+/* interruptor: desligado = peça vazada; ligado = peça cheia */
+[data-theme="cassi-ui"] .switch[aria-checked="true"]::after { background: var(--ink); }
+
+/* nada redondo no LCD */
+[data-theme="cassi-ui"] .round { border-radius: 0; }
+
+/* barra de rolagem: trilho pontilhado, peça escura */
+[data-theme="cassi-ui"] .list::-webkit-scrollbar-thumb { border-radius: 0; }
