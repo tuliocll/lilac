@@ -69,7 +69,7 @@
   --list-bg: transparent;
   --list-border: 0;
   --list-radius: 0;
-  --list-padding: 0;
+  --list-padding: 0 6px 0 0; /* folga entre os cartões e a barra de rolagem */
   --list-gap: 8px;
 
   --btn-font: var(--font-display);
@@ -113,7 +113,8 @@
   --statusbar-padding: 5px 10px;
 
   --scrollbar-size: 12px;
-  --scrollbar-thumb: var(--ink);
+  /* como o slider: linha cheia sobre o trilho pontilhado */
+  --scrollbar-thumb: linear-gradient(var(--ink), var(--ink)) center / 4px 100% no-repeat;
   --scrollbar-track: repeating-linear-gradient(180deg, var(--ink) 0 3px, transparent 3px 6px) center / 2px 100% no-repeat;
   --scrollbar-border: 0;
 
