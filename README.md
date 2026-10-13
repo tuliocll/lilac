@@ -19,7 +19,7 @@
 > [!WARNING]
 > **This project is vibe-coded.** It was built in a long conversation between a human ([Tulio Calil](https://tuliocalil.com))
 > and an AI (Claude, by Anthropic): the human set the direction, tested on real hardware and made the calls; the AI wrote most of
-> the code, the tests and this README. It has a real test suite (including interop tests against
+> the code, the tests and these docs. It has a real test suite (including interop tests against
 > [tinytuya](https://github.com/jasonacox/tinytuya)), but it is **experimental** — expect rough edges and read the code before
 > trusting it with anything important.
 
@@ -29,16 +29,18 @@
 - 📱 **Logs into Smart Life with a QR code** (same flow as Home Assistant's official Tuya integration) to fetch device names,
   categories, data-point maps and the **local keys**.
 - 🏠 **Controls devices locally** over TCP 6668 — once the keys are fetched, it works even with the internet down.
-- ☁️ **Falls back to the cloud** for what can't be reached locally (Zigbee sub-devices behind a gateway, IR air conditioners,
+- ☁️ **Falls back to the cloud** for what can't be reached locally (Zigbee sub-devices behind a gateway, infrared remotes,
   unsupported protocol versions), clearly labelled “via cloud”.
-- ⚡ **Quick actions**: up to 3 one-click buttons per device right in the list (toggle power, or pin a value like “Cool” or “22 °C”), chosen on the device page.
-- ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even opening the panel. Optional global hotkey
-  (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
-- 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan chips, a breaker gets a power
+- ❄️ **Infrared air conditioners** set up in Smart Life (any brand, any IR blaster): power, temperature, mode and fan.
+  IR doesn't report state, so Lilac remembers the last command it sent — and says so.
+- ⚡ **Shortcuts in the list**: up to 3 one-click buttons per device (toggle power, or pin a value like “Cool” or “22 °C”),
+  chosen in the *Shortcuts in the list* section at the bottom of the device page.
+- ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even
+  opening the panel. Optional global hotkey (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
+- 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan cards, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
-  under “Advanced”, with a control inferred from their type.
-- 🎨 **Themes**: *Moonlight* (dark, quiet), *Past Dream* (a 1996 operating system that never was), *Frutiger Aero* (glass, bubbles and gloss), *CassiUI* (an olive LCD screen), *Cutelight* (light, soft and cute), *BoringLight* (lavender, gray and indigo — no frills) and *High Contrast*.
-  Community themes can be dropped into a folder — no rebuild.
+  under “Advanced”, with a control inferred from their type. Only controls the device actually reports are shown.
+- 🎨 **Seven themes**, picked in the welcome tour or in Settings — and community themes can be dropped into a folder.
 - 🔑 **No account? Import keys** from tinytuya's `devices.json`.
 - 🌍 **Languages**: Português (Brasil) and English, switchable in Settings.
 
@@ -60,15 +62,18 @@ Make your own: a theme is one CSS file of design tokens (plus an optional font).
 |---|---|
 | LAN discovery (protocols 3.1 → 3.5) | ✅ tested with real devices |
 | Smart Life QR login + inventory | ✅ tested with a real account |
-| Local control, protocol **3.3** and **3.4** (session key + HMAC) | 🧪 tested against a simulator that passes tinytuya interop; real-device testing in progress |
-| Cloud control (sub-devices, IR air conditioners, protocol 3.5) | 🧪 same API as Home Assistant's Tuya integration; untested with real devices. IR AC codes vary — unknown ones show up under “Advanced” |
+| Cloud control of Zigbee sub-devices (through a gateway) | ✅ tested with a real breaker |
+| Infrared air conditioners through the cloud | ✅ power tested on a real AC · 🧪 temperature/mode/fan mapping still being confirmed |
+| Local control, protocol **3.3** and **3.4** (session key + HMAC) | 🧪 passes against a simulator validated with tinytuya; real-device testing in progress |
+| Other infrared remotes (TV, fan, humidifier, learned buttons) | ❌ not yet — see the roadmap |
 | Local control, protocol 3.5 / 3.1 | ❌ not yet (goes through the cloud when logged in) |
 | Zigbee/BLE sub-devices *locally* through a gateway | ❌ cloud only for now |
 | Battery sensors | ⚠️ they sleep; values come from the cloud and may be stale |
 | Colour lights (`colour_data_v2`, `colour_data`) | 🧪 hue + saturation picker |
 
-**Device types with a dedicated page:** air conditioners/heaters/dehumidifiers, switches and breakers, plugs and power strips,
-lights, fans, covers/gates, sensors, gateways and IR blasters (info pages). Everything else gets the generic page.
+**Device types with a dedicated page:** air conditioners/heaters/dehumidifiers (including infrared ones), switches and breakers,
+plugs and power strips, lights, fans, covers/gates, sensors, gateways and IR blasters (info pages). Everything else gets the
+generic page.
 
 ## Operating systems
 
@@ -77,6 +82,8 @@ lights, fans, covers/gates, sensors, gateways and IR blasters (info pages). Ever
 | **Windows 10/11** | ✅ where it's being developed and tested (needs the WebView2 runtime, preinstalled on Windows 11) |
 | **macOS 15+** | 🤞 tinyjs' primary platform, but untested here |
 | **Linux** (glibc 2.35+, `libwebkit2gtk-4.1`) | 🤞 tinyjs beta, untested here |
+
+There are no signed builds yet: when they come, Windows SmartScreen and macOS Gatekeeper will warn before the first run.
 
 ## Why tinyjs?
 
@@ -87,22 +94,26 @@ for a real app — and it went pretty far: tray popover, OS keychain, UDP broadc
 The bet is hedged, though. `packages/tuya-core` knows nothing about the runtime — networking comes in through a small
 `Transport` interface (there are Node and txiki implementations). If tinyjs doesn't work out, only the shell changes.
 
-Things we learned the hard way are documented in the code, e.g. `file://` + WebView2 blocks CSS masks and web fonts under CORS,
-so icons and fonts are embedded as `data:` URIs by `npm run assets`.
+Things we learned the hard way are documented in the code — e.g. `file://` + WebView2 blocks CSS masks and web fonts under CORS,
+so icons and fonts are embedded as `data:` URIs by `npm run assets`; and windows can't be transparent on Windows, so themes
+paint their own background edge to edge.
 
 ## Getting started
 
 Requires **Node 22+** (for development) and, for the tray app, **[tinyjs](https://tinyjs.app)**.
 
 ```bash
+git clone https://github.com/tuliocll/lilac
+cd lilac
 npm install
 npm test
 
 # CLI — handy for debugging
-npm run discover                 # who's announcing on the LAN
-npm run login                    # QR login in the terminal
-npm run devices -- --dps         # account × network, with each device's data points
+npm run discover                          # who's announcing on the LAN
+npm run login                             # QR login in the terminal
+npm run devices -- --dps                  # account × network, with each device's data points
 npm run control -- "Garage light" switch_1=true
+npm run control -- "Office AC" --inspect  # raw cloud answers, for devices that don't behave
 
 # Tray app
 irm https://tinyjs.app/install.ps1 | iex     # Windows (PowerShell)
@@ -117,17 +128,22 @@ No device around? `npm run fake-device` announces three fake ones.
 
 ```
 packages/
-  tuya-core/        protocol in plain TypeScript: discovery, frames, crypto, local TCP (3.3/3.4), Smart Life cloud
+  tuya-core/        protocol in plain TypeScript: discovery, frames, crypto, local TCP (3.3/3.4),
+                    Smart Life cloud (login, inventory, commands) and the infrared AC translation
   gadgets/          one folder per gadget type: gadget.json + icon.svg  →  page layout and controls
   transport-node/   Transport for Node (CLI, tests)
   transport-txiki/  Transport for txiki.js (tinyjs backend)
 apps/
   cli/              discover / login / devices / control / fake-device
   menubar/
+    assets/               app and tray icons
     src/main.ts           API the page calls + tinyjs events (thin)
-    src/backend/          account · network · control (local/cloud routes) · view · tray · favorites · user-themes
-    src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, login…
-    src/frontend/themes/  Moonlight · Past Dream · High Contrast (+ tokens.json, the theme contract)
+    src/backend/          account · network · control (local/cloud routes) · view · tray · favorites
+                          · quick-actions · remembered (state of IR devices) · user-themes
+    src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, onboarding…
+    src/frontend/themes/  the seven themes + tokens.json, the theme contract
+docs/
+  ROADMAP.md        what's next, what was done and what was dropped
 ```
 
 The code is plain functions and closures — no class hierarchies. `tuya-core` has no runtime dependency, the backend modules
@@ -135,6 +151,8 @@ own their state with small explicit APIs, and every UI module hangs off a single
 
 ## Contributing
 
+- **A device doesn't work?** Open an issue with the output of `npm run control -- "<name>" --inspect` (keys are hidden).
+  That's how infrared air conditioners got supported.
 - **New gadget type** (icon, name, colours, controls): add a folder to `packages/gadgets/gadgets/` — see
   [its README](packages/gadgets/gadgets/README.md). No code needed.
 - **New theme**: see [THEMING.md](apps/menubar/THEMING.md). Every UI change must work in every theme and language;
@@ -145,17 +163,19 @@ own their state with small explicit APIs, and every UI module hangs off a single
 ## Privacy & security
 
 - Local keys and the session token live in the **OS credential store** (Keychain / Credential Manager / Secret Service), never in
-  plain JSON. The CLI keeps a dev copy in `~/.lilac/`.
-- The cloud is used to fetch keys and names; day-to-day control goes straight to your devices.
+  plain JSON. The CLI keeps a **development** copy in `~/.lilac/` (readable only by you on macOS/Linux; on Windows it's a
+  plain file in your user folder).
+- The cloud is used to fetch keys and names, and to reach what isn't on your network; day-to-day control of local devices goes
+  straight to them.
 - ⚠️ **About the QR login `clientId`:** the Smart Life QR flow requires a partner app ID registered with Tuya. For now Lilac uses
   Home Assistant's (the only public one) — fine for testing with your own account, **not fine for a public release**. Getting our
   own credentials from Tuya is on the roadmap; it lives in one file (`packages/tuya-core/src/cloud/app-credentials.ts`).
 
 ## Roadmap
 
-The living backlog is in [docs/ROADMAP.md](docs/ROADMAP.md) (in Portuguese). Highlights: real-device validation,
-IR remotes through the cloud (already working for air conditioners), protocol 3.5, live cloud updates, scenes and
-automations tied to your computer (lock the screen → desk light off).
+The living backlog is in [docs/ROADMAP.md](docs/ROADMAP.md). Highlights: real-device validation of local control,
+more infrared remotes, protocol 3.5, live cloud updates, scenes and automations tied to your computer
+(lock the screen → desk light off).
 
 ## Credits
 
@@ -163,6 +183,8 @@ automations tied to your computer (lock the screen → desk light off).
 [tuya-device-sharing-sdk](https://github.com/tuya/tuya-device-sharing-sdk) (QR login reference) ·
 [tinytuya](https://github.com/jasonacox/tinytuya) (local protocol reference) ·
 [@noble/ciphers & hashes](https://paulmillr.com/noble/) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) ·
-[Pixelify Sans](https://github.com/eifetx/Pixelify-Sans) (OFL) · [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew) (OFL) · [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL) · [Nunito](https://github.com/googlefonts/nunito) (OFL).
+fonts [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew),
+[Silkscreen](https://github.com/googlefonts/silkscreen) and [Nunito](https://github.com/googlefonts/nunito) (all OFL).
 
-MIT © Tulio Calil. Independent project, **not affiliated with Tuya**. Tuya and Smart Life are trademarks of their owners.
+MIT © Tulio Calil · [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
+Independent project, **not affiliated with Tuya**. Tuya and Smart Life are trademarks of their owners.

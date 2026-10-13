@@ -3,7 +3,7 @@
 // é a ordem de dependência.
 window.Lilac = {
   config: {
-    repo: 'https://github.com/tuliocalil/lilac',
+    repo: 'https://github.com/tuliocll/lilac',
     author: 'Tulio Calil',
     authorUrl: 'https://tuliocalil.com',
     /** atalho global para abrir o painel (quando ligado nas configurações) */

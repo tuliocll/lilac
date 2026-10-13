@@ -1,78 +1,79 @@
 # Roadmap
 
-O que falta, o que descobrimos e o que queremos. Ordem dentro de cada seção = prioridade.
-Quer pegar algum item? Abra uma issue antes para a gente alinhar.
+🇧🇷 [Leia em português](ROADMAP.pt-BR.md)
 
-## Antes de abrir para o público
+What's missing, what we found out and what we want. Order within each section = priority.
+Want to pick something up? Open an issue first so we can line it up.
 
-- [ ] **Validar no tinyjs de verdade.** A interface só foi testada com um `tiny` simulado e o TCP
-      do backend nunca rodou no txiki. Maior risco do projeto: se o TCP falhar lá, cai todo o controle local.
-      Conferir também: ícone da bandeja (`assets/tray.png` — o caminho é relativo a quê?) e o ícone do app no build.
-- [ ] **Controle local com aparelho real** (3.4 — ex.: Luz garagem / Luz porão). Hoje passa nos testes
-      com o aparelho falso e com o tinytuya, mas nunca acendeu uma lâmpada.
-- [ ] **clientId próprio.** Hoje usamos o do Home Assistant (ok para teste, não para distribuir).
-- [ ] **Nome e endereço:** conferir se "lilac" está livre no GitHub (e npm, se um dia publicar pacotes);
-      atualizar a URL em `config.js` e `package.json`.
-- [ ] **README: aviso de builds sem assinatura** (SmartScreen no Windows, Gatekeeper no macOS).
-- [ ] **Revisão humana do código** nas áreas de risco: segredos e sessão (`cloud/*`, `vault.js`, CLI),
-      decodificadores de rede (`frame.ts`, `discovery.ts`), concorrência (`local/device.ts`, `backend/control.ts`).
+## Before going public
 
-## Nuvem e IR
+- [ ] **Validate on real tinyjs.** The UI has only been tested against a simulated `tiny`, and the backend's TCP has never run
+      on txiki. Biggest risk in the project: if TCP fails there, all local control goes with it.
+      Also check: the tray icon (`assets/tray.png` — relative to what?) and the app icon in the build.
+- [ ] **Local control with a real device** (3.4 — e.g. Wi-Fi bulbs/breakers). It passes against the fake device and tinytuya,
+      but has never switched on a real light.
+- [ ] **Our own clientId.** We currently use Home Assistant's (fine for testing, not for distribution).
+- [ ] **Name and address:** check that "lilac" is free on npm, should we ever publish packages.
+- [ ] **Signed builds**, or at least clear instructions for SmartScreen (Windows) and Gatekeeper (macOS).
+- [ ] **Human code review** of the risky areas: secrets and session (`cloud/*`, `vault.js`, CLI), network decoders
+      (`frame.ts`, `discovery.ts`), concurrency (`local/device.ts`, `backend/control.ts`).
 
-- [x] **Ar IR pela nuvem** — liga/desliga, temperatura, modo, vento; estado lembrado pelo app.
-- [ ] **Confirmar no ar real** o que cada número de `M` faz (hoje: 0 frio · 1 quente · 2 auto · 3 ventilar · 4 secar)
-      e se o "detalhe" da nuvem traz algum estado depois de mexer pelo app Smart Life (daria o estado inicial).
-- [ ] **TV, ventilador, umidificador** — grade de botões a partir da lista de funções (confirmar com `--inspect`).
-- [ ] **Controles "DIY"/aprendidos** (`infrared_diy`) — botões com os nomes que o usuário gravou.
-- [ ] **Cair para a nuvem quando o local falha.** Aparelho que anuncia na rede mas não aceita TCP
-      (Wi-Fi separada, isolamento de AP — aconteceu com o "IR Escritório") hoje dá "tempo esgotado".
-      Deve usar a nuvem e explicar, discretamente. Vale para a CLI também.
-- [ ] **Protocolo 3.5** (frames 6699). Aparelhos novos já vêm assim; hoje ficam só pela nuvem.
-- [ ] **Tempo real da nuvem** (o canal de push que a integração do HA usa). Sem isso, o que muda pelo
-      celular só aparece quando o app pergunta de novo.
+## Cloud and infrared
+
+- [x] **Infrared air conditioners through the cloud** — power, temperature, mode, fan; state remembered by the app.
+- [ ] **Confirm on a real AC** what each `M` number does (today: 0 cool · 1 heat · 2 auto · 3 fan · 4 dry), and whether the
+      cloud "detail" carries any state after a change made in the Smart Life app (that would give us the initial state).
+- [ ] **TV, fan, humidifier** — a button grid built from the function list (confirm with `--inspect`).
+- [ ] **"DIY"/learned remotes** (`infrared_diy`) — buttons with the names the user recorded.
+- [ ] **Fall back to the cloud when local fails.** A device that announces itself but refuses TCP (separate Wi-Fi, AP
+      isolation — it happened with a real IR blaster) times out today. It should use the cloud and say why, quietly.
+      The CLI too.
+- [ ] **Protocol 3.5** (6699 frames). New devices ship with it; today they only work through the cloud.
+- [ ] **Live cloud updates** (the push channel Home Assistant's integration uses). Without it, changes made on the phone only
+      show up when the app asks again.
 
 ## Features
 
-- [ ] **Automações ligadas ao computador** — bloqueou a tela → desliga a luz da mesa; desbloqueou →
-      liga; PC dormiu → desliga o ar. (Depende do tinyjs expor esses eventos.)
-- [ ] **Cenas** — "Sair de casa", "Cinema"… e disparar as cenas *tap-to-run* que já existem no Smart Life.
-- [ ] **Atalho global por ação** — ex.: `Ctrl+Alt+L` alterna a luz da mesa.
-- [ ] **Integração com outras ferramentas** — `lilac://toggle/luz-garagem` ou servidor local
+- [ ] **Automations tied to the computer** — screen locked → desk light off; unlocked → on; PC asleep → AC off.
+      (Depends on tinyjs exposing those events.)
+- [ ] **Scenes** — "Leaving home", "Movie night"… and trigger the *tap-to-run* scenes that already exist in Smart Life.
+- [ ] **Global hotkey per action** — e.g. `Ctrl+Alt+L` toggles the desk light.
+- [ ] **Integration with other tools** — `lilac://toggle/garage-light` or a local server
       (Stream Deck, Raycast, AutoHotkey, scripts).
-- [ ] **Timer** — "desligar o ar em 1 h" (countdown do aparelho quando houver; senão, o app agenda).
-- [ ] **Agrupar por cômodo** — a nuvem já devolve casas e cômodos.
-- [ ] **Estado na barra** — no macOS, texto ao lado do ícone ("❄ 23°"); no Windows, ícone que muda.
-- [ ] **Notificações** (depende do tempo real) — porta abriu, botão Zigbee apertado, vazamento.
-- [ ] **Consumo das tomadas** — potência atual + mini gráfico das últimas horas.
+- [ ] **Timer** — "turn the AC off in 1 h" (the device's countdown when it has one; otherwise the app schedules it).
+- [ ] **Group by room** — the cloud already returns homes and rooms.
+- [ ] **State in the menu bar** — on macOS, text next to the icon ("❄ 23°"); on Windows, an icon that changes.
+- [ ] **Notifications** (needs live updates) — door opened, Zigbee button pressed, leak.
+- [ ] **Plug energy use** — current power + a small chart of the last hours.
 
-## Comunidade
+## Community
 
-- [ ] **Template de issue "meu aparelho não funciona"** pedindo a saída de
-      `npm run control -- "<nome>" --inspect` (foi assim que destravamos o IR).
-- [ ] **CONTRIBUTING.md** — como cadastrar um gadget, rodar o aparelho falso, criar um tema e
-      onde revisar com mais cuidado (as áreas de risco acima).
-- [ ] **Gadgets que faltam** — robô aspirador; botão sem fio (`wxkg`: só leitura ou esconder).
+- [ ] **"My device doesn't work" issue template** asking for the output of
+      `npm run control -- "<name>" --inspect` (that's how infrared got unblocked).
+- [ ] **CONTRIBUTING.md** — how to add a gadget, run the fake device, make a theme, and where to review with extra care
+      (the risky areas above).
+- [ ] **Missing gadgets** — robot vacuum; wireless button (`wxkg`: read-only or hide).
 
-## Código
+## Code
 
-- [ ] **Teste de fuzz dos decodificadores** (`frame.ts`, `discovery.ts`): bytes aleatórios da rede não
-      podem quebrar nem travar o app.
-- [ ] **Segredos da CLI no Windows** — `~/.lilac` guarda sessão e chaves em texto puro (o `0600` não vale
-      no Windows). Documentar como "só para desenvolvimento" ou usar o cofre do sistema.
-- [ ] **Separar `backend/control.ts`** (sessões × escolha de rota) — fazer junto com o fallback para a nuvem.
-- [ ] **Traduções em JSON por idioma** (hoje `ui/i18n.js` tem tudo num arquivo só).
-- [ ] **Testes do transporte txiki** — hoje não tem nenhum; e decidir se a API antiga do txiki ainda precisa existir.
+- [ ] **Fuzz tests for the decoders** (`frame.ts`, `discovery.ts`): random bytes from the network must not crash or hang the app.
+- [ ] **CLI secrets on Windows** — `~/.lilac` keeps the session and keys in plain text (`0600` means nothing on Windows).
+      Either document it as "development only" or use the OS vault.
+- [ ] **Split `backend/control.ts`** (sessions × route choice) — together with the cloud fallback.
+- [ ] **One JSON file per language** (today `ui/i18n.js` has everything in one file).
+- [ ] **Tests for the txiki transport** — there are none; and decide whether the old txiki API still needs supporting.
 
-## Feito (out/2026)
+## Done (Oct 2026)
 
-- [x] Nome novo: **Lilac** · ícone (cacho de lilás em hexágonos) para app, bandeja, README e Sobre.
-- [x] Temas novos: Frutiger Aero, CassiUI, Cutelight, BoringLight (7 no total) · escolha de tema nas boas-vindas
-      · seção de temas no README · grade compacta nas configurações.
-- [x] Sessão da nuvem não morre mais depois de ~2 h (a renovação ia com o token vencido).
-- [x] "Atalhos na lista" no fim da página do aparelho (no lugar do ⚡ que ninguém entendia).
-- [x] Past Dream sem o fundo azul em volta; sombra dura desenhada como borda (Windows não tem janela transparente).
+- [x] New name: **Lilac** · icon (a lilac cluster made of hexagons) for the app, tray, README and About page.
+- [x] New themes: Frutiger Aero, CassiUI, Cutelight, BoringLight (seven in total) · theme picker in the welcome tour
+      · themes section in the README · compact grid in Settings.
+- [x] The cloud session no longer dies after ~2 h (the refresh was sent with the expired token).
+- [x] "Shortcuts in the list" at the bottom of the device page (instead of the ⚡ nobody understood).
+- [x] Past Dream without the blue frame around it; the hard shadow drawn as a border (Windows has no transparent windows).
+- [x] Docs in English and Portuguese; repository at [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
 
-## Descartado (e por quê)
+## Dropped (and why)
 
-- **Janela expandida** (menu lateral, lista e aparelho lado a lado) — feita e desfeita: o painel da bandeja
-  basta; o espaço extra não pagou a complexidade.
+- **Expanded window** (sidebar, list and device side by side) — built and reverted: the tray panel is enough; the extra space
+  wasn't worth the complexity.

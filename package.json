@@ -2,7 +2,7 @@
   "name": "lilac",
   "private": true,
   "version": "0.0.1",
-  "description": "Controle local de dispositivos Tuya direto da barra de menu/bandeja.",
+  "description": "Control your Tuya / Smart Life gadgets from the menu bar — over your own network.",
   "type": "module",
   "workspaces": [
     "packages/*",
@@ -26,7 +26,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tuliocalil/lilac"
+    "url": "https://github.com/tuliocll/lilac"
+  },
+  "homepage": "https://github.com/tuliocll/lilac",
+  "bugs": {
+    "url": "https://github.com/tuliocll/lilac/issues"
   },
   "author": "Tulio Calil"
 }

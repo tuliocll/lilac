@@ -1,14 +1,17 @@
-# Lilac — notas para quem (humano ou agente) for mexer no código
+# Lilac — notes for whoever (human or agent) touches the code
 
-- Monorepo npm workspaces: `packages/tuya-core` (protocolo, sem dependência de runtime),
-  `packages/gadgets` (perfis por tipo de dispositivo), `packages/transport-*`, `apps/cli`, `apps/menubar` (tinyjs).
-- `tuya-core` não importa nada de Node/txiki: rede entra pela interface `Transport`.
-- Estilo: funções e closures, sem hierarquias de classe (exceção: subclasses de `Error` com `code`).
-  Fábricas como `createLocalDevice()` / `createSharingClient()` devolvem objetos com uma API pequena e explícita.
-- App: `src/main.ts` é só a API e os eventos do tinyjs; a lógica fica em `src/backend/*` (cada módulo dono do seu estado).
-  A interface fica em `src/frontend/ui/*`, um módulo por tela, todos pendurados em `window.Lilac` (ordem dos `<script>` = dependência).
-- Interface: **toda mudança precisa suportar todos os temas e idiomas** — leia `apps/menubar/THEMING.md`.
-  Nada de cor/fonte/sombra literal fora de `themes/`; nada de texto fixo fora de `i18n.js`.
-- Gadgets novos: `packages/gadgets/gadgets/<id>/{gadget.json,icon.svg}` (ver o README de lá).
-- Depois de mexer em ícones, fontes ou gadgets: `npm run assets`. Sempre: `npm test` e `npm run typecheck`.
-- O protocolo local é validado contra o tinytuya (`pip install tinytuya`) em `packages/tuya-core/test/local.test.ts`.
+- npm workspaces monorepo: `packages/tuya-core` (protocol, no runtime dependency), `packages/gadgets` (per-device-type
+  profiles), `packages/transport-*`, `apps/cli`, `apps/menubar` (tinyjs).
+- `tuya-core` imports nothing from Node/txiki: networking comes in through the `Transport` interface.
+- Style: functions and closures, no class hierarchies (exception: `Error` subclasses with a `code`).
+  Factories like `createLocalDevice()` / `createSharingClient()` return objects with a small, explicit API.
+- Code comments and UI strings are in Brazilian Portuguese; docs exist in English (`*.md`) and Portuguese (`*.pt-BR.md`) —
+  keep both in sync.
+- App: `src/main.ts` is only the API and the tinyjs events; logic lives in `src/backend/*` (each module owns its state).
+  The UI lives in `src/frontend/ui/*`, one module per screen, all hanging off `window.Lilac` (`<script>` order = dependency order).
+- UI: **every change must support every theme and language** — read `apps/menubar/THEMING.md`.
+  No literal colour/font/shadow outside `themes/`; no hard-coded text outside `i18n.js`.
+- New gadgets: `packages/gadgets/gadgets/<id>/{gadget.json,icon.svg}` (see the README there).
+- After touching icons, fonts or gadgets: `npm run assets`. Always: `npm test` and `npm run typecheck`.
+- The local protocol is validated against tinytuya (`pip install tinytuya`) in `packages/tuya-core/test/local.test.ts`.
+- Never print local keys or session tokens (the CLI masks them; `--inspect` hides them).
