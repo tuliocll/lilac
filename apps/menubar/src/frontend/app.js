@@ -68,6 +68,7 @@
     await Lilac.devices.init();
     sendTrayLabels();
     if (await Lilac.settings.hotkeyEnabled()) Lilac.panel.setHotkey(true);
+    await Lilac.panel.initPin();
 
     const saved = await Lilac.vault.read();
     const { loggedIn } = await tiny.api.call('restore', saved);

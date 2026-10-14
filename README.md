@@ -66,6 +66,8 @@ Once it's open, Lilac lives in the system tray (next to the clock) or the menu b
   chosen in the *Shortcuts in the list* section at the bottom of the device page.
 - ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even
   opening the panel. Optional global hotkey (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
+- 📌 **Pin the panel**: the pin in the title bar keeps the panel above other windows instead of hiding when you click away.
+  Drag it anywhere (any monitor) — it reopens in the same spot. Esc or ✕ still put it away while pinned.
 - 🧩 **One page per gadget type**: an air conditioner gets a big temperature and mode/fan cards, a breaker gets a power
   button and energy readouts, a light gets brightness and white-tone sliders… Data points the profile doesn't know show up
   under “Advanced”, with a control inferred from their type. Only controls the device actually reports are shown.

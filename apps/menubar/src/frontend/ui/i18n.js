@@ -16,6 +16,8 @@ Lilac.i18n = (() => {
 
       'wc.minimize': 'Minimizar',
       'wc.close': 'Fechar painel',
+      'wc.pin': 'Fixar painel na tela',
+      'wc.unpin': 'Soltar painel',
       'action.scan': 'Procurar',
       'action.sync': 'Sincronizar com a nuvem',
       'action.settings': 'Configurações',
@@ -164,6 +166,8 @@ Lilac.i18n = (() => {
 
       'wc.minimize': 'Minimize',
       'wc.close': 'Close panel',
+      'wc.pin': 'Keep panel on screen',
+      'wc.unpin': 'Unpin panel',
       'action.scan': 'Scan',
       'action.sync': 'Sync with the cloud',
       'action.settings': 'Settings',
