@@ -34,6 +34,7 @@ console.table(
     const local = localById.get(device.id);
     return {
       nome: device.name,
+      comodo: device.room?.name ?? '',
       tipo: categoryLabel(device.category),
       ip: local?.ip ?? (device.sub ? '(via gateway)' : '—'),
       versao: local?.version ?? '',

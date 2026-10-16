@@ -41,7 +41,10 @@ Want to pick something up? Open an issue first so we can line it up.
 - [ ] **Integration with other tools** — `lilac://toggle/garage-light` or a local server
       (Stream Deck, Raycast, AutoHotkey, scripts).
 - [ ] **Timer** — "turn the AC off in 1 h" (the device's countdown when it has one; otherwise the app schedules it).
-- [ ] **Group by room** — the cloud already returns homes and rooms.
+- [x] **Group by room** — the list follows the Smart Life rooms (`/v1.0/m/thing/ha/{id}/room`, one call per device,
+      as in `tuya_sharing` 0.2.13+). Confirmed on a real account (Brazil, Oct 2026); still to confirm on more regions: the Tuya forum reported `2008 app param
+      is invalid` on that path, and when the cloud refuses, Lilac just keeps the flat list. Devices without a cloud room
+      (imported keys, devices outside any room in the app) join a room by name or by the user's choice on the device page.
 - [ ] **State in the menu bar** — on macOS, text next to the icon ("❄ 23°"); on Windows, an icon that changes.
 - [ ] **Notifications** (needs live updates) — door opened, Zigbee button pressed, leak.
 - [ ] **Plug energy use** — current power + a small chart of the last hours.

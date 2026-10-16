@@ -86,6 +86,7 @@ async function printRaw(cloud: ReturnType<typeof createSharingClient>) {
     ['detalhe', '/v1.0/m/life/ha/devices/detail', { devIds: id }],
     ['estratégia local', `/v1.0/m/life/devices/${id}/status`],
     ['especificação', `/v1.1/m/life/${id}/specifications`],
+    ['cômodo', `/v1.0/m/thing/ha/${id}/room`],
   ];
   console.log(`categoria: ${device!.category}  produto: ${device!.productName ?? '?'} (${device!.productId ?? '?'})`);
   for (const [label, path, params] of endpoints) {

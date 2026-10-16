@@ -17,6 +17,7 @@ import { loadFavorites, reorderFavorites, toggleFavorite } from './backend/favor
 import { loadQuickActions, MAX_QUICK_ACTIONS, quickActionsFor, quickModeFor, saveQuickActions, type QuickAction } from './backend/quick-actions.ts';
 import { readText } from './backend/files.ts';
 import { loadRemembered } from './backend/remembered.ts';
+import { chooseRoom, loadRoomChoices, roomOptions } from './backend/rooms.ts';
 import { onNetworkChange, restartListening, startListening } from './backend/network.ts';
 import { FAVORITE_PREFIX, prepareTrayIcon, renderTray, setTrayLabels, type TrayLabels } from './backend/tray.ts';
 import { loadUserThemes } from './backend/user-themes.ts';
@@ -38,7 +39,7 @@ function start(app: TinyApp) {
   setApp(app);
   starting ??= (async () => {
     app.setHideOnClose(true);
-    await Promise.all([loadFavorites(), loadQuickActions(), loadRemembered(), prepareTrayIcon()]);
+    await Promise.all([loadFavorites(), loadQuickActions(), loadRemembered(), loadRoomChoices(), prepareTrayIcon()]);
     renderTray();
     onNetworkChange(pushDevices);
     control.onValuesChange(() => {
@@ -102,6 +103,14 @@ export const api = {
     pushDevices();
     renderTray();
     return { favorite };
+  }),
+  roomOptions: withStart(({ id }: Id) => {
+    const device = findDevice(id);
+    return device ? roomOptions(device) : null;
+  }),
+  setRoom: withStart(async ({ id, choice }: Id & { choice: string }) => {
+    await chooseRoom(id, choice);
+    pushDevices();
   }),
   reorderFavorites: withStart(async ({ order }: { order: string[] }) => {
     const ids = await reorderFavorites(Array.isArray(order) ? order : []);
