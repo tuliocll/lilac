@@ -104,6 +104,7 @@ body.busy .dot { background: var(--dot-busy); animation: pulse 1s infinite alter
 .view { display: none; flex: 1; min-height: 0; flex-direction: column; gap: var(--gap); }
 body[data-view="onboarding"] .view[data-for="onboarding"],
 body[data-view="login"] .view[data-for="login"],
+body[data-view="lg-login"] .view[data-for="lg-login"],
 body[data-view="devices"] .view[data-for="devices"],
 body[data-view="device"] .view[data-for="device"],
 body[data-view="settings"] .view[data-for="settings"],
@@ -115,6 +116,7 @@ body[data-view="settings"] .tools[data-for="settings"],
 body[data-view="about"] .tools[data-for="about"] { display: flex; }
 body[data-view="onboarding"] .toolbar,
 body[data-view="login"] .toolbar,
+body[data-view="lg-login"] .toolbar,
 body[data-view="loading"] .toolbar { display: none; }
 .tools-split { justify-content: space-between; }
 .header-slot { display: flex; align-items: center; gap: 6px; }
@@ -367,6 +369,8 @@ body.has-devices .empty { display: none; }
 
 .section-title { margin: 0; font-family: var(--font-display); font-size: 1em; font-weight: 600; }
 .settings { overflow-y: auto; min-height: 0; }
+/* telas mais altas que o painel (ex.: conectar LG) */
+.scroll { overflow-y: auto; min-height: 0; }
 .theme-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--list-gap); }
 .theme-option {
   display: grid;

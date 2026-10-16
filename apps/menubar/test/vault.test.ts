@@ -77,7 +77,8 @@ test('grava e lê de volta; sincronizar sem mudança não regrava nada', async (
   const r = await vault.read();
   assert.deepEqual(plain(r.keys), keys);
   assert.deepEqual(plain(r.session), session);
-  assert.deepEqual(ops, ['get session', 'get keys:0'], 'dois itens lidos = no máximo dois pedidos de senha');
+  // `thinq` (conta LG) não existe aqui: ler item ausente não pede senha
+  assert.deepEqual(ops, ['get session', 'get thinq', 'get keys:0'], 'dois itens lidos = no máximo dois pedidos de senha');
 
   ops.length = 0;
   await vault.write({ session, inventory: inventoryOf(keys), keys });
@@ -166,7 +167,7 @@ test('macOS com conta: do formato antigo só lê os importados (a sincronizaçã
   const { vault, ops } = openVault(disk, { macOS: true });
   const r = await vault.read();
   assert.deepEqual(plain(r.keys), imported);
-  assert.deepEqual(ops, ['get session', 'get key:importado1'], 'um pedido, não trinta');
+  assert.deepEqual(ops, ['get session', 'get thinq', 'get key:importado1'], 'um pedido, não trinta');
 
   // a sincronização devolve as chaves; o item antigo lido sai, os outros ficam (apagar pediria senha um a um)
   const all = { ...keys, ...imported };
@@ -198,4 +199,22 @@ test('logout: a sessão sai e só ficam as chaves dos importados', async () => {
   await vault.write({ session: null, inventory: inventoryOf(imported, 'imported'), keys: imported });
   assert.equal(disk.secrets.has('session'), false);
   assert.deepEqual(await reopen(disk), imported);
+});
+
+test('conta LG: um item só, regravado só quando muda, apagado ao desconectar', async () => {
+  const disk = emptyDisk();
+  const lg = { token: 'pat', country: 'BR', clientId: 'cid' };
+  await openVault(disk).vault.write({ session: null, inventory: [], keys: {}, thinq: lg });
+  const { vault, ops } = openVault(disk);
+  assert.deepEqual(plain((await vault.read()).thinq), lg);
+
+  ops.length = 0;
+  await vault.write({ session: null, inventory: [], keys: {}, thinq: lg });
+  assert.deepEqual(ops.filter((o) => o.includes('thinq')), [], 'sem mudança, sem regravar');
+
+  // desconectar guarda só o clientId; sem conta nenhuma, o item sai
+  await vault.write({ session: null, inventory: [], keys: {}, thinq: { clientId: 'cid' } });
+  assert.deepEqual(JSON.parse(disk.secrets.get('thinq')!), { clientId: 'cid' });
+  await vault.write({ session: null, inventory: [], keys: {}, thinq: null });
+  assert.equal(disk.secrets.has('thinq'), false);
 });

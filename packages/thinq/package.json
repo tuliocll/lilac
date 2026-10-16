@@ -1,0 +1,13 @@
+{
+  "name": "@lilac/thinq",
+  "version": "0.0.1",
+  "description": "Cliente da API ThinQ Connect (aparelhos LG), em TypeScript puro.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "MIT AND Apache-2.0",
+  "dependencies": {
+    "@lilac/core": "0.0.1"
+  }
+}

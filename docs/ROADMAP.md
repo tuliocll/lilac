@@ -21,6 +21,11 @@ Want to pick something up? Open an issue first so we can line it up.
 ## Cloud and infrared
 
 - [x] **Infrared air conditioners through the cloud** — power, temperature, mode, fan; state remembered by the app.
+- [x] **LG air conditioners (LG ThinQ)** — through LG's official ThinQ Connect API with a personal access token
+      (`packages/thinq`, a port of the official `thinqconnect` SDK). Mapped from real profiles of two models.
+- [ ] **Confirm LG control on real units** (the read side is confirmed; temperature goes to the current mode's target,
+      as in Home Assistant — heat and auto still to try) and decide on more LG devices
+      (the ThinQ API also covers washers, dryers, fridges…). Live updates would come through LG's MQTT push.
 - [ ] **Confirm on a real AC** what each `M` number does (today: 0 cool · 1 heat · 2 auto · 3 fan · 4 dry), and whether the
       cloud "detail" carries any state after a change made in the Smart Life app (that would give us the initial state).
 - [ ] **TV, fan, humidifier** — a button grid built from the function list (confirm with `--inspect`).

@@ -16,6 +16,7 @@ import {
 } from '@lilac/core';
 import qrcode from 'qrcode-generator';
 import { push } from './app.ts';
+import { connectThinq, disconnectThinq, isLg, thinqConfig, thinqConnected, thinqInventory, tokenRefused, useThinq, type ThinqConfig } from './thinq.ts';
 
 const APP_CREDENTIALS = HOME_ASSISTANT_CREDENTIALS;
 const QR_LIFETIME_MS = 3 * 60_000;
@@ -35,11 +36,21 @@ export function onInventoryChange(listener: () => void) {
 }
 
 /** O que a página leu do cofre na inicialização. */
-export function restore(saved: { session?: SharingSession | null; inventory?: Omit<CloudDevice, 'localKey'>[] | null; keys?: Record<string, string> }) {
+export function restore(saved: {
+  session?: SharingSession | null;
+  inventory?: Omit<CloudDevice, 'localKey'>[] | null;
+  keys?: Record<string, string>;
+  thinq?: ThinqConfig | null;
+}) {
   inventory = (saved.inventory ?? []).map((d) => ({ ...d, localKey: saved.keys?.[d.id] ?? '' }));
   if (saved.session) useSession(saved.session);
+  if (saved.thinq) {
+    useThinq(saved.thinq);
+    pushThinq();
+  }
   changed();
-  return { loggedIn: Boolean(saved.session) };
+  // só LG também conta: a lista abre direto, sem pedir o login do Smart Life
+  return { loggedIn: Boolean(saved.session) || thinqConnected() };
 }
 
 function useSession(session: SharingSession) {
@@ -47,18 +58,26 @@ function useSession(session: SharingSession) {
   push('account', { username: session.username ?? session.uid });
 }
 
-/** Busca o inventário na nuvem. Sem rede, segue com o que já estava salvo. */
+/**
+ * Busca o inventário nas nuvens conectadas (Smart Life e LG ThinQ). A que
+ * falhar mantém o que já estava salvo; a outra atualiza mesmo assim.
+ */
 export async function sync() {
-  if (!cloud) return;
+  if (!cloud && !thinqConnected()) return;
   push('sync-start');
-  try {
-    inventory = mergeImported(await cloud.inventory());
-    persist();
-    changed();
-    push('sync-end', { count: inventory.length });
-  } catch (error) {
-    push('sync-end', { error: (error as Error).message });
+  const [tuya, lg] = await Promise.allSettled([cloud ? cloud.inventory() : Promise.resolve([]), thinqConnected() ? thinqInventory() : Promise.resolve([])]);
+  // conta desconectada durante a busca: o que veio dela não volta para a lista
+  const fresh = (r: PromiseSettledResult<CloudDevice[]>, stillConnected: boolean) => (!stillConnected ? [] : r.status === 'fulfilled' ? r.value : null);
+  inventory = merge(fresh(tuya, cloud !== null), fresh(lg, thinqConnected()));
+  persist();
+  changed();
+  if (lg.status === 'rejected' && tokenRefused(lg.reason)) {
+    lgTokenRefused = true;
+    pushThinq();
   }
+  const failed = [tuya, lg].find((r): r is PromiseRejectedResult => r.status === 'rejected');
+  if (failed) push('sync-end', { error: (failed.reason as Error).message });
+  else push('sync-end', { count: inventory.length });
 }
 
 // ------------------------------------------------------------------ login
@@ -90,9 +109,40 @@ export function cancelLogin() {
 export async function logout() {
   await cloud?.logout().catch(() => {}); // sem rede: encerra só localmente
   cloud = null;
-  inventory = inventory.filter((d) => d.homeId === IMPORTED_HOME); // chaves importadas não vêm da conta
+  // chaves importadas e ares LG não vêm da conta Smart Life
+  inventory = inventory.filter((d) => d.homeId === IMPORTED_HOME || isLg(d));
   persist();
   changed();
+}
+
+// ------------------------------------------------------------------ LG ThinQ
+
+/** Conecta com o token da LG; devolve quantos ares vieram. */
+export async function connectLg(token: string, country: string): Promise<number> {
+  const acs = await connectThinq(token, country);
+  lgTokenRefused = false;
+  inventory = [...inventory.filter((d) => !isLg(d)), ...acs];
+  persist();
+  changed();
+  pushThinq();
+  return acs.length;
+}
+
+export function disconnectLg() {
+  disconnectThinq();
+  lgTokenRefused = false;
+  inventory = inventory.filter((d) => !isLg(d));
+  persist();
+  changed();
+  pushThinq();
+}
+
+/** A LG recusou o token na última sincronização (revogado, vencido): a interface pede outro. */
+let lgTokenRefused = false;
+
+function pushThinq() {
+  const lg = thinqConfig();
+  push('thinq', thinqConnected() && lg ? { country: lg.country, tokenRefused: lgTokenRefused } : null);
 }
 
 // ------------------------------------------------------------------ chaves importadas
@@ -154,10 +204,15 @@ function dpsFromTinytuyaMapping(mapping: unknown): CloudDevice['dps'] {
   }));
 }
 
-/** Mantém aparelhos importados que a conta não conhece. */
-function mergeImported(fromCloud: CloudDevice[]) {
-  const ids = new Set(fromCloud.map((d) => d.id));
-  return [...fromCloud, ...inventory.filter((d) => d.homeId === IMPORTED_HOME && !ids.has(d.id))];
+/**
+ * Junta o que veio de cada nuvem (null = não buscou ou falhou: fica o que já
+ * havia) com os aparelhos importados, que nenhuma conta conhece.
+ */
+function merge(tuya: CloudDevice[] | null, lg: CloudDevice[] | null) {
+  const fresh = [...(tuya ?? []), ...(lg ?? [])];
+  const ids = new Set(fresh.map((d) => d.id));
+  const keep = (d: CloudDevice) => d.homeId === IMPORTED_HOME || (isLg(d) ? lg === null : tuya === null);
+  return [...fresh, ...inventory.filter((d) => keep(d) && !ids.has(d.id))];
 }
 
 // ------------------------------------------------------------------ utilitários
@@ -168,6 +223,7 @@ function persist() {
     // sem as chaves: elas vão separadas para o cofre do sistema
     inventory: inventory.map(({ localKey: _key, ...rest }) => rest),
     keys: Object.fromEntries(inventory.map((d) => [d.id, d.localKey])),
+    thinq: thinqConfig(),
   });
 }
 

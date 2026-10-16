@@ -12,6 +12,7 @@
     "@lilac/core": "0.0.1",
     "@lilac/transport-txiki": "0.0.1",
     "qrcode-generator": "^2.0.4",
-    "@lilac/gadgets": "0.0.1"
+    "@lilac/gadgets": "0.0.1",
+    "@lilac/thinq": "0.0.1"
   }
 }

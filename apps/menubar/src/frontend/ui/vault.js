@@ -110,8 +110,11 @@
 
   async function read() {
     const session = parse(await get('session').catch(() => null));
+    // conta LG ThinQ (token, país e id do cliente), num item só
+    const thinq = parse(await get('thinq').catch(() => null));
     const inventory = await tiny.store.get('inventory').catch(() => null);
-    return { session, inventory, keys: await readKeys(inventory, Boolean(session)) };
+    // só a conta Smart Life traz as local keys de volta: a LG não conta aqui
+    return { session, inventory, keys: await readKeys(inventory, Boolean(session)), thinq };
   }
 
   /**
@@ -154,9 +157,11 @@
     for (const name of legacyToDelete.splice(0)) await secrets.delete(name).catch(() => {});
   }
 
-  async function writeNow({ session, inventory, keys }) {
+  async function writeNow({ session, inventory, keys, thinq }) {
     if (session) await put('session', JSON.stringify(session));
     else await remove('session');
+    if (thinq) await put('thinq', JSON.stringify(thinq));
+    else if (written.has('thinq')) await remove('thinq');
     await tiny.store.set('inventory', inventory);
     await writeKeys(inventory, keys);
   }

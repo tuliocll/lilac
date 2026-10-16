@@ -17,7 +17,8 @@
     "login": "tsx apps/cli/src/login.ts",
     "devices": "tsx apps/cli/src/devices.ts",
     "control": "tsx apps/cli/src/control.ts",
-    "assets": "npm run assets -w @lilac/menubar"
+    "assets": "npm run assets -w @lilac/menubar",
+    "lg": "tsx apps/cli/src/lg.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

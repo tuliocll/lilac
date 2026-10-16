@@ -116,8 +116,12 @@
     $('account-name').textContent = account ? account.username : t('settings.notConnected');
     $('logout').hidden = !account;
     $('login-from-settings').hidden = Boolean(account);
-    $('sync').hidden = !account;
-    $('connect').hidden = Boolean(account);
+    $('sync').hidden = !account && !lg; // ↻ busca nas duas contas
+    $('connect').hidden = Boolean(account) || Boolean(lg);
+    // token recusado pela LG: continua "conectada", mas pede um token novo
+    $('lg-name').textContent = !lg ? t('settings.notConnected') : lg.tokenRefused ? t('settings.lg.tokenRefused') : t('settings.lg.connected', { country: lg.country });
+    $('lg-disconnect').hidden = !lg || lg.tokenRefused;
+    $('lg-open').hidden = Boolean(lg) && !lg.tokenRefused;
   }
 
   $('logout').addEventListener('click', async () => {
@@ -129,7 +133,8 @@
   });
 
   $('login-from-settings').addEventListener('click', () => Lilac.login.open());
-  $('connect').addEventListener('click', () => Lilac.login.open());
+  // o aviso na lista leva à escolha da conta (Smart Life ou LG), o último passo das boas-vindas
+  $('connect').addEventListener('click', () => Lilac.onboarding.open(Lilac.onboarding.LAST));
 
   $('import-keys').addEventListener('click', async () => {
     // o diálogo tira o foco da janela; sem isso o painel sumiria
@@ -147,6 +152,23 @@
 
   tiny.api.on('account', (value) => {
     account = value;
+    renderAccount();
+  });
+
+  // ------------------------------------------------------------ LG ThinQ
+
+  let lg = null;
+
+  // a mesma tela das boas-vindas: tem o passo a passo do token e segura o painel aberto
+  $('lg-open').addEventListener('click', () => Lilac.lg.open());
+
+  $('lg-disconnect').addEventListener('click', async () => {
+    await tiny.api.call('lgDisconnect').catch(logError('lgDisconnect'));
+    status.show('settings.lg.disconnected');
+  });
+
+  tiny.api.on('thinq', (value) => {
+    lg = value;
     renderAccount();
   });
 

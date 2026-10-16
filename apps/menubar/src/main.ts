@@ -3,16 +3,18 @@
  * Aqui só ficam a API chamada pela página e os eventos do tinyjs;
  * a lógica mora em ./backend/*.
  *
- *   account    conta Smart Life, inventário, login por QR, chaves importadas
+ *   account    contas (Smart Life e LG ThinQ), inventário, login por QR, chaves importadas
  *   network    presença na rede (anúncios UDP)
  *   control    rota local/nuvem, conexão, reconexão, valores
  *   view       a lista que a página mostra
  *   favorites  favoritos   ·   tray  menu da bandeja   ·   user-themes  temas extras
  */
 import * as account from './backend/account.ts';
+import { ThinqError } from '@lilac/thinq';
 import { push, setApp, type TinyApp } from './backend/app.ts';
 import * as control from './backend/control.ts';
 import { findDevice } from './backend/account.ts';
+import { tokenRefused } from './backend/thinq.ts';
 import { loadFavorites, reorderFavorites, toggleFavorite } from './backend/favorites.ts';
 import { loadQuickActions, MAX_QUICK_ACTIONS, quickActionsFor, quickModeFor, saveQuickActions, type QuickAction } from './backend/quick-actions.ts';
 import { readText } from './backend/files.ts';
@@ -77,6 +79,20 @@ export const api = {
   logout: withStart(async () => {
     control.closeAllDevices();
     await account.logout();
+  }),
+  lgConnect: withStart(async ({ token, country }: { token: string; country: string }) => {
+    try {
+      return { count: await account.connectLg(String(token ?? ''), String(country ?? '')) };
+    } catch (error) {
+      // os erros que a interface sabe explicar no idioma dela; o resto vai com a mensagem da LG
+      if (error instanceof ThinqError && error.code === 'country') return { error: 'country' };
+      if (tokenRefused(error)) return { error: 'token' };
+      throw error;
+    }
+  }),
+  lgDisconnect: withStart(() => {
+    control.closeAllDevices();
+    account.disconnectLg();
   }),
   sync: withStart(async () => {
     await account.sync();

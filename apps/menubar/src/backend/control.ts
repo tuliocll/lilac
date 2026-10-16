@@ -15,6 +15,7 @@ import { cloudClient, findDevice } from './account.ts';
 import { push } from './app.ts';
 import { deviceTcpPort, locate, networkTransport } from './network.ts';
 import { remember, rememberedValues, remembersState } from './remembered.ts';
+import { isLg, thinqConnected, thinqSend, thinqStatus } from './thinq.ts';
 
 export type Route = 'local' | 'cloud';
 /** por que um aparelho não está sendo controlado (ou está pela nuvem) */
@@ -53,6 +54,8 @@ type Timer = ReturnType<typeof setTimeout>;
 
 const IDLE_CLOSE_MS = 30_000;
 const CLOUD_POLL_MS = 10_000;
+/** a LG limita as chamadas por conta: o estado dos ares LG é consultado com mais calma */
+const LG_POLL_MS = 30_000;
 const MAX_RECONNECT_DELAY_MS = 30_000;
 
 const sessions = new Map<string, Session>();
@@ -122,7 +125,7 @@ export async function setControl(id: string, code: string, value: unknown): Prom
     const applied = await localDevice(session).set({ [String(control.dpId)]: toRaw(control, value, 'local') });
     applyDps(session, applied);
   } else {
-    await cloudClient()!.sendCommands(session.device.id, cloudCommands(session.device, code, toRaw(control, value, 'cloud')));
+    await sendToCloud(session, code, toRaw(control, value, 'cloud'));
     applyValues(session, { [code]: value });
     // a nuvem demora a refletir; confere daqui a pouco
     if (!remembersState(session.device)) {
@@ -201,6 +204,19 @@ function cloudCommands(device: CloudDevice, code: string, value: unknown): Cloud
   return remembersState(device) ? irAcCommands(code, value) : [{ code, value }];
 }
 
+/** Cada aparelho fala com a nuvem do fabricante: Smart Life ou LG ThinQ. */
+function sendToCloud({ device, values }: Session, code: string, value: unknown): Promise<void> {
+  // ar LG: a temperatura vai no alvo do modo atual
+  if (isLg(device)) return thinqSend(device.id, code, value, values.mode);
+  return cloudClient()!.sendCommands(device.id, cloudCommands(device, code, value));
+}
+
+async function statusFromCloud(device: CloudDevice): Promise<Record<string, unknown> | null> {
+  if (isLg(device)) return thinqStatus(device.id);
+  const { [device.id]: current } = await cloudClient()!.statusOf([device.id]);
+  return current?.status ?? null;
+}
+
 /** Todos os controles do modelo do aparelho. */
 export function resolveDevice(device: CloudDevice): ResolvedGadget {
   return resolve({ category: device.category, dps: device.dps, writableKnown: device.writableKnown });
@@ -224,6 +240,8 @@ export function knownPower(id: string): boolean | undefined {
  * `reason` explica por que não é pela rede local.
  */
 export function chooseRoute(device: CloudDevice): { route: Route | null; reason?: Reason; version?: string } {
+  // ares LG só falam pela nuvem da LG: não é "pela nuvem porque a rede falhou"
+  if (isLg(device)) return thinqConnected() ? { route: 'cloud' } : { route: null, reason: 'offline' };
   const onNetwork = locate(device.id);
   const version = onNetwork?.version;
 
@@ -237,6 +255,7 @@ export function chooseRoute(device: CloudDevice): { route: Route | null; reason?
 }
 
 function hasCloud(device: CloudDevice) {
+  if (isLg(device)) return thinqConnected();
   return cloudClient() !== null && device.homeId !== 'imported';
 }
 
@@ -295,13 +314,14 @@ function readOnly(device: CloudDevice, reason?: Reason, version?: string, error?
 async function pollCloud(session: Session) {
   clearTimeout(session.timers.poll);
   if (remembersState(session.device)) return; // a nuvem não tem o que contar
-  const { [session.device.id]: current } = await cloudClient()!.statusOf([session.device.id]);
-  if (current) {
-    for (const code of Object.keys(current.status)) session.seen.add(code);
+  const status = await statusFromCloud(session.device);
+  if (status) {
+    for (const code of Object.keys(status)) session.seen.add(code);
     session.gadget = filterSupported(session.device, session.full, session.seen);
-    applyValues(session, cloudValues(session.full, current.status));
+    applyValues(session, cloudValues(session.full, status));
   }
-  if (session.watched) session.timers.poll = setTimeout(() => pollCloud(session).catch(() => {}), CLOUD_POLL_MS);
+  const every = isLg(session.device) ? LG_POLL_MS : CLOUD_POLL_MS;
+  if (session.watched) session.timers.poll = setTimeout(() => pollCloud(session).catch(() => {}), every);
 }
 
 // ============================================================== conexão local
