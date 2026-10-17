@@ -77,11 +77,15 @@
             </div>
             <div class="ob-step" data-step="4" hidden>
               <h1 class="ob-title" data-i18n="ob.3.title"></h1>
-              <ol class="steps card">
-                <li data-i18n-html="ob.3.s1"></li>
-                <li data-i18n-html="ob.3.s2"></li>
-                <li data-i18n-html="ob.3.s3"></li>
-              </ol>
+              <p class="lead" data-i18n="ob.3.body"></p>
+              <button id="ob-tuya" class="card banner" type="button">
+                <b data-i18n="ob.3.tuya"></b>
+                <span data-i18n="ob.3.tuya.body"></span>
+              </button>
+              <button id="ob-lg" class="card banner" type="button">
+                <b data-i18n="ob.3.lg"></b>
+                <span data-i18n="ob.3.lg.body"></span>
+              </button>
             </div>
 
             <div class="ob-footer">
@@ -91,7 +95,6 @@
                 <button class="btn btn-primary" type="button" id="ob-next" data-i18n="action.next"></button>
               </div>
               <div class="ob-actions stack" data-for-step="4" hidden>
-                <button class="btn btn-primary btn-wide" type="button" id="ob-connect" data-i18n="ob.connect"></button>
                 <button class="btn-link" type="button" id="ob-explore" data-i18n="ob.explore"></button>
               </div>
             </div>
@@ -118,6 +121,30 @@
             </div>
 
             <p id="login-error" class="error" hidden></p>
+          </section>
+
+          <!-- ================= conectar LG ThinQ ================= -->
+          <section class="view scroll" data-for="lg-login">
+            <form id="lg-login-form" class="stack">
+              <p class="lead" data-i18n="lg.lead"></p>
+              <ol class="steps card small">
+                <li data-i18n-html="lg.s1"></li>
+                <li data-i18n-html="lg.s2"></li>
+                <li data-i18n-html="lg.s3"></li>
+              </ol>
+              <button id="lg-login-site" class="btn" type="button" data-i18n="lg.openSite"></button>
+              <label class="field">
+                <span data-i18n="settings.lg.token"></span>
+                <input id="lg-login-token" type="password" autocomplete="off" spellcheck="false" required />
+              </label>
+              <label class="field">
+                <span data-i18n="settings.lg.country"></span>
+                <input id="lg-login-country" autocomplete="off" spellcheck="false" maxlength="2" required />
+              </label>
+              <button id="lg-login-connect" class="btn btn-primary btn-wide" type="submit" data-i18n="settings.lg.connect"></button>
+              <button id="lg-login-skip" class="btn-link" type="button" data-i18n="login.skip"></button>
+            </form>
+            <p id="lg-login-error" class="error" hidden></p>
           </section>
 
           <!-- ================= dispositivos ================= -->
@@ -178,6 +205,13 @@
             </div>
             <button id="import-keys" class="btn-link" type="button" data-i18n="settings.importKeys"></button>
 
+            <h2 class="section-title" data-i18n="settings.lg"></h2>
+            <div class="card row">
+              <span id="lg-name" class="muted" data-i18n="settings.notConnected"></span>
+              <button id="lg-disconnect" class="btn" type="button" data-i18n="settings.lg.disconnect" hidden></button>
+              <button id="lg-open" class="btn" type="button" data-i18n="settings.lg.connect"></button>
+            </div>
+
             <h2 class="section-title" data-i18n="settings.more"></h2>
             <div class="menu card">
               <button class="menu-item" type="button" id="open-intro"><i class="glyph" data-g="info"></i><span data-i18n="settings.intro"></span></button>
@@ -224,6 +258,7 @@
     <script src="ui/devices.js"></script>
     <script src="ui/device-page.js"></script>
     <script src="ui/login.js"></script>
+    <script src="ui/lg.js"></script>
     <script src="ui/onboarding.js"></script>
     <script src="ui/settings.js"></script>
     <script src="ui/about.js"></script>

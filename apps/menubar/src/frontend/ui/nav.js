@@ -7,6 +7,7 @@
   const TITLES = {
     onboarding: 'title.onboarding',
     login: 'title.login',
+    'lg-login': 'title.lgLogin',
     devices: 'title.devices',
     settings: 'title.settings',
     about: 'title.about',

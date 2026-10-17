@@ -6,6 +6,7 @@
   "dependencies": {
     "@lilac/core": "0.0.1",
     "@lilac/transport-node": "0.0.1",
-    "qrcode-generator": "^2.0.4"
+    "qrcode-generator": "^2.0.4",
+    "@lilac/thinq": "0.0.1"
   }
 }

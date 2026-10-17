@@ -1,8 +1,8 @@
 # Lilac — notes for whoever (human or agent) touches the code
 
 - npm workspaces monorepo: `packages/tuya-core` (protocol, no runtime dependency), `packages/gadgets` (per-device-type
-  profiles), `packages/transport-*`, `apps/cli`, `apps/menubar` (tinyjs).
-- `tuya-core` imports nothing from Node/txiki: networking comes in through the `Transport` interface.
+  profiles), `packages/thinq` (LG ThinQ Connect client), `packages/transport-*`, `apps/cli`, `apps/menubar` (tinyjs).
+- `tuya-core` and `thinq` import nothing from Node/txiki: networking comes in through the `Transport` interface or `fetch`.
 - Style: functions and closures, no class hierarchies (exception: `Error` subclasses with a `code`).
   Factories like `createLocalDevice()` / `createSharingClient()` return objects with a small, explicit API.
 - Code comments and UI strings are in Brazilian Portuguese; docs exist in English (`*.md`) and Portuguese (`*.pt-BR.md`) —

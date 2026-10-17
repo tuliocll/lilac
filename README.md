@@ -62,6 +62,9 @@ Once it's open, Lilac lives in the system tray (next to the clock) or the menu b
   unsupported protocol versions), clearly labelled “via cloud”.
 - ❄️ **Infrared air conditioners** set up in Smart Life (any brand, any IR blaster): power, temperature, mode and fan.
   IR doesn't report state, so Lilac remembers the last command it sent — and says so.
+- 🇱🇬 **LG air conditioners (LG ThinQ)**: Wi-Fi LG units from the ThinQ app, through LG's official API (ThinQ Connect) — power,
+  temperature (0.5 °C steps), mode, fan, swing and energy saving, on the same page as the other ACs. Connect in the
+  welcome screens or in *Settings → LG ThinQ* with a personal token from [connect-pat.lgthinq.com](https://connect-pat.lgthinq.com).
 - ⚡ **Shortcuts in the list**: up to 3 one-click buttons per device (toggle power, or pin a value like “Cool” or “22 °C”),
   chosen in the *Shortcuts in the list* section at the bottom of the device page.
 - ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even
@@ -99,6 +102,7 @@ Make your own: a theme is one CSS file of design tokens (plus an optional font).
 | Smart Life QR login + inventory | ✅ tested with a real account |
 | Cloud control of Zigbee sub-devices (through a gateway) | ✅ tested with a real breaker |
 | Infrared air conditioners through the cloud | ✅ power tested on a real AC · 🧪 temperature/mode/fan mapping still being confirmed |
+| LG air conditioners (ThinQ Connect) | ✅ device list, profiles and state read from real units (two models) · 🧪 control still being confirmed |
 | Local control, protocol **3.3** and **3.4** (session key + HMAC) | 🧪 passes against a simulator validated with tinytuya; real-device testing in progress |
 | Other infrared remotes (TV, fan, humidifier, learned buttons) | ❌ not yet — see the roadmap |
 | Local control, protocol 3.5 / 3.1 | ❌ not yet (goes through the cloud when logged in) |
@@ -147,6 +151,7 @@ npm run login                             # QR login in the terminal
 npm run devices -- --dps                  # account × network, with each device's data points
 npm run control -- "Garage light" switch_1=true
 npm run control -- "Office AC" --inspect  # raw cloud answers, for devices that don't behave
+npm run lg -- --inspect                   # LG ThinQ: devices + raw profile/state (asks for the token once)
 
 # Tray app
 irm https://tinyjs.app/install.ps1 | iex     # Windows (PowerShell)
@@ -166,12 +171,13 @@ packages/
   gadgets/          one folder per gadget type: gadget.json + icon.svg  →  page layout and controls
   transport-node/   Transport for Node (CLI, tests)
   transport-txiki/  Transport for txiki.js (tinyjs backend)
+  thinq/            LG ThinQ Connect client and the translation of LG air conditioners
 apps/
-  cli/              discover / login / devices / control / fake-device
+  cli/              discover / login / devices / control / fake-device / lg
   menubar/
     assets/               app and tray icons
     src/main.ts           API the page calls + tinyjs events (thin)
-    src/backend/          account · network · control (local/cloud routes) · view · tray · favorites
+    src/backend/          account · thinq (LG) · network · control (local/cloud routes) · view · tray · favorites
                           · quick-actions · remembered (state of IR devices) · user-themes
     src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, onboarding…
     src/frontend/themes/  the nine themes + tokens.json, the theme contract

@@ -9,5 +9,7 @@ window.Lilac = {
     /** atalho global para abrir o painel (quando ligado nas configurações) */
     hotkey: 'ctrl+alt+t',
     panel: { width: 360, height: 560 },
+    /** onde a LG gera o Personal Access Token da ThinQ Connect */
+    lgTokenUrl: 'https://connect-pat.lgthinq.com',
   },
 };

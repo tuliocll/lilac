@@ -64,6 +64,9 @@ Depois de aberto, o Lilac fica na bandeja do sistema (perto do relógio) ou na b
   suportados), sempre marcado como “via nuvem”.
 - ❄️ **Ares-condicionados por infravermelho** cadastrados no Smart Life (qualquer marca, qualquer emissor): liga/desliga,
   temperatura, modo e ventilação. O infravermelho não informa o estado, então o Lilac lembra o último comando enviado — e avisa.
+- 🇱🇬 **Ares-condicionados LG (LG ThinQ)**: os modelos Wi-Fi da LG do app ThinQ, pela API oficial da LG (ThinQ Connect) —
+  liga/desliga, temperatura (de 0,5 em 0,5 °C), modo, ventilação, aleta e economia de energia, na mesma página dos outros ares.
+  Conecte nas boas-vindas ou em *Configurações → LG ThinQ* com um token pessoal gerado em [connect-pat.lgthinq.com](https://connect-pat.lgthinq.com).
 - ⚡ **Atalhos na lista**: até 3 botões de um clique por aparelho (liga/desliga, ou um valor fixado como “Frio” ou “22 °C”),
   escolhidos na seção *Atalhos na lista*, no fim da página do aparelho.
 - ⭐ **Favoritos** no topo da lista, na ordem que você escolher (Organizar ↑↓), e no menu da bandeja: liga a luz sem nem abrir o
@@ -100,6 +103,7 @@ Crie o seu: um tema é um arquivo CSS de tokens de design (e, se quiser, uma fon
 | Login por QR + inventário | ✅ testado com conta real |
 | Controle pela nuvem de sub-dispositivos Zigbee (via gateway) | ✅ testado com um disjuntor real |
 | Ares-condicionados por infravermelho pela nuvem | ✅ liga/desliga testado num ar real · 🧪 temperatura/modo/ventilação em confirmação |
+| Ares-condicionados LG (ThinQ Connect) | ✅ lista, perfis e estado lidos de aparelhos reais (dois modelos) · 🧪 controle em confirmação |
 | Controle local, protocolos **3.3** e **3.4** (chave de sessão + HMAC) | 🧪 passa contra um simulador validado com o tinytuya; teste em aparelho real em andamento |
 | Outros controles infravermelhos (TV, ventilador, umidificador, botões aprendidos) | ❌ ainda não — veja o roadmap |
 | Controle local 3.5 / 3.1 | ❌ ainda não (vai pela nuvem quando há conta) |
@@ -148,6 +152,7 @@ npm run login                                 # login por QR no terminal
 npm run devices -- --dps                      # conta × rede, com os DPs de cada aparelho
 npm run control -- "Luz garagem" switch_1=true
 npm run control -- "Ar escritório" --inspect  # respostas cruas da nuvem, para aparelhos que não se comportam
+npm run lg -- --inspect                       # LG ThinQ: aparelhos + perfil/estado crus (pede o token uma vez)
 
 # App de bandeja
 irm https://tinyjs.app/install.ps1 | iex     # Windows (PowerShell)
@@ -167,12 +172,13 @@ packages/
   gadgets/          uma pasta por tipo de gadget: gadget.json + icon.svg  →  layout e controles da página
   transport-node/   Transport para Node (CLI, testes)
   transport-txiki/  Transport para txiki.js (backend do tinyjs)
+  thinq/            cliente da LG ThinQ Connect e a tradução dos ares-condicionados LG
 apps/
-  cli/              discover / login / devices / control / fake-device
+  cli/              discover / login / devices / control / fake-device / lg
   menubar/
     assets/               ícones do app e da bandeja
     src/main.ts           API que a página chama + eventos do tinyjs (fino)
-    src/backend/          account · network · control (rotas local/nuvem) · view · tray · favorites
+    src/backend/          account · thinq (LG) · network · control (rotas local/nuvem) · view · tray · favorites
                           · quick-actions · remembered (estado dos aparelhos IR) · user-themes
     src/frontend/ui/      um módulo pequeno por tela: devices, device-page, controls, settings, onboarding…
     src/frontend/themes/  os nove temas + tokens.json, o contrato de temas
