@@ -14,6 +14,7 @@ import { loadFavorites, reorderFavorites, toggleFavorite } from '../src/backend/
 import { renderTray } from '../src/backend/tray.ts';
 import { configureNetwork, restartListening } from '../src/backend/network.ts';
 import { deviceList } from '../src/backend/view.ts';
+import { chooseRoom, loadRoomChoices, roomByName, roomOptions } from '../src/backend/rooms.ts';
 
 const KEY = 'abcdef0123456789';
 const pushes: { event: string; data: any }[] = [];
@@ -68,7 +69,7 @@ before(async () => {
   setApp(fakeApp);
   configureNetwork({ transport, tcpPort: fake34.port });
   await restartListening(() => {});
-  account.restore({ inventory: [device('dev34'), device('wrongkey'), device('away')], keys: { dev34: KEY, wrongkey: 'XXXXXXXXXXXXXXXX', away: KEY } });
+  account.restore({ inventory: [device('dev34', { room: { id: '7', name: 'Sala', order: 1 } }), device('wrongkey'), device('away')], keys: { dev34: KEY, wrongkey: 'XXXXXXXXXXXXXXXX', away: KEY } });
   announce('dev34', '3.4');
   announce('wrongkey', '3.4');
 });
@@ -87,6 +88,13 @@ test('a lista mostra rota local para quem anuncia e motivo para quem não', () =
   assert.equal(byId.dev34!.ip, '127.0.0.1');
   assert.equal(byId.away!.route, null);
   assert.equal(byId.away!.reason, 'offline');
+});
+
+test('a lista leva o cômodo e a casa do Smart Life (a interface agrupa por eles)', () => {
+  const list = deviceList();
+  assert.deepEqual(list.find((d) => d.id === 'dev34')!.room, { id: '7', name: 'Sala', order: 1 });
+  assert.equal(list.find((d) => d.id === 'away')!.room, undefined);
+  assert.equal(list.find((d) => d.id === 'away')!.home, 'Casa');
 });
 
 test('abre pela rede local, só com os controles que o aparelho reporta, e liga', async () => {
@@ -199,4 +207,54 @@ test('ações rápidas: padrão é o liga/desliga; dá para fixar valores e exec
 
   await saveQuickActions('dev34', [], gadget);
   assert.deepEqual(deviceList().find((d) => d.id === 'dev34')!.quick, [], 'lista vazia é respeitada');
+});
+
+test('cômodo pelo nome: palavra inteira, sem acento, o nome mais longo ganha', () => {
+  const room = (id: string, name: string) => ({ id, name, order: 0, homeId: '1', home: 'Casa' });
+  const rooms = [room('1', 'Sala'), room('2', 'Sala de Estar'), room('3', 'Escritório')];
+  assert.equal(roomByName('Ar-condicionado Sala de Estar', rooms)?.id, '2');
+  assert.equal(roomByName('Ar-condicionado Sala', rooms)?.id, '1');
+  assert.equal(roomByName('Ar-condicionado escritorio Wil', rooms)?.id, '3');
+  assert.equal(roomByName('Salamandra', rooms), undefined, 'pedaço de palavra não conta');
+  assert.equal(roomByName('Ar-condicionado Suite', rooms), undefined);
+});
+
+test('aparelho sem cômodo na nuvem: entra pelo nome, e a escolha do usuário manda', async () => {
+  await loadRoomChoices();
+  // dev34 está na "Sala" do Smart Life; um importado com "sala" no nome vai para lá
+  account.importKeys([{ id: 'imp-sala', key: 'fedcba9876543210', name: 'Luz da sala' }]);
+  const view = () => deviceList().find((d) => d.id === 'imp-sala')!;
+  assert.deepEqual(view().room, { id: '7', name: 'Sala', order: 1 });
+  assert.equal(view().home, 'Casa', 'agrupa com o cômodo da casa do Smart Life');
+  assert.deepEqual(roomOptions(account.findDevice('imp-sala')!).auto, { room: 'Sala', source: 'name' });
+
+  await chooseRoom('imp-sala', 'none');
+  assert.equal(view().room, undefined);
+  assert.equal(roomOptions(account.findDevice('imp-sala')!).choice, 'none');
+
+  // escolha manda até sobre o cômodo da nuvem
+  await chooseRoom('dev34', 'none');
+  assert.equal(deviceList().find((d) => d.id === 'dev34')!.room, undefined);
+
+  // de volta ao automático; e escolhas sobrevivem a reiniciar o app
+  await chooseRoom('dev34', 'auto');
+  await chooseRoom('imp-sala', '1:7'); // chave = id da casa + id do cômodo
+  await loadRoomChoices();
+  assert.equal(deviceList().find((d) => d.id === 'dev34')!.room?.name, 'Sala');
+  assert.equal(view().room?.name, 'Sala');
+  assert.equal(roomOptions(account.findDevice('imp-sala')!).choice, '1:7');
+  await chooseRoom('imp-sala', 'auto');
+});
+
+test('duas casas com uma "Sala": pelo nome, o aparelho fica na sala da própria casa', async () => {
+  const sala = (id: string) => ({ id, name: 'Sala', order: 1 });
+  account.restore({
+    inventory: [
+      device('apto-tv', { name: 'TV', homeId: '1', homeName: 'Apartamento', room: sala('7') }),
+      device('praia-tv', { name: 'TV', homeId: '2', homeName: 'Praia', room: sala('9') }),
+      device('praia-luz', { name: 'Luz da sala', homeId: '2', homeName: 'Praia' }),
+    ],
+  });
+  const luz = deviceList().find((d) => d.id === 'praia-luz')!;
+  assert.deepEqual([luz.room?.id, luz.home, luz.homeId], ['9', 'Praia', '2']);
 });

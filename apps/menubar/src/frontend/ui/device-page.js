@@ -77,6 +77,8 @@
     }
     if (!page.controls.length && !gadget?.profile.note) container.append(h('p', 'dp-note card', t('device.noControls')));
     if (route && page.controls.length) container.append(quickSection());
+    const shown = page; // a página pode ter sido redesenhada enquanto o seletor carregava
+    roomSection(device.id).then((el) => el && page === shown && container.append(el));
     refresh();
   }
 
@@ -134,6 +136,40 @@
       render(favorite);
     });
     return b;
+  }
+
+  // ------------------------------------------------------------ cômodo
+
+  /**
+   * Seletor de cômodo no fim da página: automático (o do Smart Life, ou o que
+   * aparece no nome), um cômodo escolhido, ou nenhum. Some se a conta não tem cômodos.
+   */
+  async function roomSection(id) {
+    const options = await tiny.api.call('roomOptions', { id }).catch(logError('roomOptions'));
+    if (!options?.rooms.length) return null;
+    const { choice, auto, rooms } = options;
+
+    const autoLabel = auto.room ? t(auto.source === 'cloud' ? 'device.room.cloud' : 'device.room.byName', { room: auto.room }) : t('device.room.autoNone');
+    const select = h('select');
+    const option = (value, text) => {
+      const o = h('option', '', text);
+      o.value = value;
+      return o;
+    };
+    select.append(
+      option('auto', autoLabel),
+      ...rooms.map((r) => option(r.key, r.home ? t('devices.roomInHome', { room: r.name, home: r.home }) : r.name)),
+      option('none', t('devices.noRoom')),
+    );
+    select.value = rooms.some((r) => r.key === choice) || choice === 'none' ? choice : 'auto';
+    select.setAttribute('aria-label', t('device.room'));
+    select.addEventListener('change', () => tiny.api.call('setRoom', { id, choice: select.value }).catch(logError('setRoom')));
+
+    const wrap = h('label', 'select-wrap');
+    wrap.append(select, glyph('chevron'));
+    const row = h('div', 'card row');
+    row.append(h('span', 'muted', t('device.room')), wrap);
+    return row;
   }
 
   // ------------------------------------------------------------ ações rápidas

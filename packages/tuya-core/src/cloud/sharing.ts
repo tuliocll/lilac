@@ -3,7 +3,7 @@
  * Tuya do Home Assistant usa (porta de tuya_sharing/customerapi.py, MIT © Tuya).
  *
  * Serve para três coisas:
- *   - inventário: casas, aparelhos, local keys e mapa de DPs;
+ *   - inventário: casas, cômodos, aparelhos, local keys e mapa de DPs;
  *   - status e comandos pela nuvem, para quem não fala pela rede local
  *     (sub-dispositivos de gateway, ares por infravermelho);
  *   - renovar o token sozinho.
@@ -28,6 +28,14 @@ export interface DpSpec {
   writable: boolean;
 }
 
+/** Cômodo do Smart Life (Sala, Cozinha, Quarto…). */
+export interface CloudRoom {
+  id: string;
+  name: string;
+  /** ordem em que o app do celular mostra os cômodos */
+  order: number;
+}
+
 export interface CloudDevice {
   id: string;
   name: string;
@@ -40,6 +48,8 @@ export interface CloudDevice {
   online: boolean;
   homeId: string;
   homeName: string;
+  /** ausente: o aparelho não está em nenhum cômodo (ou a nuvem não informou) */
+  room?: CloudRoom;
   icon?: string;
   /** último status conhecido pela nuvem, por código */
   status: Record<string, unknown>;
@@ -67,6 +77,8 @@ export interface SharingClient {
   session(): SharingSession;
   request<T = any>(method: 'GET' | 'POST', path: string, params?: object, body?: object): Promise<T>;
   homes(): Promise<{ id: string; name: string }[]>;
+  /** cômodo do aparelho; null se ele não está em nenhum */
+  roomOf(deviceId: string): Promise<CloudRoom | null>;
   inventory(options?: { concurrency?: number }): Promise<CloudDevice[]>;
   /** status atual pela nuvem, por código */
   statusOf(deviceIds: string[]): Promise<Record<string, { online: boolean; status: Record<string, unknown> }>>;
@@ -168,6 +180,16 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
     return ((r.result ?? []) as any[]).map((h) => ({ id: String(h.ownerId), name: String(h.name ?? '') }));
   }
 
+  /** Mesmo caminho de HomeRepository.query_room_by_device (tuya_sharing 0.2.13+): a nuvem só diz o cômodo por aparelho. */
+  async function roomOf(deviceId: string): Promise<CloudRoom | null> {
+    const r = await request('GET', `/v1.0/m/thing/ha/${deviceId}/room`);
+    const room = r.result;
+    const id = room?.id ?? room?.roomId;
+    if (!room || typeof room !== 'object' || id == null || !room.name) return null; // sem cômodo: resultado vazio
+    const order = Number(room.displayOrder);
+    return { id: String(id), name: String(room.name), order: Number.isFinite(order) ? order : 0 };
+  }
+
   /** DPs pela "estratégia local" do produto (com dpId). */
   async function localStrategy(deviceId: string) {
     const r = await request('GET', `/v1.0/m/life/devices/${deviceId}/status`);
@@ -225,12 +247,27 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
 
   async function inventory({ concurrency = 4 } = {}): Promise<CloudDevice[]> {
     const devices: CloudDevice[] = [];
+    // Há contas/regiões em que a nuvem recusa os cômodos: se a primeira resposta já
+    // é recusa, não insiste aparelho por aparelho. Depois de um cômodo dar certo,
+    // um erro vale só para aquele aparelho (rede instável, aparelho compartilhado…).
+    let rooms: 'unknown' | 'work' | 'refused' = 'unknown';
+    const roomFor = async (deviceId: string) => {
+      if (rooms === 'refused') return null;
+      try {
+        const room = await roomOf(deviceId);
+        rooms = 'work';
+        return room;
+      } catch (error) {
+        if (error instanceof CloudError && rooms === 'unknown') rooms = 'refused';
+        return null;
+      }
+    };
     for (const home of await homes()) {
       const r = await request('GET', '/v1.0/m/life/ha/home/devices', { homeId: home.id });
       const queue: any[] = [...(r.result ?? [])];
       const worker = async () => {
         for (let d = queue.shift(); d; d = queue.shift()) {
-          const described = await describe(d.id, d.category);
+          const [described, room] = await Promise.all([describe(d.id, d.category), roomFor(d.id)]);
           devices.push({
             id: d.id,
             name: d.name,
@@ -242,6 +279,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
             online: Boolean(d.online),
             homeId: home.id,
             homeName: home.name,
+            ...(room && { room }),
             icon: d.icon,
             status: statusByCode(d.status),
             ...described,
@@ -274,7 +312,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
     });
   }
 
-  return { session: () => session, request, homes, inventory, statusOf, sendCommands, logout };
+  return { session: () => session, request, homes, roomOf, inventory, statusOf, sendCommands, logout };
 }
 
 // ------------------------------------------------------------ utilitários

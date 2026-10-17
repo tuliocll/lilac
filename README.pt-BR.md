@@ -70,6 +70,8 @@ Depois de aberto, o Lilac fica na bandeja do sistema (perto do relógio) ou na b
   painel. Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) e abrir com o sistema.
 - 📌 **Fixar o painel**: o alfinete na barra de título deixa o painel por cima das outras janelas, sem sumir ao clicar fora.
   Arraste-o para onde quiser (vale qualquer monitor) — ele reabre no mesmo lugar. Esc ou ✕ guardam o painel mesmo fixado.
+- 🛋️ **Agrupados por cômodo**: a lista segue os cômodos do app Smart Life (Sala, Cozinha, Quarto…), na mesma ordem.
+  Aparelho sem cômodo na nuvem entra pelo nome (“Luz da sala” → Sala), e dá para escolher outro na página do aparelho.
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
   energia e leituras de consumo, a lâmpada ganha brilho e tom de branco… DPs que o perfil não conhece aparecem em “Avançado”,
   com o controle inferido pelo tipo. Só aparecem os controles que o aparelho realmente informa.

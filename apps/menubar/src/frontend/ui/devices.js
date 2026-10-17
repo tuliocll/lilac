@@ -125,6 +125,28 @@
     return b;
   }
 
+  /**
+   * Os não favoritos agrupados por cômodo do Smart Life, na ordem do app do celular;
+   * quem não tem cômodo vai por último. Sem nenhum cômodo na conta, um grupo só.
+   */
+  function roomGroups(list) {
+    if (!list.some((d) => d.room)) return [{ title: t('devices.others'), devices: list }];
+    const homes = new Set(list.filter((d) => d.room).map((d) => d.homeId));
+    const groups = new Map();
+    for (const d of list) {
+      const key = d.room ? `${d.homeId}:${d.room.id}` : '';
+      if (!groups.has(key)) {
+        const title = !d.room ? t('devices.noRoom') : homes.size > 1 ? t('devices.roomInHome', { room: d.room.name, home: d.home }) : d.room.name;
+        groups.set(key, { title, room: d.room, home: d.home, devices: [] });
+      }
+      groups.get(key).devices.push(d);
+    }
+    const rank = (g) => (g.room ? 0 : 1);
+    return [...groups.values()].sort(
+      (a, b) => rank(a) - rank(b) || a.home.localeCompare(b.home) || (a.room?.order ?? 0) - (b.room?.order ?? 0) || a.title.localeCompare(b.title),
+    );
+  }
+
   function render() {
     const favorites = devices.filter((d) => d.favorite);
     const others = devices.filter((d) => !d.favorite);
@@ -134,9 +156,14 @@
     if (favorites.length) {
       items.push(heading(t('devices.favorites'), favorites.length > 1 ? arrangeButton() : null));
       items.push(...favorites.map((d, index) => item(d, arranging && { index, count: favorites.length })));
-      if (others.length) items.push(heading(t('devices.others')));
     }
-    items.push(...others.map((d) => item(d)));
+    const groups = others.length ? roomGroups(others) : [];
+    // um grupo só e sem favoritos: título dispensável, a lista é tudo
+    const titled = favorites.length > 0 || groups.length > 1;
+    for (const g of groups) {
+      if (titled) items.push(heading(g.title));
+      items.push(...g.devices.map((d) => item(d)));
+    }
 
     $('list').replaceChildren(...items);
     $('list').dataset.layout = layout;

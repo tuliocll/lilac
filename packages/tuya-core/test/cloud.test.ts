@@ -53,7 +53,7 @@ test('decryptPayload abre resposta no formato do servidor', () => {
 });
 
 /** Servidor falso: valida assinatura, decifra params e responde cifrado — como a Tuya. */
-function fakeCloud(session: SharingSession, { expiredTokens = new Set<string>() } = {}) {
+function fakeCloud(session: SharingSession, { expiredTokens = new Set<string>(), refuseRooms = false, roomErrorFor = '' } = {}) {
   const calls: { path: string; params?: any; body?: any; token?: string }[] = [];
   let refreshes = 0;
   const seal = (obj: unknown, secret: string) => {
@@ -80,7 +80,13 @@ function fakeCloud(session: SharingSession, { expiredTokens = new Set<string>() 
     }
 
     let result: unknown;
-    if (url.pathname === '/v1.0/m/life/users/homes') result = [{ ownerId: 42, name: 'Casa' }];
+    if (url.pathname.endsWith('/room')) {
+      if (refuseRooms) return new Response(JSON.stringify({ success: false, code: 2008, msg: 'app param is invalid', t: Date.now() }));
+      if (roomErrorFor && url.pathname.includes(roomErrorFor)) return new Response('', { status: 503 });
+      // aparelho sem cômodo: resultado vazio, sem cifrar
+      if (!url.pathname.includes('eb8bc0f725df3a2deek6uu')) return new Response(JSON.stringify({ success: true, t: Date.now(), result: '' }));
+      result = { id: 7, name: 'Quarto', displayOrder: 2 };
+    } else if (url.pathname === '/v1.0/m/life/users/homes') result = [{ ownerId: 42, name: 'Casa' }];
     else if (url.pathname === '/v1.0/m/life/ha/home/devices')
       result = [
         { id: 'eb8bc0f725df3a2deek6uu', name: 'Ar do quarto', local_key: 'k3y!', category: 'kt', product_id: 'p', product_name: 'AC', sub: false, online: true, status: [{ code: 'switch', value: false }] },
@@ -154,6 +160,7 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
   assert.deepEqual(d.dps[1]!.values, { min: 16, max: 32, step: 1 });
   assert.equal(d.dps[1]!.writable, true);
   assert.deepEqual(calls.find((c) => c.path.endsWith('/home/devices'))!.params, { homeId: '42' });
+  assert.deepEqual(d.room, { id: '7', name: 'Quarto', order: 2 });
 
   // ar por infravermelho: sem estratégia local, os DPs vêm da especificação (por código)
   const ir = inv.find((x) => x.id === 'ir-ac-1')!;
@@ -161,6 +168,7 @@ test('SharingClient.inventory: assina, cifra params e monta dispositivos com DPs
   assert.equal(ir.sub, true);
   assert.deepEqual(ir.dps.map((x) => [x.code, x.writable]).sort(), [['switch', true], ['temp', true]]);
   assert.deepEqual(ir.status, { temp: 24 });
+  assert.equal(ir.room, undefined, 'sem cômodo');
 
   // ar IR de verdade: estratégia local com item sem código (ignorado) e comandos PowerOn/T/M/F
   const real = inv.find((x) => x.id === 'ir-real')!;
@@ -177,6 +185,26 @@ const baseSession = (over: Partial<SharingSession> = {}): SharingSession => ({
   terminalId: 't',
   userCode: 'abc',
   ...over,
+});
+
+test('SharingClient.inventory: nuvem recusando cômodos não derruba o inventário nem insiste', async () => {
+  const session = baseSession();
+  const { fetchFn, calls } = fakeCloud(session, { refuseRooms: true });
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
+  const inv = await client.inventory({ concurrency: 1 });
+  assert.equal(inv.length, 3);
+  assert.ok(inv.every((d) => d.room === undefined));
+  assert.equal(calls.filter((c) => c.path.endsWith('/room')).length, 1);
+});
+
+test('SharingClient.inventory: depois de um cômodo dar certo, um erro vale só para aquele aparelho', async () => {
+  const session = baseSession();
+  const { fetchFn, calls } = fakeCloud(session, { roomErrorFor: 'ir-ac-1' });
+  const client = createSharingClient(session, { app: { clientId: 'X', schema: 'y' }, fetch: fetchFn });
+  const inv = await client.inventory({ concurrency: 1 });
+  assert.equal(inv.find((d) => d.id === 'eb8bc0f725df3a2deek6uu')!.room?.name, 'Quarto');
+  assert.equal(inv.find((d) => d.id === 'ir-ac-1')!.room, undefined);
+  assert.equal(calls.filter((c) => c.path.endsWith('/room')).length, 3, 'continua perguntando dos outros');
 });
 
 test('status e comandos pela nuvem (caminho dos ares por infravermelho)', async () => {

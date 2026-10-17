@@ -3,12 +3,13 @@
  */
 import { categoryKind, categoryLabel, type DeviceKind, type DiscoveredDevice } from '@lilac/core';
 import { profileFor, type ResolvedControl } from '@lilac/gadgets';
-import type { CloudDevice } from '@lilac/core';
+import type { CloudDevice, CloudRoom } from '@lilac/core';
 import { devices } from './account.ts';
 import { chooseRoute, currentValues, supportedGadget, type Reason, type Route } from './control.ts';
 import { favorites } from './favorites.ts';
 import { quickActionsFor, type QuickAction } from './quick-actions.ts';
 import { locate, presentDevices } from './network.ts';
+import { knownRooms, roomOf } from './rooms.ts';
 
 export interface DeviceView {
   id: string;
@@ -30,6 +31,12 @@ export interface DeviceView {
   favorite: boolean;
   /** está na conta (ou foi importado); false = só visto na rede */
   known: boolean;
+  /** cômodo (do Smart Life, pelo nome ou escolhido) — a lista agrupa por ele */
+  room?: CloudRoom;
+  /** casa do cômodo; sem cômodo, a do aparelho (vazio para importados) */
+  home: string;
+  /** id dessa casa — a lista agrupa por ele (nomes de casa podem repetir) */
+  homeId: string;
   /** botões de um clique na lista */
   quick: QuickActionView[];
 }
@@ -46,10 +53,12 @@ export function deviceList(): DeviceView[] {
   const favs = new Set(favoriteOrder);
   const inventory = devices();
   const known = new Set(inventory.map((d) => d.id));
+  const rooms = knownRooms();
 
   const views: DeviceView[] = inventory.map((device) => {
     const choice = chooseRoute(device);
     const profile = profileFor(device.category, device.dps.map((dp) => dp.code));
+    const { room } = roomOf(device, rooms);
     return {
       id: device.id,
       name: device.name,
@@ -64,6 +73,9 @@ export function deviceList(): DeviceView[] {
       experimental: choice.route === 'local' && !device.supportLocal,
       favorite: favs.has(device.id),
       known: true,
+      room: room && { id: room.id, name: room.name, order: room.order },
+      home: room?.home ?? device.homeName,
+      homeId: room?.homeId ?? device.homeId,
       quick: quickActionViews(device),
     };
   });
@@ -94,6 +106,8 @@ function stranger(seen: DiscoveredDevice): DeviceView {
     experimental: false,
     favorite: false,
     known: false,
+    home: '',
+    homeId: '',
     quick: [],
   };
 }
