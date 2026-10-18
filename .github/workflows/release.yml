@@ -1,4 +1,5 @@
-# Builds do app de bandeja para Windows, macOS e Linux quando uma tag v* é criada.
+# Builds do app de bandeja para Windows, macOS e Linux quando uma tag v* é criada,
+# mais o manifest.json que o atualizador do app consulta (releases/latest/download/manifest.json).
 # O tinyjs só compila para o sistema em que roda, por isso a matriz.
 # Os builds saem SEM assinatura (Windows SmartScreen e Gatekeeper do macOS vão reclamar);
 # para assinar, configure TINYJS_SIGN_IDENTITY e o perfil do notarytool nos secrets.
@@ -58,37 +59,93 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      - name: Build
-        working-directory: apps/menubar
+      # A versão do app vem da tag (v1.2.3 → 1.2.3): é ela que o atualizador compara.
+      - name: Versão a partir da tag
         shell: bash
         run: |
-          if [ "${{ matrix.name }}" = "macos" ]; then tinyjs build --universal --dmg; else tinyjs build; fi
+          node -e '
+            const fs = require("fs"), f = "apps/menubar/tinyjs.json";
+            const c = JSON.parse(fs.readFileSync(f, "utf8"));
+            c.version = process.env.GITHUB_REF_NAME.replace(/^v/, "");
+            fs.writeFileSync(f, JSON.stringify(c, null, 2) + "\n");
+            console.log("versão", c.version);
+          '
 
-      - name: Empacota
+      # `tinyjs publish` = build + o pacote que o atualizador baixa + um pedaço do manifesto.
+      # No macOS o .dmg (download para pessoas) sai de um build separado, antes do publish.
+      - name: Build e pacote (macOS/Linux)
+        if: matrix.name != 'windows'
         working-directory: apps/menubar
         shell: bash
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          case "${{ matrix.name }}" in
-            macos)   cp dist/*.dmg "../../Lilac-$VERSION-macos.dmg" ;;
-            windows) (cd dist && 7z a "../../../Lilac-$VERSION-windows.zip" . -x!*.dmg) ;;
-            linux)   tar -czf "../../Lilac-$VERSION-linux-x86_64.tar.gz" -C dist . ;;
-          esac
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p ../../out
+          if [ "${{ matrix.name }}" = "macos" ]; then
+            tinyjs build --universal --dmg
+            cp dist/*.dmg "../../out/lilac-$VERSION-macos.dmg"
+            tinyjs publish --universal
+          else
+            tinyjs publish
+          fi
+          cp dist/publish/manifest.json "../../out/manifest-${{ matrix.name }}.json"
+          find dist/publish -maxdepth 1 \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp {} ../../out/ \;
+
+      # No Windows o publish usa o tar do sistema (bsdtar) para gerar o .zip; o tar do Git
+      # (GNU) não faz zip, então o System32 vai na frente do PATH.
+      - name: Build e pacote (Windows)
+        if: matrix.name == 'windows'
+        working-directory: apps/menubar
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:SystemRoot\System32;$env:PATH"
+          tinyjs publish
+          New-Item -ItemType Directory -Force ../../out | Out-Null
+          Copy-Item dist/publish/manifest.json ../../out/manifest-windows.json
+          Copy-Item dist/publish/*.zip ../../out/
+          foreach ($zip in Get-ChildItem ../../out/*.zip) {
+            $magic = [System.IO.File]::ReadAllBytes($zip.FullName)[0..1]
+            if ($magic[0] -ne 0x50 -or $magic[1] -ne 0x4B) { throw "$($zip.Name) não é um zip" }
+          }
 
       - uses: actions/upload-artifact@v4
         with:
           name: lilac-${{ matrix.name }}
-          path: Lilac-*
+          path: out/*
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # as notas usam o histórico e as tags
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
+
+      # Notas curtas para o aviso no app: a mensagem da tag anotada
+      # (git tag -a v1.2.3 -m "…") ou, sem ela, os commits desde a tag anterior.
+      - name: Notas da versão
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          if [ "$(git cat-file -t "refs/tags/$TAG")" = tag ]; then
+            git tag -l --format='%(contents)' "$TAG" | sed '/-----BEGIN PGP/,$d' > notes.txt
+          fi
+          if [ ! -s notes.txt ]; then
+            PREV=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+            git log --no-merges --format='- %s' ${PREV:+$PREV..}"$TAG" | head -n 6 > notes.txt
+          fi
+          cat notes.txt
+
+      - name: Manifesto de atualização
+        run: |
+          node .github/scripts/release-manifest.mjs artifacts "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" notes.txt
+          rm artifacts/manifest-*.json
+
+      # Sem --prerelease: o app procura atualização em releases/latest, que ignora pre-releases.
       - name: Publica a release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "Lilac $GITHUB_REF_NAME" --generate-notes --prerelease
+        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "Lilac $GITHUB_REF_NAME" --generate-notes --latest

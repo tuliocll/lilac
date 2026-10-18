@@ -81,6 +81,8 @@ Want to pick something up? Open an issue first so we can line it up.
 - [x] "Shortcuts in the list" at the bottom of the device page (instead of the ⚡ nobody understood).
 - [x] Past Dream without the blue frame around it; the hard shadow drawn as a border (Windows has no transparent windows).
 - [x] Frutiger Inferno, the evil twin of Frutiger Aero, and ConfusedPast, a mixed-media collage (nine themes now).
+- [x] Updates inside the app: optional reminder with short release notes (*Not now* / *Don't remind me*), a manual check
+      in Settings, and CI publishing the `manifest.json` tinyjs' updater reads.
 - [x] Docs in English and Portuguese; repository at [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
 
 ## Dropped (and why)

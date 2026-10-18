@@ -32,9 +32,9 @@ Não precisa saber programar: baixe o arquivo do seu computador na **[página de
 
 | Seu computador | Arquivo para baixar | Como abrir |
 |---|---|---|
-| **Windows 10/11** | `Lilac-…-windows.zip` | Descompacte, abra a pasta e dê dois cliques no **`lilac.exe`** |
-| **macOS** | `Lilac-…-macos.dmg` | Abra e arraste o **Lilac** para Aplicativos |
-| **Linux** | `Lilac-…-linux-x86_64.tar.gz` | Extraia e rode o **`lilac`** |
+| **Windows 10/11** | `lilac-…-win.zip` | Descompacte, abra a pasta `lilac` e dê dois cliques no **`lilac.exe`** |
+| **macOS** | `lilac-…-macos.dmg` | Abra e arraste o **Lilac** para Aplicativos |
+| **Linux** | `lilac-…-linux-x86_64.tar.gz` | Extraia e rode o **`lilac`** de dentro da pasta `lilac` |
 
 **Windows: por que tem dois `.exe`?** A pasta tem o `lilac.exe` e o `launcher.exe`, e é assim mesmo.
 O `lilac.exe` é o app de verdade (tudo vai dentro dele, até o ícone). O `launcher.exe` é um ajudante que o tinyjs usa
@@ -53,6 +53,10 @@ Privacidade e Segurança** e clique em **Abrir Mesmo Assim** ao lado do Lilac. S
 
 Depois de aberto, o Lilac fica na bandeja do sistema (perto do relógio) ou na barra de menus no macOS: é só clicar no
 ícone lilás.
+
+**Atualizações:** quando sai versão nova, o Lilac mostra um aviso curto no topo da lista e pergunta antes de atualizar.
+*Agora não* esconde o aviso até a próxima vez que o app abrir; *Não avisar mais* desliga o aviso. Dá sempre para procurar
+na mão (e religar o aviso) em **Configurações → Atualizações**. Atualizar baixa a versão nova, confere e reinicia o app.
 
 ## O que ele faz
 
@@ -201,6 +205,10 @@ na ordem de dependência.
 - **Novo idioma**: copie o bloco `en` em `apps/menubar/src/frontend/ui/i18n.js`.
 - Rode `npm run assets`, `npm test` e `npm run typecheck` antes de abrir um PR. Mexeu na rede? Rode também
   `npm run test:txiki` (precisa do `tjs` do [txiki.js](https://github.com/saghul/txiki.js) no PATH, ou `TJS=/caminho/do/tjs`).
+- **Publicar versão** (mantenedores): suba uma tag `v*`. A versão vem da tag, e a nota curta que aparece no app é a
+  mensagem da tag, então prefira tag anotada: `git tag -a v1.2.3 -m "- o que mudou"` e `git push origin v1.2.3`
+  (sem mensagem, o app mostra os títulos dos commits desde a tag anterior). O CI builda os três sistemas, gera o
+  `manifest.json` que o atualizador lê e publica a release.
 
 ## Privacidade e segurança
 
