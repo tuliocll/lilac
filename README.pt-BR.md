@@ -4,11 +4,11 @@
 
 # Lilac
 
-**Controle seus gadgets Tuya / Smart Life pela barra de tarefas — pela sua própria rede.**
+**Controle seus gadgets Tuya / Smart Life e LG ThinQ pela bandeja do sistema — pela sua própria rede quando dá.**
 
-<img src="docs/screenshots/moonlight-switch.png" width="230" alt="Tema Moonlight — disjuntor" />
-<img src="docs/screenshots/past-dream-onboarding.png" width="230" alt="Tema Past Dream — boas-vindas" />
-<img src="docs/screenshots/past-dream-light.png" width="230" alt="Tema Past Dream — lâmpada colorida" />
+<img src="docs/screenshots/themes/moonlight.pt-BR.png" width="230" alt="Tema Moonlight — lista agrupada por cômodo" />
+<img src="docs/screenshots/climate.pt-BR.png" width="230" alt="Tema Past Dream — página do ar-condicionado" />
+<img src="docs/screenshots/light.pt-BR.png" width="230" alt="Tema ConfusedPast — página da lâmpada" />
 
 **[⬇️ Baixar para Windows, macOS ou Linux](https://github.com/tuliocll/lilac/releases)** · [como instalar](#baixar)
 
@@ -74,9 +74,12 @@ na mão (e religar o aviso) em **Configurações → Atualizações**. Atualizar
 - ⚡ **Atalhos na lista**: até 3 botões de um clique por aparelho (liga/desliga, ou um valor fixado como “Frio” ou “22 °C”),
   escolhidos na seção *Atalhos na lista*, no fim da página do aparelho.
 - ⭐ **Favoritos** no topo da lista, na ordem que você escolher (Organizar ↑↓), e no menu da bandeja: liga a luz sem nem abrir o
-  painel. Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) e abrir com o sistema.
+  painel. Passando o mouse no ícone da bandeja, você vê como eles estão (“Ar escritório: ligado, 23 °C · Luz da mesa: desligado”).
+  Atalho global opcional (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) e abrir com o sistema.
 - 📌 **Fixar o painel**: o alfinete na barra de título deixa o painel por cima das outras janelas, sem sumir ao clicar fora.
-  Arraste-o para onde quiser (vale qualquer monitor) — ele reabre no mesmo lugar. Esc ou ✕ guardam o painel mesmo fixado.
+  Arraste-o para onde quiser (vale qualquer monitor) — ele reabre no mesmo lugar. Fixado, o **minimizar** recolhe o painel até
+  a barra de título, e o restaurar traz de volta. Redimensione pelas bordas e o Lilac lembra o tamanho. Esc ou ✕ guardam o painel.
+- 🔄 **Atualização dentro do app**: um aviso curto quando sai versão nova, e você decide quando (ou se) atualizar.
 - 🛋️ **Agrupados por cômodo**: a lista segue os cômodos do app Smart Life (Sala, Cozinha, Quarto…), na mesma ordem.
   Aparelho sem cômodo na nuvem entra pelo nome (“Luz da sala” → Sala), e dá para escolher outro na página do aparelho.
 - 🧩 **Uma página por tipo de gadget**: o ar ganha temperatura grande e cartões de modo/ventilação, o disjuntor ganha botão de
@@ -108,6 +111,9 @@ Crie o seu: um tema é um arquivo CSS de tokens de design (e, se quiser, uma fon
 | Controle pela nuvem de sub-dispositivos Zigbee (via gateway) | ✅ testado com um disjuntor real |
 | Ares-condicionados por infravermelho pela nuvem | ✅ liga/desliga testado num ar real · 🧪 temperatura/modo/ventilação em confirmação |
 | Ares-condicionados LG (ThinQ Connect) | ✅ lista, perfis e estado lidos de aparelhos reais (dois modelos) · 🧪 controle em confirmação |
+| Cômodos do Smart Life | ✅ conta real (Brasil) · 🧪 outras regiões: se a nuvem recusar, a lista só fica sem grupos |
+| App de bandeja no Windows (ícone, alfinete, `.exe` compilado) | ✅ em uso todo dia |
+| Atualização dentro do app | ✅ Windows: 1.0.8 → 1.0.9 → 1.1.0 atualizou pelo app · 🤞 macOS/Linux ainda não testados |
 | Controle local, protocolos **3.3** e **3.4** (chave de sessão + HMAC) | 🧪 passa contra um simulador validado com o tinytuya; teste em aparelho real em andamento |
 | Outros controles infravermelhos (TV, ventilador, umidificador, botões aprendidos) | ❌ ainda não — veja o roadmap |
 | Controle local 3.5 / 3.1 | ❌ ainda não (vai pela nuvem quando há conta) |
@@ -123,8 +129,8 @@ O resto ganha a página genérica.
 
 | SO | Situação |
 |---|---|
-| **Windows 10/11** | ✅ onde está sendo desenvolvido e testado (precisa do WebView2, que já vem no Windows 11) |
-| **macOS 15+** | 🤞 plataforma principal do tinyjs, mas não testado aqui |
+| **Windows 10/11** | ✅ onde é desenvolvido e usado todo dia (precisa do WebView2, que já vem no Windows 11) |
+| **macOS 15+** | ✅ em uso diário por um contribuidor (LG ThinQ, cômodos, o alfinete e a correção do Keychain vieram de um Mac) |
 | **Linux** (glibc 2.35+, `libwebkit2gtk-4.1`) | 🤞 beta no tinyjs, não testado aqui |
 
 Ainda não há versões assinadas, então o SmartScreen do Windows e o Gatekeeper do macOS avisam antes da primeira execução (veja [Baixar](#baixar)).
@@ -182,9 +188,9 @@ apps/
   menubar/
     assets/               ícones do app e da bandeja
     src/main.ts           API que a página chama + eventos do tinyjs (fino)
-    src/backend/          account · thinq (LG) · network · control (rotas local/nuvem) · view · tray · favorites
-                          · quick-actions · remembered (estado dos aparelhos IR) · user-themes
-    src/frontend/ui/      um módulo pequeno por tela: devices, device-page, controls, settings, onboarding…
+    src/backend/          account · thinq (LG) · rooms · network · control (rotas local/nuvem) · view · tray
+                          · favorites · quick-actions · remembered (estado dos aparelhos IR) · user-themes
+    src/frontend/ui/      um módulo pequeno por tela: devices, device-page, controls, settings, updates, panel…
     src/frontend/themes/  os nove temas + tokens.json, o contrato de temas
 docs/
   ROADMAP.md        o que vem, o que foi feito e o que foi descartado
@@ -196,8 +202,10 @@ na ordem de dependência.
 
 ## Contribuindo
 
-- **Aparelho não funciona?** Abra uma issue com a saída de `npm run control -- "<nome>" --inspect` (as chaves saem escondidas).
+- **Aparelho não funciona?** Abra uma issue [“Meu aparelho não funciona”](https://github.com/tuliocll/lilac/issues/new/choose) com
+  a saída de `npm run control -- "<nome>" --inspect` (ou `npm run lg -- --inspect` para LG; chaves e tokens saem escondidos).
   Foi assim que os ares por infravermelho passaram a funcionar.
+- A versão longa (como rodar, onde mexer, o que revisar com mais cuidado) está no [CONTRIBUTING.pt-BR.md](CONTRIBUTING.pt-BR.md).
 - **Novo tipo de gadget** (ícone, nome, cores, controles): uma pasta em `packages/gadgets/gadgets/` —
   veja [o README de lá](packages/gadgets/gadgets/README.pt-BR.md). Sem código.
 - **Novo tema**: [THEMING.pt-BR.md](apps/menubar/THEMING.pt-BR.md). Toda mudança de interface precisa funcionar em todos os
@@ -212,8 +220,8 @@ na ordem de dependência.
 
 ## Privacidade e segurança
 
-- Local keys e o token da sessão ficam no **cofre de credenciais do sistema** (Keychain / Gerenciador de Credenciais / Secret
-  Service), nunca em JSON. A CLI guarda uma cópia **de desenvolvimento** em `~/.lilac/` (só você lê, no macOS/Linux; no Windows
+- Local keys, a sessão do Smart Life e o token da LG ficam no **cofre de credenciais do sistema** (Keychain / Gerenciador de
+  Credenciais / Secret Service), nunca em JSON. A CLI guarda uma cópia **de desenvolvimento** em `~/.lilac/` (só você lê, no macOS/Linux; no Windows
   é um arquivo comum na sua pasta de usuário).
 - A nuvem serve para buscar chaves e nomes e para alcançar o que não está na sua rede; no dia a dia, os aparelhos locais são
   controlados direto.
@@ -224,8 +232,8 @@ na ordem de dependência.
 ## Roadmap
 
 O backlog vivo fica em [docs/ROADMAP.md](docs/ROADMAP.md) (em inglês). Destaques: validar o controle local com aparelhos reais,
-mais controles infravermelhos, protocolo 3.5, atualizações da nuvem em tempo real, cenas e automações ligadas ao computador
-(bloqueou a tela → apaga a luz da mesa).
+cair para a nuvem quando a rede local falha, mais controles infravermelhos, protocolo 3.5, atualizações da nuvem em tempo real
+e automações ligadas ao computador (bloqueou a tela → apaga a luz da mesa).
 
 ## Créditos
 
@@ -233,9 +241,12 @@ mais controles infravermelhos, protocolo 3.5, atualizações da nuvem em tempo r
 [tuya-device-sharing-sdk](https://github.com/tuya/tuya-device-sharing-sdk) (referência do login por QR) ·
 [tinytuya](https://github.com/jasonacox/tinytuya) (referência do protocolo local) ·
 [@noble/ciphers & hashes](https://paulmillr.com/noble/) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) ·
+[thinqconnect](https://github.com/thinq-connect/pythinqconnect) (Apache-2.0 © LG Electronics, base do `packages/thinq`) ·
 fontes [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew),
 [Silkscreen](https://github.com/googlefonts/silkscreen), [Nunito](https://github.com/googlefonts/nunito),
 [Courier Prime](https://github.com/quoteunquoteapps/CourierPrime) e [DM Serif Display](https://github.com/googlefonts/dm-fonts) (todas OFL).
 
+Obrigado ao [Wilker Gaudencio](https://github.com/wilkergaudencio) pela LG ThinQ, os cômodos, o alfinete e a correção do Keychain.
+
 MIT © Tulio Calil · [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
-Projeto independente, **sem vínculo com a Tuya**. Tuya e Smart Life são marcas de seus donos.
+Projeto independente, **sem vínculo com a Tuya nem com a LG**. Tuya, Smart Life, LG e ThinQ são marcas de seus donos.
