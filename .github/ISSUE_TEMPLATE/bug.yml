@@ -1,0 +1,24 @@
+name: "Bug / Problema"
+description: Something in the app is broken. / Alguma coisa no app está quebrada.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened / O que aconteceu
+      description: Steps to reproduce, what you expected, what you got. Screenshots help. / Passos, o que esperava, o que aconteceu.
+    validations:
+      required: true
+  - type: input
+    id: theme
+    attributes:
+      label: Theme and language / Tema e idioma
+      placeholder: Past Dream · Português
+  - type: input
+    id: version
+    attributes:
+      label: Lilac version and OS / Versão do Lilac e sistema
+      description: Settings → Updates shows the version. / Configurações → Atualizações mostra a versão.
+      placeholder: 1.1.0 · Windows 11
+    validations:
+      required: true

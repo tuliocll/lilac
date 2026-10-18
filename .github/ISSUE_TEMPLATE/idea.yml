@@ -1,0 +1,16 @@
+name: "Idea / Ideia"
+description: A feature, a gadget page or a theme you'd like. / Uma função, página de aparelho ou tema que você gostaria.
+labels: [idea]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Take a look at the [roadmap](https://github.com/tuliocll/lilac/blob/main/docs/ROADMAP.md) first, it may be there already.
+        Dá uma olhada no [roadmap](https://github.com/tuliocll/lilac/blob/main/docs/ROADMAP.md) antes, pode já estar lá.
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea / A ideia
+      description: What you want to do and why. / O que você quer fazer e por quê.
+    validations:
+      required: true

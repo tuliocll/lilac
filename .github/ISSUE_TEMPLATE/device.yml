@@ -1,0 +1,48 @@
+name: "My device doesn't work / Meu aparelho não funciona"
+description: A device is missing, has no controls, or doesn't respond. / Um aparelho some, fica sem controles ou não responde.
+labels: [device]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! The `--inspect` output is what lets us support a new device. Keys and tokens are hidden in it.
+        Valeu! A saída do `--inspect` é o que permite suportar um aparelho novo. Chaves e tokens saem escondidos.
+  - type: input
+    id: device
+    attributes:
+      label: Device / Aparelho
+      description: Brand, model and what it is (bulb, breaker, AC, IR blaster…). / Marca, modelo e o que é.
+      placeholder: Smart Life Wi-Fi breaker, 1 channel
+    validations:
+      required: true
+  - type: dropdown
+    id: account
+    attributes:
+      label: Account / Conta
+      options:
+        - Smart Life / Tuya
+        - LG ThinQ
+        - Imported keys (tinytuya) / Chaves importadas
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens / O que acontece
+      description: What you expected and what you see. A screenshot of the device page helps. / O que esperava e o que aparece.
+    validations:
+      required: true
+  - type: textarea
+    id: inspect
+    attributes:
+      label: --inspect output / Saída do --inspect
+      description: |
+        `npm run control -- "<name>" --inspect` (Tuya) or `npm run lg -- --inspect` (LG). Check that nothing private is left.
+        `npm run control -- "<nome>" --inspect` (Tuya) ou `npm run lg -- --inspect` (LG). Confira se não sobrou nada privado.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Lilac version and OS / Versão do Lilac e sistema
+      description: Settings → Updates shows the version. / Configurações → Atualizações mostra a versão.
+      placeholder: 1.1.0 · Windows 11

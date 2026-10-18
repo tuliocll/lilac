@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: How to install / Como instalar
+    url: https://github.com/tuliocll/lilac#download
+    about: Which file to download, the two .exe on Windows, SmartScreen. / Qual arquivo baixar, os dois .exe, SmartScreen.

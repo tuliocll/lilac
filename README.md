@@ -4,11 +4,11 @@
 
 # Lilac
 
-**Control your Tuya / Smart Life gadgets from the menu bar — over your own network.**
+**Control your Tuya / Smart Life and LG ThinQ gadgets from the tray or menu bar — over your own network when it can.**
 
-<img src="docs/screenshots/moonlight-climate.png" width="230" alt="Moonlight theme — air conditioner page" />
-<img src="docs/screenshots/past-dream-devices.png" width="230" alt="Past Dream theme — device list" />
-<img src="docs/screenshots/contrast-light.png" width="230" alt="High Contrast theme — colour light page" />
+<img src="docs/screenshots/themes/moonlight.png" width="230" alt="Moonlight theme — device list grouped by room" />
+<img src="docs/screenshots/climate.png" width="230" alt="Past Dream theme — air conditioner page" />
+<img src="docs/screenshots/light.png" width="230" alt="ConfusedPast theme — light page" />
 
 **[⬇️ Download for Windows, macOS or Linux](https://github.com/tuliocll/lilac/releases)** · [how to install](#download)
 
@@ -72,9 +72,12 @@ the reminder back on) in **Settings → Updates**. Updating downloads the new ve
 - ⚡ **Shortcuts in the list**: up to 3 one-click buttons per device (toggle power, or pin a value like “Cool” or “22 °C”),
   chosen in the *Shortcuts in the list* section at the bottom of the device page.
 - ⭐ **Favorites** at the top of the list, in your own order (Arrange ↑↓), and in the tray menu: toggle a light without even
-  opening the panel. Optional global hotkey (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
+  opening the panel. Hover the tray icon to see how they are (“Office AC: on, 23 °C · Desk light: off”).
+  Optional global hotkey (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>) and open-at-login.
 - 📌 **Pin the panel**: the pin in the title bar keeps the panel above other windows instead of hiding when you click away.
-  Drag it anywhere (any monitor) — it reopens in the same spot. Esc or ✕ still put it away while pinned.
+  Drag it anywhere (any monitor) — it reopens in the same spot. Pinned, **minimize** folds it down to the title bar and
+  restore brings it back. Resize it from the edges and Lilac remembers the size. Esc or ✕ still put it away.
+- 🔄 **Updates inside the app**: a short note when a new version is out, and you decide when (or whether) to update.
 - 🛋️ **Grouped by room**: the list follows the rooms from the Smart Life app (Living room, Kitchen, Bedroom…), in the same order.
   Devices that aren't in any room in the cloud are placed by name (“Living room lamp” → Living room), and you can pick
   another room on the device page.
@@ -107,6 +110,9 @@ Make your own: a theme is one CSS file of design tokens (plus an optional font).
 | Cloud control of Zigbee sub-devices (through a gateway) | ✅ tested with a real breaker |
 | Infrared air conditioners through the cloud | ✅ power tested on a real AC · 🧪 temperature/mode/fan mapping still being confirmed |
 | LG air conditioners (ThinQ Connect) | ✅ device list, profiles and state read from real units (two models) · 🧪 control still being confirmed |
+| Rooms from Smart Life | ✅ real account (Brazil) · 🧪 other regions: if the cloud refuses, the list just stays flat |
+| Tray app on Windows (tray icon, pin, built `.exe`) | ✅ used every day |
+| Updates inside the app | ✅ Windows: 1.0.8 → 1.0.9 → 1.1.0 went through the app · 🤞 macOS/Linux not tried yet |
 | Local control, protocol **3.3** and **3.4** (session key + HMAC) | 🧪 passes against a simulator validated with tinytuya; real-device testing in progress |
 | Other infrared remotes (TV, fan, humidifier, learned buttons) | ❌ not yet — see the roadmap |
 | Local control, protocol 3.5 / 3.1 | ❌ not yet (goes through the cloud when logged in) |
@@ -122,8 +128,8 @@ generic page.
 
 | OS | Status |
 |---|---|
-| **Windows 10/11** | ✅ where it's being developed and tested (needs the WebView2 runtime, preinstalled on Windows 11) |
-| **macOS 15+** | 🤞 tinyjs' primary platform, but untested here |
+| **Windows 10/11** | ✅ where it's developed and used every day (needs the WebView2 runtime, preinstalled on Windows 11) |
+| **macOS 15+** | ✅ used daily by a contributor (LG ThinQ, rooms, the pin and the Keychain fix came from a Mac) |
 | **Linux** (glibc 2.35+, `libwebkit2gtk-4.1`) | 🤞 tinyjs beta, untested here |
 
 There are no signed builds yet, so Windows SmartScreen and macOS Gatekeeper warn before the first run (see [Download](#download)).
@@ -181,9 +187,9 @@ apps/
   menubar/
     assets/               app and tray icons
     src/main.ts           API the page calls + tinyjs events (thin)
-    src/backend/          account · thinq (LG) · network · control (local/cloud routes) · view · tray · favorites
-                          · quick-actions · remembered (state of IR devices) · user-themes
-    src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, onboarding…
+    src/backend/          account · thinq (LG) · rooms · network · control (local/cloud routes) · view · tray
+                          · favorites · quick-actions · remembered (state of IR devices) · user-themes
+    src/frontend/ui/      one small module per screen: devices, device-page, controls, settings, updates, panel…
     src/frontend/themes/  the nine themes + tokens.json, the theme contract
 docs/
   ROADMAP.md        what's next, what was done and what was dropped
@@ -194,8 +200,10 @@ own their state with small explicit APIs, and every UI module hangs off a single
 
 ## Contributing
 
-- **A device doesn't work?** Open an issue with the output of `npm run control -- "<name>" --inspect` (keys are hidden).
+- **A device doesn't work?** Open a [“My device doesn't work”](https://github.com/tuliocll/lilac/issues/new/choose) issue with
+  the output of `npm run control -- "<name>" --inspect` (or `npm run lg -- --inspect` for LG; keys and tokens are hidden).
   That's how infrared air conditioners got supported.
+- The longer version — running it, where to look, what to review with extra care — is in [CONTRIBUTING.md](CONTRIBUTING.md).
 - **New gadget type** (icon, name, colours, controls): add a folder to `packages/gadgets/gadgets/` — see
   [its README](packages/gadgets/gadgets/README.md). No code needed.
 - **New theme**: see [THEMING.md](apps/menubar/THEMING.md). Every UI change must work in every theme and language;
@@ -210,8 +218,8 @@ own their state with small explicit APIs, and every UI module hangs off a single
 
 ## Privacy & security
 
-- Local keys and the session token live in the **OS credential store** (Keychain / Credential Manager / Secret Service), never in
-  plain JSON. The CLI keeps a **development** copy in `~/.lilac/` (readable only by you on macOS/Linux; on Windows it's a
+- Local keys, the Smart Life session and the LG token live in the **OS credential store** (Keychain / Credential Manager /
+  Secret Service), never in plain JSON. The CLI keeps a **development** copy in `~/.lilac/` (readable only by you on macOS/Linux; on Windows it's a
   plain file in your user folder).
 - The cloud is used to fetch keys and names, and to reach what isn't on your network; day-to-day control of local devices goes
   straight to them.
@@ -222,8 +230,8 @@ own their state with small explicit APIs, and every UI module hangs off a single
 ## Roadmap
 
 The living backlog is in [docs/ROADMAP.md](docs/ROADMAP.md). Highlights: real-device validation of local control,
-more infrared remotes, protocol 3.5, live cloud updates, scenes and automations tied to your computer
-(lock the screen → desk light off).
+falling back to the cloud when the LAN fails, more infrared remotes, protocol 3.5, live cloud updates, and automations
+tied to your computer (lock the screen → desk light off).
 
 ## Credits
 
@@ -231,9 +239,12 @@ more infrared remotes, protocol 3.5, live cloud updates, scenes and automations 
 [tuya-device-sharing-sdk](https://github.com/tuya/tuya-device-sharing-sdk) (QR login reference) ·
 [tinytuya](https://github.com/jasonacox/tinytuya) (local protocol reference) ·
 [@noble/ciphers & hashes](https://paulmillr.com/noble/) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) ·
+[thinqconnect](https://github.com/thinq-connect/pythinqconnect) (Apache-2.0 © LG Electronics, base of `packages/thinq`) ·
 fonts [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), [Varela Round](https://github.com/alefalefalef/Varela-Round-Hebrew),
 [Silkscreen](https://github.com/googlefonts/silkscreen), [Nunito](https://github.com/googlefonts/nunito),
 [Courier Prime](https://github.com/quoteunquoteapps/CourierPrime) and [DM Serif Display](https://github.com/googlefonts/dm-fonts) (all OFL).
 
+Thanks to [Wilker Gaudencio](https://github.com/wilkergaudencio) for LG ThinQ, rooms, the pin and the Keychain fix.
+
 MIT © Tulio Calil · [github.com/tuliocll/lilac](https://github.com/tuliocll/lilac).
-Independent project, **not affiliated with Tuya**. Tuya and Smart Life are trademarks of their owners.
+Independent project, **not affiliated with Tuya or LG**. Tuya, Smart Life, LG and ThinQ are trademarks of their owners.

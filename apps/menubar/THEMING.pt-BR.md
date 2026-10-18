@@ -43,9 +43,14 @@ barra de ferramentas fica ao lado do título (Moonlight) ou abaixo (Past Dream).
 
 ### Lições dos temas que vêm com o app
 
-- **A janela é opaca (por enquanto).** O tinyjs suporta janela transparente (`chrome.transparent`), mas o Lilac ainda não
-  liga isso, então o que fica fora da `.window` vira uma borda branca. Use `--window-margin: 0` e um `--desktop-bg` opaco.
-  Quer sombra dura? Desenhe como borda mais grossa (Past Dream: `border-width: 2px 5px 5px 2px`).
+- **A janela é transparente** (`"chrome": { "transparent": true }` no `tinyjs.json`). A área fora da `.window`
+  (`--window-margin`, pintada com `--desktop-bg`) pode ser vazada, então sombra de verdade e cantos arredondados são
+  possíveis: use um `--desktop-bg` transparente e uma margem pequena, e teste no Windows e no macOS. Os temas que vêm com o
+  app são de antes disso e ainda usam `--window-margin: 0` com fundo opaco; o Past Dream desenha a sombra dura como borda
+  mais grossa (`border-width: 2px 5px 5px 2px`).
+- **A barra de título precisa se virar sozinha.** Fixado, o *minimizar* recolhe o painel até a barra de título
+  (`body.collapsed` esconde `.toolbar`, `.body` e `.statusbar`). Temas que escondem os botões da janela
+  (`--wc-display: none`) ganham o mesmo botão ao lado do alfinete, só com o painel fixado.
 - **Token que entra numa lista de `background` não pode trazer o próprio tamanho.** O slider pinta
   `var(--slider-fill) 0 0 / var(--fill) 100% no-repeat, var(--slider-track)`, então `--slider-fill` precisa ser só uma imagem
   (um degradê), enquanto `--slider-track`, a última camada, pode ter `center / 100% 3px no-repeat`.

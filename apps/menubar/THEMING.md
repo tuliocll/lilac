@@ -43,9 +43,14 @@ beside the title (Moonlight) or below it (Past Dream).
 
 ### Lessons from the built-in themes
 
-- **The window is opaque (for now).** tinyjs supports transparent windows (`chrome.transparent`), but Lilac doesn't turn
-  it on yet, so anything outside `.window` shows up as a white edge. Keep `--window-margin: 0` and an opaque
-  `--desktop-bg`. Want a hard drop shadow? Draw it as a thicker border (Past Dream: `border-width: 2px 5px 5px 2px`).
+- **The window is transparent** (`"chrome": { "transparent": true }` in `tinyjs.json`). The area outside `.window`
+  (`--window-margin`, painted with `--desktop-bg`) can be see-through, so real drop shadows and rounded corners are
+  possible: use a transparent `--desktop-bg` and a small margin, and test on Windows and macOS. The built-in themes predate
+  this and still use `--window-margin: 0` with an opaque background; Past Dream draws its hard shadow as a thicker border
+  (`border-width: 2px 5px 5px 2px`).
+- **The title bar must stand on its own.** Pinned, *minimize* folds the panel down to the title bar (`body.collapsed` hides
+  `.toolbar`, `.body` and `.statusbar`). Themes that hide the window controls (`--wc-display: none`) get the same button
+  next to the pin, only while pinned.
 - **Tokens that go into a `background` list can't carry their own size.** The slider paints
   `var(--slider-fill) 0 0 / var(--fill) 100% no-repeat, var(--slider-track)`, so `--slider-fill` must be a plain image
   (a gradient), while `--slider-track`, the last layer, may include `center / 100% 3px no-repeat`.

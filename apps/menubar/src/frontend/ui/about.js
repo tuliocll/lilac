@@ -10,6 +10,7 @@
     { name: 'tuya-device-sharing-sdk', lic: 'MIT', url: 'https://github.com/tuya/tuya-device-sharing-sdk', what: { 'pt-BR': 'referência do login por QR (Tuya)', en: 'QR login reference (Tuya)' } },
     { name: 'tinytuya', lic: 'MIT', url: 'https://github.com/jasonacox/tinytuya', what: { 'pt-BR': 'referência do protocolo local', en: 'local protocol reference' } },
     { name: '@noble/ciphers · @noble/hashes', lic: 'MIT', url: 'https://paulmillr.com/noble/', what: { 'pt-BR': 'criptografia em JS puro', en: 'pure-JS cryptography' } },
+    { name: 'thinqconnect', lic: 'Apache-2.0', url: 'https://github.com/thinq-connect/pythinqconnect', what: { 'pt-BR': 'base do cliente da LG ThinQ (© LG Electronics)', en: 'base of the LG ThinQ client (© LG Electronics)' } },
     { name: 'qrcode-generator', lic: 'MIT', url: 'https://github.com/kazuhikoarase/qrcode-generator', what: { 'pt-BR': 'QR code do login', en: 'login QR code' } },
     { name: 'Pixelify Sans', lic: 'OFL-1.1', url: 'https://github.com/eifetx/Pixelify-Sans', what: { 'pt-BR': 'fonte do tema Past Dream', en: 'Past Dream theme font' } },
     { name: 'Silkscreen', lic: 'OFL-1.1', url: 'https://github.com/googlefonts/silkscreen', what: { 'pt-BR': 'fonte do tema CassiUI', en: 'CassiUI theme font' } },
