@@ -16,6 +16,8 @@ Lilac.i18n = (() => {
       'title.about': 'Sobre',
 
       'wc.minimize': 'Minimizar',
+      'wc.minimize.pinFirst': 'Fixe o painel para poder minimizar',
+      'wc.expand': 'Restaurar painel',
       'wc.close': 'Fechar painel',
       'wc.pin': 'Fixar painel na tela',
       'wc.unpin': 'Soltar painel',
@@ -207,6 +209,8 @@ Lilac.i18n = (() => {
       'title.about': 'About',
 
       'wc.minimize': 'Minimize',
+      'wc.minimize.pinFirst': 'Pin the panel to minimize it',
+      'wc.expand': 'Restore panel',
       'wc.close': 'Close panel',
       'wc.pin': 'Keep panel on screen',
       'wc.unpin': 'Unpin panel',

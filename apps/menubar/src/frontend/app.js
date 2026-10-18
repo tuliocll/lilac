@@ -72,7 +72,7 @@
   async function boot() {
     // tema e idioma antes de mostrar a janela: nada de "piscar"
     await Promise.all([Lilac.themes.init(), Lilac.i18n.init()]);
-    tiny.win.setSize(Lilac.panel.size.W, Lilac.panel.size.H);
+    await Lilac.panel.initSize();
     await Lilac.devices.init();
     sendTrayLabels();
     if (await Lilac.settings.hotkeyEnabled()) Lilac.panel.setHotkey(true);

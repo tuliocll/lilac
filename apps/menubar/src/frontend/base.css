@@ -81,6 +81,15 @@ body.busy .dot { background: var(--dot-busy); animation: pulse 1s infinite alter
 /* Fixado, o alfinete fica com a cor de destaque do tema. */
 .wc-pin { flex: none; }
 .wc-pin[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.wc-collapse { flex: none; }
+.wc-collapse[hidden] { display: none; }
+/* minimizar só funciona com o painel fixado */
+.wc[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+
+/* recolhido: só a barra de título fica à mostra */
+body.collapsed .toolbar,
+body.collapsed .body,
+body.collapsed .statusbar { display: none; }
 
 .toolbar {
   grid-area: tools;
@@ -151,6 +160,7 @@ body[data-view="loading"] .toolbar { display: none; }
 .glyph[data-g="sync"] { --glyph: var(--i-sync); }
 .glyph[data-g="back"] { --glyph: var(--i-back); }
 .glyph[data-g="minimize"] { --glyph: var(--i-minimize); }
+.glyph[data-g="maximize"] { --glyph: var(--i-maximize); }
 .glyph[data-g="close"] { --glyph: var(--i-close); }
 .glyph[data-g="pin"] { --glyph: var(--i-pin); }
 .glyph[data-g="power"] { --glyph: var(--i-power); }
