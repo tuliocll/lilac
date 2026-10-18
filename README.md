@@ -32,9 +32,9 @@ No programming needed: grab the file for your computer from the **[Releases page
 
 | Your computer | File to download | How to start it |
 |---|---|---|
-| **Windows 10/11** | `Lilac-…-windows.zip` | Unzip it, open the folder and double-click **`lilac.exe`** |
-| **macOS** | `Lilac-…-macos.dmg` | Open it and drag **Lilac** into Applications |
-| **Linux** | `Lilac-…-linux-x86_64.tar.gz` | Extract it and run **`lilac`** |
+| **Windows 10/11** | `lilac-…-win.zip` | Unzip it, open the `lilac` folder and double-click **`lilac.exe`** |
+| **macOS** | `lilac-…-macos.dmg` | Open it and drag **Lilac** into Applications |
+| **Linux** | `lilac-…-linux-x86_64.tar.gz` | Extract it and run **`lilac`** inside the `lilac` folder |
 
 **Windows: why are there two `.exe` files?** The folder has `lilac.exe` and `launcher.exe`, and that's expected.
 `lilac.exe` is the app itself (everything is packed inside it, even the icon). `launcher.exe` is a small helper that tinyjs
@@ -51,6 +51,10 @@ On Windows click **More info → Run anyway**. On macOS open **System Settings �
 **Open Anyway** next to Lilac. You only need to do this once.
 
 Once it's open, Lilac lives in the system tray (next to the clock) or the menu bar on macOS — click the lilac icon.
+
+**Updates:** when a new version comes out, Lilac shows a short note at the top of the list and asks before updating.
+*Not now* hides it until the next launch; *Don't remind me* turns the reminder off. You can always check by hand (and turn
+the reminder back on) in **Settings → Updates**. Updating downloads the new version, checks it and restarts the app.
 
 ## What it does
 
@@ -199,6 +203,10 @@ own their state with small explicit APIs, and every UI module hangs off a single
 - **New language**: copy the `en` block in `apps/menubar/src/frontend/ui/i18n.js`.
 - Run `npm run assets`, `npm test` and `npm run typecheck` before opening a PR. Touched networking? Also run
   `npm run test:txiki` (needs [txiki.js](https://github.com/saghul/txiki.js)'s `tjs` in your PATH, or `TJS=/path/to/tjs`).
+- **Releasing** (maintainers): push a `v*` tag. The version comes from the tag, and the short note shown in the app is the
+  tag message, so prefer an annotated tag: `git tag -a v1.2.3 -m "- what changed"` then `git push origin v1.2.3`
+  (without a message, the app shows the commit titles since the last tag). CI builds the three systems, writes the
+  `manifest.json` the updater reads and publishes the release.
 
 ## Privacy & security
 

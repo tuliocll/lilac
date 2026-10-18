@@ -81,6 +81,7 @@
 
     Lilac.panel.open(); // em `tinyjs dev` a janela aparece direto
     Lilac.settings.loadUserThemes();
+    Lilac.updates.start();
   }
 
   boot().catch((error) => {

@@ -179,6 +179,7 @@
     renderLanguages();
     renderStartup();
     renderHotkey();
+    Lilac.updates?.renderSettings();
     Lilac.nav.go('settings');
   }
 

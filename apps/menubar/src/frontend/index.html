@@ -149,6 +149,16 @@
 
           <!-- ================= dispositivos ================= -->
           <section class="view" data-for="devices">
+            <div id="update-banner" class="card update" role="status" hidden>
+              <b id="update-title"></b>
+              <p id="update-notes" class="update-notes"></p>
+              <div class="update-actions">
+                <button id="update-install" class="btn btn-primary" type="button" data-i18n="update.install"></button>
+                <button id="update-later" class="btn" type="button" data-i18n="update.later"></button>
+                <button id="update-never" class="btn-link" type="button" data-i18n="update.never"></button>
+              </div>
+            </div>
+
             <ul id="list" class="list" aria-live="polite"></ul>
 
             <div class="empty">
@@ -212,6 +222,23 @@
               <button id="lg-open" class="btn" type="button" data-i18n="settings.lg.connect"></button>
             </div>
 
+            <h2 class="section-title" data-i18n="update.title"></h2>
+            <div class="menu card">
+              <div class="setting-row">
+                <span data-i18n="update.notify"></span>
+                <button id="update-notify" class="switch" type="button" role="switch" data-i18n-aria="update.notify"></button>
+              </div>
+              <div class="setting-row">
+                <span id="update-current" class="muted"></span>
+                <button id="update-check" class="btn" type="button" data-i18n="update.check"></button>
+              </div>
+              <div id="update-result" class="update-result" role="status" hidden>
+                <b id="update-result-title"></b>
+                <p id="update-result-notes" class="update-notes"></p>
+                <button id="update-result-install" class="btn btn-primary" type="button" data-i18n="update.install"></button>
+              </div>
+            </div>
+
             <h2 class="section-title" data-i18n="settings.more"></h2>
             <div class="menu card">
               <button class="menu-item" type="button" id="open-intro"><i class="glyph" data-g="info"></i><span data-i18n="settings.intro"></span></button>
@@ -261,6 +288,7 @@
     <script src="ui/lg.js"></script>
     <script src="ui/onboarding.js"></script>
     <script src="ui/settings.js"></script>
+    <script src="ui/updates.js"></script>
     <script src="ui/about.js"></script>
     <script src="app.js"></script>
   </body>

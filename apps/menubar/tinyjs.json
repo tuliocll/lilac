@@ -9,6 +9,9 @@
   "frontend": {
     "dir": "src/frontend"
   },
+  "update": {
+    "url": "https://github.com/tuliocll/lilac/releases/latest/download/manifest.json"
+  },
   "activation": "accessory",
   "chrome": {
     "frame": false,

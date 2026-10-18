@@ -363,6 +363,12 @@ body:not(.has-devices) .list { display: none; }
 body.has-devices .empty { display: none; }
 
 .banner { text-align: left; display: grid; gap: 2px; width: 100%; }
+
+/* aviso de versão nova (lista) e resultado da busca (configurações) */
+.update { display: grid; gap: 6px; flex: none; }
+.update-notes { margin: 0; color: var(--muted); font-size: 0.92em; white-space: pre-line; overflow-wrap: anywhere; }
+.update-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.update-result { display: grid; gap: 6px; padding: 8px 10px; justify-items: start; }
 .banner span { color: var(--muted); font-size: 0.92em; }
 
 /* ---------- configurações ---------- */
