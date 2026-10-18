@@ -55,7 +55,15 @@
 
   const sendTrayLabels = () =>
     tiny.api
-      .call('trayLabels', { open: t('tray.open'), scan: t('tray.scan'), quit: t('tray.quit'), favorites: t('tray.favorites') })
+      .call('trayLabels', {
+        open: t('tray.open'),
+        scan: t('tray.scan'),
+        quit: t('tray.quit'),
+        favorites: t('tray.favorites'),
+        on: t('tray.on'),
+        off: t('tray.off'),
+        decimal: t('tray.decimal'),
+      })
       .catch(logError('trayLabels'));
   Lilac.i18n.onChange(sendTrayLabels);
 

@@ -162,7 +162,7 @@ export const api = {
   }),
 
   // ---- interface
-  trayLabels: withStart((labels: TrayLabels) => setTrayLabels(labels)),
+  trayLabels: withStart((labels: Partial<TrayLabels>) => setTrayLabels(labels)),
   userThemes: withStart(() => loadUserThemes()),
   quit: withStart((_params: unknown, app: TinyApp) => app.quit()),
 };

@@ -191,6 +191,9 @@ Lilac.i18n = (() => {
       'tray.scan': 'Procurar aparelhos',
       'tray.quit': 'Sair',
       'tray.favorites': 'Favoritos',
+      'tray.on': 'ligado',
+      'tray.off': 'desligado',
+      'tray.decimal': ',',
       'status.searching': 'Procurando aparelhos na rede…',
     },
 
@@ -379,6 +382,9 @@ Lilac.i18n = (() => {
       'tray.scan': 'Scan for devices',
       'tray.quit': 'Quit',
       'tray.favorites': 'Favorites',
+      'tray.on': 'on',
+      'tray.off': 'off',
+      'tray.decimal': '.',
       'status.searching': 'Looking for devices on the network…',
     },
   };
