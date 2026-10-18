@@ -20,8 +20,10 @@
           <span class="titlebar-fill" aria-hidden="true"></span>
           <!-- fora de .window-controls: aparece também nos temas que escondem esses botões -->
           <button id="pin" class="wc wc-pin" type="button" aria-pressed="false" data-i18n-aria="wc.pin"><i class="glyph" data-g="pin"></i></button>
+          <!-- recolher para nos temas que escondem .window-controls (só aparece com o painel fixado) -->
+          <button id="collapse-alt" class="wc wc-collapse" type="button" data-collapse hidden><i class="glyph" data-g="minimize"></i></button>
           <div class="window-controls">
-            <button class="wc" type="button" data-action="hide" data-i18n-aria="wc.minimize"><i class="glyph" data-g="minimize"></i></button>
+            <button id="collapse" class="wc wc-collapse" type="button" data-collapse><i class="glyph" data-g="minimize"></i></button>
             <button class="wc" type="button" data-action="hide" data-i18n-aria="wc.close"><i class="glyph" data-g="close"></i></button>
           </div>
         </div>
