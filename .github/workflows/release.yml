@@ -8,6 +8,8 @@ name: Release
 on:
   push:
     tags: ['v*']
+  # disparado pelo new-version.yml, sempre numa tag (--ref vX.Y.Z)
+  workflow_dispatch:
 
 # os builds rodam instaladores e scripts de terceiros: só leitura; quem publica é o job release
 permissions:
@@ -15,6 +17,8 @@ permissions:
 
 jobs:
   build:
+    # rodado à mão num branch, a "versão" viraria o nome do branch
+    if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       fail-fast: false
       matrix:

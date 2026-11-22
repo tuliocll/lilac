@@ -216,7 +216,7 @@ na ordem de dependência.
 - **Publicar versão** (mantenedores): suba uma tag `v*`. A versão vem da tag, e a nota curta que aparece no app é a
   mensagem da tag, então prefira tag anotada: `git tag -a v1.2.3 -m "- o que mudou"` e `git push origin v1.2.3`
   (sem mensagem, o app mostra os títulos dos commits desde a tag anterior). O CI builda os três sistemas, gera o
-  `manifest.json` que o atualizador lê e publica a release.
+  `manifest.json` que o atualizador lê e publica a release. Ou, pelo navegador: **Actions → Nova versão → Run workflow**.
 
 ## Privacidade e segurança
 
