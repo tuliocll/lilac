@@ -92,6 +92,7 @@ Want to pick something up? Open an issue first so we can line it up.
 - [x] Past Dream without the blue frame around it; the hard shadow drawn as a border. (We thought Windows windows couldn't
       be transparent; they can — `chrome.transparent` is on since then, so real shadows and round corners are possible.)
 - [x] Frutiger Inferno, the evil twin of Frutiger Aero, and ConfusedPast, a mixed-media collage (nine themes now).
+- [x] Luna, the Windows XP blue (ten themes now).
 - [x] Updates inside the app: optional reminder with short release notes (*Not now* / *Don't remind me*), a manual check
       in Settings, and CI publishing the `manifest.json` tinyjs' updater reads. Releases are no longer pre-releases.
 - [x] Download section in the README for people who don't code (which file, the two `.exe` on Windows, SmartScreen).

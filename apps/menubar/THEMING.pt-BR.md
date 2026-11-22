@@ -21,6 +21,7 @@ themes/
   cutelight/      claro e fofo          boringlight/  lavanda e índigo (sem fonte própria)
   frutiger-inferno/  o irmão do mal do Aero (usa a fonte do Aero)
   confused-past/  colagem mixed media (bordas rasgadas com clip-path)
+  luna/           o azul do Windows XP (fontes do sistema, chave vira caixa de seleção)
   contrast/       alto contraste
   index.js        temas que vêm com o app
 ui/i18n.js        dicionários pt-BR / en
