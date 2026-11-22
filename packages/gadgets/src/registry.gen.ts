@@ -87,8 +87,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "chips",
         "icon": "eco"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"9\" rx=\"2\"/><path d=\"M6 10h12\"/><path d=\"M7 16c0 1.5-1 2-1 3.5M12 16c0 1.5-1 2-1 3.5M17 16c0 1.5-1 2-1 3.5\"/></svg>"
+    ]
   },
   {
     "id": "cover",
@@ -126,8 +125,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "readouts",
         "unit": "%"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h18\"/><path d=\"M5 3v15c2 0 3-2 3-6V3M19 3v15c-2 0-3-2-3-6V3\"/><path d=\"M5 21h14\"/></svg>"
+    ]
   },
   {
     "id": "fan",
@@ -194,8 +192,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "main",
         "icon": "timer"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 10c0-4 1-7 4-7 2 0 2.5 3-1 5.5M14 12c4 0 7 1 7 4 0 2-3 2.5-5.5-1M12 14c0 4-1 7-4 7-2 0-2.5-3 1-5.5M10 12c-4 0-7-1-7-4 0-2 3-2.5 5.5 1\"/></svg>"
+    ]
   },
   {
     "id": "gateway",
@@ -216,8 +213,7 @@ export const PROFILES: GadgetProfile[] = [
       "pt-BR": "Este é o hub dos seus dispositivos Zigbee/Bluetooth. Eles aparecem na lista como “via gateway”; o controle deles pelo hub vem numa próxima versão.",
       "en": "This hub bridges your Zigbee/Bluetooth devices. They show up as “via gateway”; controlling them through the hub is coming in a future version."
     },
-    "controls": [],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"13\" width=\"18\" height=\"7\" rx=\"2\"/><path d=\"M7 16.5h.01M11 16.5h.01\"/><path d=\"M12 13V9\"/><path d=\"M8.5 7.5a5 5 0 0 1 7 0M6 5a8.5 8.5 0 0 1 12 0\"/></svg>"
+    "controls": []
   },
   {
     "id": "generic",
@@ -240,8 +236,7 @@ export const PROFILES: GadgetProfile[] = [
         "type": "power",
         "slot": "hero"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"3\"/><path d=\"M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01\"/></svg>"
+    ]
   },
   {
     "id": "ir",
@@ -260,8 +255,7 @@ export const PROFILES: GadgetProfile[] = [
       "pt-BR": "Este controle comanda aparelhos por infravermelho (como os ares “via gateway”). Enviar comandos IR pela rede local ainda não é suportado.",
       "en": "This blaster drives appliances over infrared (like the “via gateway” air conditioners). Sending IR commands locally isn't supported yet."
     },
-    "controls": [],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"14\" r=\"3\"/><path d=\"M8.5 10.5a5 5 0 0 1 7 0M6 8a8.5 8.5 0 0 1 12 0\"/><path d=\"M12 17v4\"/></svg>"
+    "controls": []
   },
   {
     "id": "light",
@@ -339,8 +333,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "main",
         "icon": "timer"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18h6M10 21h4\"/><path d=\"M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/></svg>"
+    ]
   },
   {
     "id": "plug",
@@ -418,8 +411,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "main",
         "icon": "lock"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 2v5M15 2v5\"/><path d=\"M6 7h12v4a6 6 0 0 1-12 0z\"/><path d=\"M12 17v5\"/></svg>"
+    ]
   },
   {
     "id": "sensor",
@@ -482,8 +474,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "readouts",
         "unit": "%"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7\"/></svg>"
+    ]
   },
   {
     "id": "switch",
@@ -568,8 +559,7 @@ export const PROFILES: GadgetProfile[] = [
         "slot": "main",
         "icon": "lock"
       }
-    ],
-    "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#000\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"3\" width=\"14\" height=\"18\" rx=\"3\"/><rect x=\"9\" y=\"7\" width=\"6\" height=\"10\" rx=\"1.5\"/><path d=\"M12 9v2\"/></svg>"
+    ]
   }
 ];
 

@@ -43,6 +43,8 @@
     const done = status.busy();
     try {
       const { svg, expiresInMs } = await tiny.api.call('loginStart', { userCode });
+      // saiu da tela enquanto o QR carregava: não prende o painel aberto
+      if (Lilac.nav.current() !== 'login') return void tiny.api.call('loginCancel');
       $('qr').innerHTML = svg; // SVG gerado pelo nosso backend (qrcode-generator), sem conteúdo externo
       $('login-form').hidden = true;
       $('qr-step').hidden = false;
@@ -53,6 +55,7 @@
       countdown = setInterval(tick, 1000);
       status.show('status.waitingApp');
     } catch (error) {
+      if (Lilac.nav.current() !== 'login') return;
       showError(t('login.qrError', { error: error.message ?? error }));
       $('qr-btn').disabled = false;
     } finally {

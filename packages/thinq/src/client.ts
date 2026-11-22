@@ -72,7 +72,7 @@ export function createThinqClient(options: ThinqClientOptions): ThinqClient {
       ...extra,
     };
     if (body) headers['Content-Type'] = 'application/json';
-    const response = await fetchFn(base + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const response = await fetchFn(base + path, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(15_000) });
     const json = (await response.json().catch(() => null)) as any;
     if (!response.ok) {
       const error = json?.error ?? {};

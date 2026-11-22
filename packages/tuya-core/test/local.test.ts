@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { createNodeTransport } from '../../transport-node/src/index.ts';
-import { createLocalDevice } from '../src/index.ts';
+import { createLocalDevice, type Transport } from '../src/index.ts';
 import { startFakeDevice } from './fake-local-device.ts';
 
 const KEY = 'abcdef0123456789';
@@ -104,6 +104,58 @@ test('v3.4 com local key errada falha com erro de autenticação', async () => {
     await dev.close();
     await fake.close();
   }
+});
+
+/** Socket falso: grava o que fecha e deixa escolher se o write falha. */
+function fakeSocket(writeFails = false) {
+  const s = {
+    closed: false,
+    onData() {},
+    onClose() {},
+    write: async () => {
+      if (writeFails) throw new Error('EPIPE');
+    },
+    close: async () => void (s.closed = true),
+  };
+  return s;
+}
+const tcpOnly = (connectTcp: () => Promise<ReturnType<typeof fakeSocket>>): Transport => ({ connectTcp, bindUdp: () => Promise.reject(new Error('sem UDP')) });
+
+test('write que falha vira erro "closed", sem rejeição solta quando o prazo vence', async () => {
+  const unhandled: unknown[] = [];
+  const onUnhandled = (e: unknown) => unhandled.push(e);
+  process.on('unhandledRejection', onUnhandled);
+  const dev = createLocalDevice({ id: ID, ip: 'x', port: 1, localKey: KEY, version: '3.3', transport: tcpOnly(async () => fakeSocket(true)), timeoutMs: 50 });
+  try {
+    await assert.rejects(dev.status(), (e: any) => e.code === 'closed');
+    await new Promise((r) => setTimeout(r, 120)); // passa do prazo da resposta
+    assert.deepEqual(unhandled, []);
+  } finally {
+    process.off('unhandledRejection', onUnhandled);
+    await dev.close();
+  }
+});
+
+test('close() durante a conexão fecha o socket que chegar depois', async () => {
+  const sock = fakeSocket();
+  let arrive!: () => void;
+  const connectTcp = () => new Promise<ReturnType<typeof fakeSocket>>((r) => (arrive = () => r(sock)));
+  const dev = createLocalDevice({ id: ID, ip: 'x', port: 1, localKey: KEY, version: '3.3', transport: tcpOnly(connectTcp), timeoutMs: 50, heartbeatMs: 10 });
+  const pending = dev.status();
+  await new Promise((r) => setTimeout(r, 0)); // connectTcp já foi chamado
+  await dev.close();
+  arrive();
+  await assert.rejects(pending, (e: any) => e.code === 'closed');
+  assert.equal(sock.closed, true);
+  assert.equal(dev.isConnected(), false);
+});
+
+test('v3.4: close() no meio da negociação é "closed", não "chave errada"', async () => {
+  const dev = createLocalDevice({ id: ID, ip: 'x', port: 1, localKey: KEY, version: '3.4', transport: tcpOnly(async () => fakeSocket()), timeoutMs: 500 });
+  const pending = dev.status();
+  await new Promise((r) => setTimeout(r, 10)); // negociação esperando a resposta
+  await dev.close();
+  await assert.rejects(pending, (e: any) => e.code === 'closed');
 });
 
 // ---------------------------------------------------------------------------

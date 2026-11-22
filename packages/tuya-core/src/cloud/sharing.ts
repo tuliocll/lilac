@@ -134,7 +134,7 @@ export function createSharingClient(initial: SharingSession, options: SharingCli
     headers['X-sign'] = restfulSign(key, queryEnc, bodyEnc, headers);
     if (bodyEnc) headers['Content-Type'] = 'application/json';
 
-    const response = await fetchFn(url, { method, headers, body: bodyEnc ? JSON.stringify({ encdata: bodyEnc }) : undefined });
+    const response = await fetchFn(url, { method, headers, body: bodyEnc ? JSON.stringify({ encdata: bodyEnc }) : undefined, signal: AbortSignal.timeout(15_000) });
     if (!response.ok) throw new CloudError(`HTTP ${response.status} em ${path}`, response.status);
     const json = (await response.json()) as any;
     if (!json?.success) throw new CloudError(`Tuya ${json?.code ?? '?'}: ${json?.msg ?? 'erro'} (${path})`, json?.code);

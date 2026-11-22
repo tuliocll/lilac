@@ -68,7 +68,7 @@ function heroReading(device: Parameters<typeof resolveDevice>[0]): string | unde
   );
   const raw = control && currentValues(device)[control.code];
   if (!control || typeof raw !== 'number') return undefined;
-  const value = (raw / 10 ** control.scale).toFixed(control.scale).replace('.', labels.decimal);
+  const value = raw.toFixed(control.scale).replace('.', labels.decimal);
   return `${value} ${control.unit}`;
 }
 

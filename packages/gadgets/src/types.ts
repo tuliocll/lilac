@@ -60,8 +60,6 @@ export interface GadgetProfile {
   /** aviso exibido na página (ex.: hubs sem controle próprio) */
   note?: I18nText;
   controls: ControlDef[];
-  /** SVG do ícone (preenchido pelo build a partir de icon.svg) */
-  iconSvg?: string;
 }
 
 export interface CommonLabels {

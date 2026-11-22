@@ -20,7 +20,7 @@ test('todo gadget tem nome nos dois idiomas, tom válido, ícone e controles con
     for (const l of LANGS) assert.ok(p.name[l], `${p.id}: name.${l}`);
     if (p.note) for (const l of LANGS) assert.ok(p.note[l], `${p.id}: note.${l}`);
     assert.ok(TONES.includes(p.tone), `${p.id}: tone ${p.tone}`);
-    assert.ok(p.iconSvg?.startsWith('<svg'), `${p.id}: falta icon.svg`);
+    assert.ok(existsSync(join(import.meta.dirname, '../gadgets', p.id, 'icon.svg')), `${p.id}: falta icon.svg`);
     assert.doesNotMatch(JSON.stringify(p.controls), /#[0-9a-f]{3,8}\b/i, `${p.id}: cor literal — use "tone"`);
     for (const c of p.controls) {
       if (c.icon) assert.ok(existsSync(join(ICONS, `${c.icon}.svg`)), `${p.id}: ícone de controle "${c.icon}" não existe em icons/`);

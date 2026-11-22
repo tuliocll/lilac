@@ -454,7 +454,6 @@ Lilac.i18n = (() => {
     LANGS,
     t,
     pick,
-    apply,
     init,
     set,
     lang: () => lang,

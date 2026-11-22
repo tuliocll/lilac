@@ -151,6 +151,7 @@
           if (typeof v !== 'number') return;
           current = v;
           number.textContent = formatNumber(c, v);
+          if (range.matches(':active')) return; // arrastando: o estado que chega não tira o slider do dedo
           range.value = String(v);
           paintFill(range);
         },
@@ -163,7 +164,7 @@
       return {
         el: row(c, value, range),
         update(v) {
-          if (typeof v !== 'number') return;
+          if (typeof v !== 'number' || range.matches(':active')) return; // arrastando
           range.value = String(v);
           paintFill(range);
           value.textContent = format(c, v);

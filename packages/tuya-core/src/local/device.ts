@@ -18,7 +18,8 @@ import { concat, equalBytes, td, te } from '../bytes.ts';
 import { randomBytes } from '../cloud/encoding.ts';
 import { Cmd, decode55AA, encode55AA, frameLength55AA, FrameError, type Frame55AA } from '../frame.ts';
 import type { TcpSocket, Transport } from '../transport.ts';
-import { ecbDecrypt, ecbEncrypt, hmacSha256, sessionKey34, startsWithVersion, versionHeader, VERSION_HEADER_LEN } from './crypto.ts';
+import { aesEcbDecrypt, aesEcbEncrypt } from '../crypto.ts';
+import { hmacSha256, sessionKey34, startsWithVersion, versionHeader, VERSION_HEADER_LEN } from './crypto.ts';
 
 export type Dps = Record<string, unknown>;
 export type LocalVersion = '3.3' | '3.4';
@@ -98,6 +99,8 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
   let connecting: Promise<void> | null = null;
   let heartbeat: ReturnType<typeof setInterval> | undefined;
   let waiters: Waiter[] = [];
+  /** muda a cada close(): uma conexão em andamento sabe que foi cancelada */
+  let generation = 0;
 
   // aparelhos "device22" só respondem a CONTROL_NEW pedindo DPs explícitos
   let isDevice22 = false;
@@ -128,12 +131,19 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
 
   async function openConnection() {
     if (!transport.connectTcp) throw new LocalError('este runtime não tem TCP', 'unsupported');
+    // close() no meio da conexão: o socket que chegar depois não pode ficar vivo
+    const mine = generation;
+    let opened: TcpSocket;
     try {
-      socket = await transport.connectTcp({ host: ip, port, timeoutMs });
+      opened = await transport.connectTcp({ host: ip, port, timeoutMs });
     } catch (error) {
       throw new LocalError(`não conectou em ${ip}:${port} — ${(error as Error).message}`, 'connect');
     }
-    const current = socket;
+    if (generation !== mine) {
+      await opened.close().catch(() => {});
+      throw new LocalError('conexão fechada', 'closed');
+    }
+    const current = (socket = opened);
     current.onData((chunk) => socket === current && receive(chunk));
     current.onClose((error) => socket === current && dropConnection(error));
 
@@ -141,7 +151,9 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
       try {
         await negotiateSessionKey();
       } catch (error) {
+        const closedByUs = generation !== mine;
         await closeSocket();
+        if (closedByUs) throw new LocalError('conexão fechada', 'closed');
         // o aparelho derruba a conexão quando o HMAC não confere: é chave errada
         if (error instanceof LocalError && error.code === 'closed') {
           throw new LocalError('o aparelho recusou a conexão — a local key provavelmente mudou', 'auth');
@@ -156,10 +168,10 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
     negotiating = true;
     try {
       const localNonce = randomBytes(16);
-      const reply = await sendFrame(Cmd.SESS_KEY_NEG_START, ecbEncrypt(localKey, localNonce), [Cmd.SESS_KEY_NEG_RESP]);
+      const reply = await sendFrame(Cmd.SESS_KEY_NEG_START, aesEcbEncrypt(localKey, localNonce), [Cmd.SESS_KEY_NEG_RESP]);
       let payload: Uint8Array;
       try {
-        payload = ecbDecrypt(localKey, reply.payload);
+        payload = aesEcbDecrypt(localKey, reply.payload);
       } catch {
         throw new LocalError('a local key não confere com o aparelho', 'auth');
       }
@@ -169,7 +181,7 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
       if (!equalBytes(hmacSha256(localKey, localNonce), payload.subarray(16, 48))) {
         throw new LocalError('a local key não confere com o aparelho', 'auth');
       }
-      await sendFrame(Cmd.SESS_KEY_NEG_FINISH, ecbEncrypt(localKey, hmacSha256(localKey, remoteNonce)), null);
+      await sendFrame(Cmd.SESS_KEY_NEG_FINISH, aesEcbEncrypt(localKey, hmacSha256(localKey, remoteNonce)), null);
       sessionKey = sessionKey34(localKey, localNonce, remoteNonce);
     } finally {
       negotiating = false;
@@ -191,6 +203,7 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
   }
 
   async function closeSocket() {
+    generation++;
     const s = socket;
     resetConnection();
     rejectAllWaiters(new LocalError('conexão fechada', 'closed'));
@@ -256,9 +269,9 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
     const withHeader = !COMMANDS_WITHOUT_HEADER.has(cmd);
     let payload: Uint8Array;
     if (is34) {
-      payload = ecbEncrypt(sessionKey, withHeader ? concat(versionHeader('3.4'), json) : json);
+      payload = aesEcbEncrypt(sessionKey, withHeader ? concat(versionHeader('3.4'), json) : json);
     } else {
-      const encrypted = ecbEncrypt(sessionKey, json);
+      const encrypted = aesEcbEncrypt(sessionKey, json);
       payload = withHeader ? concat(versionHeader('3.3'), encrypted) : encrypted;
     }
     return decodePayload(await sendFrame(cmd, payload, expect));
@@ -269,7 +282,13 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
     if (!socket) throw new LocalError('desconectado', 'closed');
     const frame = encode55AA({ seq: seq++, cmd, payload }, { hmacKey: is34 ? sessionKey : undefined });
     const reply = expect ? waitForFrame((f) => expect.includes(f.cmd)) : null;
-    await socket.write(frame);
+    reply?.catch(() => {}); // se o write falhar, ninguém mais espera por esta resposta
+    try {
+      await socket.write(frame);
+    } catch (error) {
+      dropConnection(error as Error);
+      throw new LocalError(`não consegui enviar ao aparelho — ${(error as Error).message}`, 'closed');
+    }
     return reply ?? { kind: '55aa', seq: 0, cmd, payload: EMPTY };
   }
 
@@ -348,11 +367,11 @@ export function createLocalDevice(options: LocalDeviceOptions): LocalDevice {
     if (!bytes.length) return null;
     try {
       if (is34) {
-        bytes = ecbDecrypt(sessionKey, bytes);
+        bytes = aesEcbDecrypt(sessionKey, bytes);
         if (startsWithVersion(bytes)) bytes = bytes.subarray(VERSION_HEADER_LEN);
       } else {
         if (startsWithVersion(bytes)) bytes = bytes.subarray(VERSION_HEADER_LEN);
-        if (bytes[0] !== 0x7b /* { */) bytes = ecbDecrypt(sessionKey, bytes);
+        if (bytes[0] !== 0x7b /* { */) bytes = aesEcbDecrypt(sessionKey, bytes);
       }
     } catch {
       throw new LocalError('não consegui decifrar a resposta (local key errada?)', 'auth');

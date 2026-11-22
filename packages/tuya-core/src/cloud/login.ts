@@ -43,7 +43,7 @@ export const qrDataFor = (token: string) => `tuyaSmart--qrLogin?token=${token}`;
 
 export async function requestLoginQr(userCode: string, app: SharingAppCredentials, fetchFn: typeof fetch = fetch): Promise<LoginQr> {
   const query = new URLSearchParams({ clientid: app.clientId, usercode: userCode.trim(), schema: app.schema });
-  const response = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens?${query}`, { method: 'POST' });
+  const response = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens?${query}`, { method: 'POST', signal: AbortSignal.timeout(15_000) });
   const json = (await response.json().catch(() => null)) as any;
   if (!json?.success || !json.result?.qrcode) {
     throw new CloudError(json?.msg || `falha ao gerar o QR (HTTP ${response.status})`, json?.code);
@@ -59,7 +59,7 @@ export async function checkLogin(
   fetchFn: typeof fetch = fetch,
 ): Promise<SharingSession | null> {
   const query = new URLSearchParams({ clientid: app.clientId, usercode: userCode.trim() });
-  const response = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens/${token}?${query}`);
+  const response = await fetchFn(`${LOGIN_HOST}/v1.0/m/life/home-assistant/qrcode/tokens/${token}?${query}`, { signal: AbortSignal.timeout(15_000) });
   const json = (await response.json().catch(() => null)) as any;
   if (!json?.success) return null;
   const r = json.result ?? {};
