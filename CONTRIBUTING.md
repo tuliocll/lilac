@@ -78,3 +78,6 @@ git push origin v1.2.3
 
 Without a message, the note is the commit titles since the previous tag. CI builds Windows, macOS and Linux, writes the
 `manifest.json` the updater reads and publishes the release (not as a pre-release, or `releases/latest` won't see it).
+
+Shortcut from the browser: **Actions → Nova versão → Run workflow** on `main`. Pick patch, minor or major and, if you
+want, the note; it creates the next tag from the last one and starts the release.

@@ -214,7 +214,7 @@ own their state with small explicit APIs, and every UI module hangs off a single
 - **Releasing** (maintainers): push a `v*` tag. The version comes from the tag, and the short note shown in the app is the
   tag message, so prefer an annotated tag: `git tag -a v1.2.3 -m "- what changed"` then `git push origin v1.2.3`
   (without a message, the app shows the commit titles since the last tag). CI builds the three systems, writes the
-  `manifest.json` the updater reads and publishes the release.
+  `manifest.json` the updater reads and publishes the release. Or, from the browser: **Actions → Nova versão → Run workflow**.
 
 ## Privacy & security
 

@@ -79,3 +79,6 @@ git push origin v1.2.3
 
 Sem mensagem, a nota vira os títulos dos commits desde a tag anterior. O CI builda Windows, macOS e Linux, gera o
 `manifest.json` que o atualizador lê e publica a release (não como pre-release, senão o `releases/latest` não enxerga).
+
+Atalho pelo navegador: **Actions → Nova versão → Run workflow** no `main`. Escolha patch, minor ou major e, se quiser,
+a nota; ele cria a próxima tag a partir da última e dispara a release.
