@@ -38,6 +38,9 @@ icons/*.svg       glyphs (used as masks — the colour comes from the theme)
 4. Custom font? Put the `.woff2` in `fonts/` (with its licence), declare it in `fonts.json` and run `npm run assets`
    (it gets embedded in `fonts.css` as a `data:` URI). Credit it in `ui/about.js` and the README.
 5. Register it in `themes/index.js` (with a `description` in pt-BR and en, and a few `swatches`) and run `npm test`.
+6. Screenshots for the README: `npm run screenshots -- my-theme` writes `docs/screenshots/themes/my-theme.png` and
+   `.pt-BR.png` with sample devices (`--screen settings` or a device id like `ac1` to check other screens).
+   First time: `npx playwright-core install chromium`.
 
 The layout is themeable too: `--window-areas`, `--window-columns` and `--window-rows` decide whether the toolbar sits
 beside the title (Moonlight) or below it (Past Dream).

@@ -38,6 +38,9 @@ icons/*.svg       glifos (viram máscara — a cor vem do tema)
 4. Fonte própria? Coloque o `.woff2` em `fonts/` (com a licença), declare em `fonts.json` e rode `npm run assets`
    (ela é embutida no `fonts.css` como `data:`). Dê o crédito em `ui/about.js` e no README.
 5. Registre em `themes/index.js` (com `description` em pt-BR e en, e algumas `swatches`) e rode `npm test`.
+6. Prints para o README: `npm run screenshots -- meu-tema` grava `docs/screenshots/themes/meu-tema.png` e
+   `.pt-BR.png` com aparelhos de exemplo (`--screen settings` ou um id de aparelho como `ac1` para ver outras telas).
+   Na primeira vez: `npx playwright-core install chromium`.
 
 O layout também é tematizável: `--window-areas`, `--window-columns` e `--window-rows` decidem se a
 barra de ferramentas fica ao lado do título (Moonlight) ou abaixo (Past Dream).

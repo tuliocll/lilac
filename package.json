@@ -18,11 +18,13 @@
     "devices": "tsx apps/cli/src/devices.ts",
     "control": "tsx apps/cli/src/control.ts",
     "assets": "npm run assets -w @lilac/menubar",
-    "lg": "tsx apps/cli/src/lg.ts"
+    "lg": "tsx apps/cli/src/lg.ts",
+    "screenshots": "tsx apps/menubar/scripts/screenshots.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
+    "playwright-core": "1.63.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0"
   },
