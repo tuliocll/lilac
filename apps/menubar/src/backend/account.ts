@@ -62,7 +62,11 @@ function useSession(session: SharingSession) {
  * Busca o inventário nas nuvens conectadas (Smart Life e LG ThinQ). A que
  * falhar mantém o que já estava salvo; a outra atualiza mesmo assim.
  */
-export async function sync() {
+let syncing: Promise<void> | null = null;
+/** Pedidos durante uma busca (inicialização + botão ↻) esperam a mesma busca. */
+export const sync = () => (syncing ??= doSync().finally(() => (syncing = null)));
+
+async function doSync() {
   if (!cloud && !thinqConnected()) return;
   push('sync-start');
   const [tuya, lg] = await Promise.allSettled([cloud ? cloud.inventory() : Promise.resolve([]), thinqConnected() ? thinqInventory() : Promise.resolve([])]);
@@ -84,8 +88,10 @@ export async function sync() {
 
 export async function startLogin(userCode: string) {
   loginAbort?.abort();
-  const { token, qrData } = await requestLoginQr(userCode, APP_CREDENTIALS);
+  // criado antes do await: cancelar enquanto o QR carrega também vale
   const abort = (loginAbort = new AbortController());
+  const { token, qrData } = await requestLoginQr(userCode, APP_CREDENTIALS);
+  if (abort.signal.aborted) throw new Error('login cancelado');
 
   pollLogin(token, userCode, APP_CREDENTIALS, { signal: abort.signal, timeoutMs: QR_LIFETIME_MS })
     .then(async (session) => {

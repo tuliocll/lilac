@@ -25,8 +25,16 @@ const seen = new Map<string, DiscoveredDevice>();
 const listeners = new Set<() => void>();
 let watcher: BroadcastWatcher | null = null;
 
-export async function startListening(onError: (message: string) => void) {
-  if (watcher) return;
+// chamadas juntas (painel + bandeja) esperam a mesma abertura, senão a primeira escuta vaza
+let starting: Promise<void> | null = null;
+let restarting: Promise<void> | null = null;
+
+export function startListening(onError: (message: string) => void): Promise<void> {
+  if (watcher) return Promise.resolve();
+  return (starting ??= listen(onError).finally(() => (starting = null)));
+}
+
+async function listen(onError: (message: string) => void) {
   try {
     watcher = await watchBroadcasts(transport, {
       onDevice(device, isNew) {
@@ -42,12 +50,15 @@ export async function startListening(onError: (message: string) => void) {
 }
 
 /** Esquece o que foi visto e volta a escutar do zero (botão "Procurar"). */
-export async function restartListening(onError: (message: string) => void) {
-  await watcher?.stop();
-  watcher = null;
-  seen.clear();
-  notify();
-  await startListening(onError);
+export function restartListening(onError: (message: string) => void): Promise<void> {
+  return (restarting ??= (async () => {
+    await starting;
+    await watcher?.stop();
+    watcher = null;
+    seen.clear();
+    notify();
+    await startListening(onError);
+  })().finally(() => (restarting = null)));
 }
 
 /** Onde o aparelho está agora (ou undefined, se não anunciou recentemente). */

@@ -19,12 +19,13 @@ import { chooseRoom, loadRoomChoices, roomByName, roomOptions } from '../src/bac
 const KEY = 'abcdef0123456789';
 const pushes: { event: string; data: any }[] = [];
 let trayMenu: { id?: string; label?: string }[] = [];
+let trayTooltip = '';
 const store = new Map<string, unknown>();
 const fakeApp: TinyApp = {
   push: (event, data) => pushes.push({ event, data }),
   quit() {},
   setHideOnClose() {},
-  tray: { set: (spec) => void (trayMenu = spec.menu ?? []) },
+  tray: { set: (spec) => void ((trayMenu = spec.menu ?? []), (trayTooltip = spec.tooltip ?? '')) },
   store: { get: async (k) => store.get(k), set: async (k, v) => void store.set(k, v) },
 };
 
@@ -257,4 +258,23 @@ test('duas casas com uma "Sala": pelo nome, o aparelho fica na sala da própria 
   });
   const luz = deviceList().find((d) => d.id === 'praia-luz')!;
   assert.deepEqual([luz.room?.id, luz.home, luz.homeId], ['9', 'Praia', '2']);
+});
+
+test('bandeja: a leitura em destaque usa o valor já na escala do aparelho', async () => {
+  account.restore({
+    inventory: [
+      device('ar-dec', {
+        name: 'Ar',
+        category: 'kt',
+        status: { switch: true, temp_set: 225 },
+        dps: [
+          { dpId: 1, code: 'switch', type: 'Boolean', writable: true },
+          { dpId: 2, code: 'temp_set', type: 'Integer', values: { min: 160, max: 300, step: 5, scale: 1, unit: '℃' }, writable: true },
+        ],
+      }),
+    ],
+  });
+  await toggleFavorite('ar-dec');
+  renderTray();
+  assert.match(trayTooltip, /22[.,]5 °C/);
 });

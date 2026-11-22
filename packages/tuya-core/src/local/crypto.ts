@@ -13,8 +13,6 @@ export function startsWithVersion(b: Uint8Array): boolean {
   return b.length >= 3 && b[0] === 0x33 /* 3 */ && b[1] === 0x2e /* . */ && b[2]! >= 0x31 && b[2]! <= 0x35;
 }
 
-export const ecbEncrypt = (key: Uint8Array, data: Uint8Array) => ecb(key).encrypt(data);
-export const ecbDecrypt = (key: Uint8Array, data: Uint8Array) => ecb(key).decrypt(data);
 export const ecbEncryptRaw = (key: Uint8Array, data: Uint8Array) => ecb(key, { disablePadding: true }).encrypt(data);
 export const hmacSha256 = (key: Uint8Array, data: Uint8Array) => hmac(sha256, key, data);
 

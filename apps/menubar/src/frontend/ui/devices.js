@@ -147,7 +147,26 @@
     );
   }
 
+  /**
+   * A lista é recriada a cada atualização: lembra onde estava o foco do teclado
+   * (mesmo aparelho, mesmo botão) para devolvê-lo depois.
+   */
+  function focusSpot() {
+    const el = document.activeElement;
+    if (!$('list').contains(el)) return null;
+    const row = el.closest('[data-id]');
+    if (!row) return () => $('list').querySelector('.list-heading button')?.focus({ preventScroll: true });
+    const { id } = row.dataset;
+    const index = [...row.querySelectorAll('button')].indexOf(el);
+    return () => {
+      const again = $('list').querySelector(`[data-id="${CSS.escape(id)}"]`);
+      const b = again?.querySelectorAll('button')[index];
+      (b && !b.disabled ? b : again?.querySelector('.device-name'))?.focus({ preventScroll: true });
+    };
+  }
+
   function render() {
+    const refocus = focusSpot();
     const favorites = devices.filter((d) => d.favorite);
     const others = devices.filter((d) => !d.favorite);
     if (favorites.length < 2) arranging = false; // com um só, não há o que ordenar
@@ -166,6 +185,7 @@
     }
 
     $('list').replaceChildren(...items);
+    refocus?.();
     $('list').dataset.layout = layout;
     $('list').classList.toggle('arranging', arranging);
     document.body.classList.toggle('has-devices', devices.length > 0);

@@ -56,5 +56,5 @@
   $('lg-login-skip').addEventListener('click', () => Lilac.nav.go('devices', { replace: true }));
   Lilac.nav.onLeave('lg-login', () => Lilac.panel.keepOpen('lg', false));
 
-  Lilac.lg = { open, connect };
+  Lilac.lg = { open };
 })();

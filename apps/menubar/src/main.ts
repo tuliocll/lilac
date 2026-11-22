@@ -71,7 +71,6 @@ export const api = {
   // ---- inicialização e conta
   restore: withStart((saved: Parameters<typeof account.restore>[0]) => {
     const result = account.restore(saved);
-    pushDevices();
     if (result.loggedIn) account.sync();
     return result;
   }),
@@ -110,7 +109,6 @@ export const api = {
   }),
 
   // ---- aparelhos
-  devices: withStart(() => deviceList()),
   openDevice: withStart(({ id }: Id) => control.openDevice(id)),
   setControl: withStart(({ id, code, value }: Id & { code: string; value: unknown }) => control.setControl(id, code, value)),
   closeDevice: withStart(({ id }: Id) => control.releaseDevice(id)),
@@ -158,7 +156,6 @@ export const api = {
     const action = deviceList().find((d) => d.id === id)?.quick[index];
     if (!action) throw new Error('ação rápida não encontrada');
     await control.runAction(id, action);
-    pushDevices();
   }),
 
   // ---- interface

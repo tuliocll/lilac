@@ -17,7 +17,7 @@
   // ------------------------------------------------------------ abrir e sair
 
   async function open(device) {
-    page = { device, controls: [], values: {} };
+    const mine = (page = { device, controls: [], values: {} });
     Lilac.nav.go('device', { title: device.name });
     const container = $('device-page');
     container.replaceChildren(h('p', 'muted center', t('device.connecting')));
@@ -26,8 +26,9 @@
     const done = status.busy();
     try {
       const result = await tiny.api.call('openDevice', { id: device.id });
-      if (page?.device.id === device.id) render(result);
+      if (page === mine) render(result);
     } catch (error) {
+      if (page !== mine) return; // já saiu daqui: o erro não é desta página
       container.replaceChildren(h('p', 'dp-note warn card', t('device.reason.error', { error: error.message ?? error })));
     } finally {
       done();
@@ -243,19 +244,20 @@
 
   /** Mostra a mudança na hora; se o aparelho recusar, volta e avisa. */
   async function change(control, value) {
-    const item = page.controls.find((i) => i.control === control);
-    const previous = page.values[control.code];
-    page.values[control.code] = value;
+    const mine = page; // depois do await a página pode ser de outro aparelho (ou nenhuma)
+    const item = mine.controls.find((i) => i.control === control);
+    const previous = mine.values[control.code];
+    mine.values[control.code] = value;
     refresh();
     item?.el.setAttribute('aria-busy', 'true');
     try {
-      Object.assign(page.values, await tiny.api.call('setControl', { id: page.device.id, code: control.code, value }));
+      Object.assign(mine.values, await tiny.api.call('setControl', { id: mine.device.id, code: control.code, value }));
     } catch (error) {
-      page.values[control.code] = previous;
+      mine.values[control.code] = previous;
       status.show('device.setError', { error: error.message ?? error }, { warn: true });
     } finally {
       item?.el.removeAttribute('aria-busy');
-      refresh();
+      if (page === mine) refresh();
     }
   }
 

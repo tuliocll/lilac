@@ -64,37 +64,44 @@ const opening = new Map<string, Promise<OpenResult>>();
 /** último valor conhecido de cada aparelho (para a bandeja) */
 const lastKnown = new Map<string, Values>();
 const valueListeners = new Set<(id: string) => void>();
+/** aparelhos que a página quer ver; a bandeja abre e fecha sem mexer nisso */
+const pageWants = new Set<string>();
 
 // ============================================================== API do módulo
 
 export async function openDevice(id: string, { watch = true } = {}): Promise<OpenResult> {
   const device = findDevice(id);
   if (!device) return { gadget: null, values: {}, route: null, reason: 'unknown' };
+  if (watch) pageWants.add(id);
 
   const inProgress = opening.get(id);
   if (inProgress) await inProgress.catch(() => {});
 
   const known = sessions.get(id);
   if (known) {
-    if (watch) {
-      clearTimeout(known.timers.idle);
-      known.watched = true;
-    }
+    // depois do await: a página pode ter saído enquanto esperava
+    known.watched = pageWants.has(id);
+    if (known.watched) clearTimeout(known.timers.idle);
     const outcome = await refresh(known);
     if (outcome.ok) return describe(known);
-    return { ...describe(known), route: null, reason: outcome.reason, error: outcome.error };
+    // a mesma regra da abertura nova: rede local falhou, a nuvem ainda pode resolver
+    const retry = known.route === 'local' && outcome.reason !== 'auth' && hasCloud(device);
+    if (!retry) return { ...describe(known), route: null, reason: outcome.reason, error: outcome.error };
+    if (sessions.get(id) === known) dispose(known);
   }
 
-  const open = openNew(device, watch).finally(() => opening.delete(id));
+  const pending = opening.get(id);
+  if (pending) return pending;
+  const open = openNew(device).finally(() => opening.delete(id));
   opening.set(id, open);
   return open;
 }
 
-async function openNew(device: CloudDevice, watch: boolean): Promise<OpenResult> {
+async function openNew(device: CloudDevice): Promise<OpenResult> {
   const choice = chooseRoute(device);
   if (!choice.route) return readOnly(device, choice.reason, choice.version);
 
-  const session = createSession(device, choice.route, watch);
+  const session = createSession(device, choice.route, pageWants.has(device.id));
   let outcome = await refresh(session);
   let cloudBecause: Reason | undefined = choice.route === 'cloud' ? choice.reason : undefined;
   let localError: string | undefined;
@@ -130,7 +137,7 @@ export async function setControl(id: string, code: string, value: unknown): Prom
     // a nuvem demora a refletir; confere daqui a pouco
     if (!remembersState(session.device)) {
       setTimeout(() => {
-        if (sessions.has(id)) pollCloud(session).catch(() => {});
+        if (sessions.get(id) === session) pollCloud(session).catch(() => {});
       }, 1500);
     }
   }
@@ -139,8 +146,13 @@ export async function setControl(id: string, code: string, value: unknown): Prom
 
 /** A página saiu do aparelho. */
 export function releaseDevice(id: string) {
+  pageWants.delete(id);
   const session = sessions.get(id);
-  if (!session) return;
+  if (session) unwatch(session);
+}
+
+/** Ninguém olhando: para de acompanhar e fecha daqui a 30 s. */
+function unwatch(session: Session) {
   session.watched = false;
   clearTimeout(session.timers.poll);
   clearTimeout(session.timers.reconnect);
@@ -159,7 +171,9 @@ export async function runAction(id: string, action: { code: string; mode: 'toggl
     const value = action.mode === 'toggle' ? !opened.values[action.code] : action.value;
     return await setControl(id, action.code, value);
   } finally {
-    releaseDevice(id);
+    // a página pode estar aberta neste aparelho: aí ela continua acompanhando
+    const session = sessions.get(id);
+    if (session && !pageWants.has(id)) unwatch(session);
   }
 }
 
@@ -314,14 +328,21 @@ function readOnly(device: CloudDevice, reason?: Reason, version?: string, error?
 async function pollCloud(session: Session) {
   clearTimeout(session.timers.poll);
   if (remembersState(session.device)) return; // a nuvem não tem o que contar
-  const status = await statusFromCloud(session.device);
-  if (status) {
-    for (const code of Object.keys(status)) session.seen.add(code);
-    session.gadget = filterSupported(session.device, session.full, session.seen);
-    applyValues(session, cloudValues(session.full, status));
+  try {
+    const status = await statusFromCloud(session.device);
+    if (status) {
+      for (const code of Object.keys(status)) session.seen.add(code);
+      session.gadget = filterSupported(session.device, session.full, session.seen);
+      applyValues(session, cloudValues(session.full, status));
+    }
+  } finally {
+    // agenda mesmo depois de uma falha: um soluço de rede não congela a página
+    const every = isLg(session.device) ? LG_POLL_MS : CLOUD_POLL_MS;
+    if (session.watched && sessions.get(session.device.id) === session) {
+      clearTimeout(session.timers.poll);
+      session.timers.poll = setTimeout(() => pollCloud(session).catch(() => {}), every);
+    }
   }
-  const every = isLg(session.device) ? LG_POLL_MS : CLOUD_POLL_MS;
-  if (session.watched) session.timers.poll = setTimeout(() => pollCloud(session).catch(() => {}), every);
 }
 
 // ============================================================== conexão local

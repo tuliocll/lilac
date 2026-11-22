@@ -107,3 +107,96 @@ test('ar LG que a LG não descreve fica de fora; os outros entram', async () => 
   assert.equal(acs[0]!.homeId, 'lg');
   assert.equal(acs[0]!.category, 'kt');
 });
+
+const rac = () => JSON.parse(readFileSync(join(import.meta.dirname, '../../../packages/thinq/test/fixtures/ac-rac.json'), 'utf8'));
+const lgDevice = (id: string, fixture: any) => ({
+  id,
+  name: `Ar ${id}`,
+  category: 'kt',
+  productId: 'RAC_056905_WW',
+  productName: 'RAC_056905_WW',
+  sub: false,
+  online: true,
+  homeId: 'lg',
+  homeName: 'LG ThinQ',
+  status: {},
+  dps: lgAcDps(fixture.profile),
+  supportLocal: false,
+  writableKnown: true,
+});
+const flush = async () => {
+  for (let i = 0; i < 20; i++) await new Promise((r) => setImmediate(r));
+};
+
+test('re-sincronizar: a conta que falhou mantém o que havia, a outra atualiza, importados ficam', async () => {
+  const fixture = rac();
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string) => {
+    if (!url.includes('lgthinq.com')) throw new Error('Smart Life fora do ar');
+    const response = url.endsWith('/devices')
+      ? [{ deviceId: 'lg-novo', deviceInfo: { alias: 'Ar novo', deviceType: 'DEVICE_AIR_CONDITIONER', modelName: 'RAC_056905_WW' } }]
+      : url.endsWith('/profile')
+        ? fixture.profile
+        : null;
+    return new Response(JSON.stringify({ messageId: 'm', response }));
+  }) as typeof fetch;
+  try {
+    const tuya = { ...lgDevice('tuya-salvo', fixture), homeId: '1', homeName: 'Casa', category: 'cz', dps: [] };
+    const imported = { ...tuya, id: 'importado', homeId: 'imported' };
+    account.restore({
+      inventory: [tuya, imported, lgDevice('lg-velho', fixture)],
+      session: { uid: 'u', accessToken: 'a', refreshToken: 'r', expiresAt: Date.now() + 3600_000, endpoint: 'https://apigw.example.com', terminalId: 't', userCode: 'c' },
+      thinq: { token: 'pat', country: 'BR', clientId: 'cid' },
+    });
+    pushes.length = 0;
+    await Promise.all([account.sync(), account.sync()]);
+    assert.deepEqual(account.devices().map((d) => d.id).sort(), ['importado', 'lg-novo', 'tuya-salvo']);
+    assert.equal(pushes.filter((p) => p.event === 'sync-start').length, 1, 'duas chamadas juntas = uma busca');
+    assert.equal(pushes.filter((p) => p.event === 'sync-end').length, 1);
+  } finally {
+    await account.logout();
+    account.disconnectLg();
+    globalThis.fetch = realFetch;
+  }
+});
+
+test('ar LG: a página continua atualizando depois de um clique na bandeja e de uma consulta que falha', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const fixture = rac();
+  let states = 0;
+  let fail = false;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: string) => {
+    if (url.endsWith('/state')) {
+      states++;
+      if (fail) return new Response(JSON.stringify({ error: { code: '9999', message: 'instável' } }), { status: 500 });
+    }
+    const response = url.endsWith('/state') ? fixture.state : {};
+    return new Response(JSON.stringify({ messageId: 'm', response }));
+  }) as typeof fetch;
+  try {
+    account.restore({ inventory: [lgDevice('lgac2', fixture)], thinq: { token: 'pat', country: 'BR', clientId: 'cid' } });
+    await control.openDevice('lgac2'); // a página
+    await control.togglePower('lgac2'); // a bandeja, com a página aberta
+    const before = states;
+
+    fail = true;
+    t.mock.timers.tick(30_000);
+    await flush();
+    assert.equal(states, before + 1, 'a página segue consultando depois do clique na bandeja');
+
+    fail = false;
+    t.mock.timers.tick(30_000);
+    await flush();
+    assert.equal(states, before + 2, 'e depois da falha');
+
+    control.releaseDevice('lgac2');
+    t.mock.timers.tick(30_000);
+    await flush();
+    assert.equal(states, before + 2, 'saiu da página: para de consultar');
+  } finally {
+    control.closeAllDevices();
+    account.disconnectLg();
+    globalThis.fetch = realFetch;
+  }
+});

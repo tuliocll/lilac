@@ -153,20 +153,13 @@ export async function watchBroadcasts(transport: Transport, options: WatchOption
 export interface DiscoverOptions extends Partial<WatchOptions> {
   /** tempo escutando, em ms. Aparelhos anunciam a cada ~5 s; 6–10 s é seguro. */
   timeoutMs?: number;
-  signal?: AbortSignal;
 }
 
 /** Escuta por um tempo e devolve o que encontrou. */
 export async function discover(transport: Transport, options: DiscoverOptions = {}): Promise<DiscoveredDevice[]> {
-  const { timeoutMs = 8000, signal } = options;
+  const { timeoutMs = 8000 } = options;
   const watcher = await watchBroadcasts(transport, { ...options, onDevice: options.onDevice ?? (() => {}) });
-  await new Promise<void>((resolve) => {
-    const timer = setTimeout(resolve, timeoutMs);
-    signal?.addEventListener('abort', () => {
-      clearTimeout(timer);
-      resolve();
-    });
-  });
+  await new Promise((resolve) => setTimeout(resolve, timeoutMs));
   await watcher.stop();
   return watcher.devices();
 }

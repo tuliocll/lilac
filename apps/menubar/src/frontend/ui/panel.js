@@ -224,5 +224,5 @@
   renderPinButton();
   renderCollapseButtons();
 
-  Lilac.panel = { open, hide, keepOpen, setHotkey, initPin, initSize };
+  Lilac.panel = { open, keepOpen, setHotkey, initPin, initSize };
 })();

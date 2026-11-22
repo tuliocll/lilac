@@ -50,10 +50,9 @@ export function fromBase64(s: string): Uint8Array {
 
 export function randomBytes(n: number): Uint8Array {
   const out = new Uint8Array(n);
-  const c = (globalThis as any).crypto;
-  if (c?.getRandomValues) c.getRandomValues(out);
-  else for (let i = 0; i < n; i++) out[i] = Math.floor(Math.random() * 256);
-  return out;
+  // sem fallback para Math.random: nonces previsíveis quebram a sessão 3.4
+  if (!globalThis.crypto?.getRandomValues) throw new Error('este runtime não tem crypto.getRandomValues');
+  return globalThis.crypto.getRandomValues(out);
 }
 
 export function uuidv4(): string {
