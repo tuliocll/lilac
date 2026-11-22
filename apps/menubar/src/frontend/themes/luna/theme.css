@@ -262,6 +262,9 @@
   box-sizing: border-box;
 }
 [data-theme="luna"] .select-wrap .glyph { right: 4px; width: 13px; height: 13px; color: #4d6185; z-index: 1; }
+/* desabilitado, o botão da seta fica cinza como no XP */
+[data-theme="luna"] .select-wrap:has(select:disabled)::before { background: #f4f3ee; border-color: #e1e0d8; }
+[data-theme="luna"] .select-wrap:has(select:disabled) .glyph { color: #c9c7ba; }
 
 /* menus: seleção azul com texto branco */
 [data-theme="luna"] .menu-item { border-radius: 0; }
@@ -274,6 +277,8 @@
 
 /* caixa de seleção: 13×13, visto verde quando marcada, brilho laranja no hover */
 [data-theme="luna"] .switch { box-sizing: border-box; }
+/* a caixa é pequena, mas a área de clique não: 25×25 em volta dela */
+[data-theme="luna"] .switch::before { content: ""; position: absolute; inset: -7px; }
 [data-theme="luna"] .switch:hover { box-shadow: inset -1px -1px #f8b636, inset 1px 1px #fedf9c; }
 [data-theme="luna"] .switch::after {
   inset: 1px;

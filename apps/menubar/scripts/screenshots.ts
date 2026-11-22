@@ -11,7 +11,7 @@
 
 import { readFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import vm from 'node:vm';
 import { chromium } from 'playwright-core';
@@ -31,6 +31,8 @@ const builtin = (() => {
 })();
 const themes = positionals.length ? positionals : builtin;
 for (const id of themes) if (!builtin.includes(id)) throw new Error(`tema desconhecido: ${id}`);
+const SCREENS = ['list', 'settings', 'ac1', 'light1', 'plug1', 'sw1', 'ac2'];
+if (!SCREENS.includes(opts.screen!)) throw new Error(`--screen desconhecida: ${opts.screen} (use ${SCREENS.join(' | ')})`);
 
 // ---- aparelhos de exemplo, resolvidos pelos perfis de verdade
 
@@ -87,8 +89,9 @@ function fakeTiny(D: typeof data, theme: string, lang: string) {
       return { loggedIn: true };
     },
     openDevice: ({ id }) => {
-      const d = D[list.find((x) => x.id === id)!._k]!;
-      return { gadget: d.gadget, values: d.values, route: 'local' };
+      const device = list.find((x) => x.id === id)!;
+      const d = D[device._k]!;
+      return { gadget: d.gadget, values: d.values, route: device.route };
     },
     userThemes: () => [],
     quickActionOptions: () => [],
@@ -121,7 +124,7 @@ try {
       await page.route('**/index.html', (route) =>
         route.fulfill({ contentType: 'text/html', body: html.replace('<script src="config.js">', `<script>${mock}</script><script src="config.js">`) }),
       );
-      await page.goto(`file://${join(front, 'index.html')}`);
+      await page.goto(pathToFileURL(join(front, 'index.html')).href);
       // shortcut: esperas fixas para animações e fontes; trocar por um sinal do app se ficarem instáveis
       await page.waitForTimeout(800);
       if (opts.screen === 'settings') await page.click('#open-settings');
