@@ -21,6 +21,7 @@ themes/
   cutelight/      light and cute         boringlight/  lavender and indigo (no custom font)
   frutiger-inferno/  Aero's evil twin (reuses the Aero font)
   confused-past/  mixed-media collage (torn edges with clip-path)
+  luna/           the Windows XP blue (system fonts, checkbox-style toggle)
   contrast/       high contrast
   index.js        themes that ship with the app
 ui/i18n.js        pt-BR / en dictionaries

@@ -37,6 +37,13 @@ Lilac.builtinThemes = [
     swatches: ['#f3f1ec', '#161616', '#b3121f', '#c8c8c8', '#d6b07a'],
   },
   {
+    id: 'luna',
+    name: 'Luna',
+    description: { 'pt-BR': 'O azul do Windows XP: barra brilhante, botão Iniciar verde e Tahoma', en: 'The Windows XP blue: glossy title bar, green Start button and Tahoma' },
+    href: 'themes/luna/theme.css',
+    swatches: ['#0054e3', '#ece9d8', '#3c9c3c', '#e04e2b', '#ffffff'],
+  },
+  {
     id: 'cassi-ui',
     name: 'CassiUI',
     description: { 'pt-BR': 'Tela de LCD em tons de oliva, letra pixelada', en: 'An olive LCD screen with pixel type' },

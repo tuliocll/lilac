@@ -1,0 +1,331 @@
+/*
+ * Luna — o visual azul do Windows XP (2001).
+ * Moldura azul com cantos de cima arredondados, barra de título brilhante com
+ * Trebuchet em negrito, fechar vermelho-laranja, botões bege com brilho laranja
+ * no hover, campos com borda #7f9db9, chave como caixa de seleção com visto
+ * verde, trackbar fininha, rolagem azul-lavanda com setas e o botão verde do
+ * Iniciar como botão principal.
+ * Sem fonte embutida: Tahoma/Trebuchet são do sistema (no Linux cai em Verdana/DejaVu).
+ */
+
+[data-theme="luna"] {
+  --xp-face: #ece9d8;
+  --xp-white: #ffffff;
+  --xp-ink: #000000;
+  --xp-frame: #0831d9;
+  --xp-edge: #7f9db9;
+  --xp-btn-edge: #003c74;
+  --xp-group: #d0d0bf;
+  --xp-select: #316ac5;
+  --xp-link: #0046d5;
+  --xp-green: #21a121;
+  --xp-gray: #808080;
+
+  --font-ui: Tahoma, Verdana, "DejaVu Sans", sans-serif;
+  --font-display: Tahoma, Verdana, "DejaVu Sans", sans-serif;
+  --font-size: 12px;
+  --title-size: 13px;
+  --title-weight: 700;
+
+  --desktop-bg: linear-gradient(180deg, #3a7be0 0%, #8fc3f7 55%, #57a83a 56%, #2f7d1e 100%);
+  --window-margin: 0px;
+  --window-bg: var(--xp-face);
+  --window-fg: var(--xp-ink);
+  --window-border: 3px solid var(--xp-frame);
+  --window-radius: 8px 8px 0 0;
+  --window-shadow: none;
+  --window-areas: "title" "tools" "body" "status";
+  --window-columns: minmax(0, 1fr);
+  --window-rows: auto auto minmax(0, 1fr) auto;
+
+  --titlebar-bg: linear-gradient(180deg, #0997ff, #0053ee 8%, #0050ee 40%, #0066ff 88%, #0066ff 93%, #005bff 95%, #003dd7 96%, #003dd7);
+  --titlebar-fg: var(--xp-white);
+  --titlebar-border: 0;
+  --titlebar-padding: 4px 4px 4px 8px;
+  --wc-display: flex;
+  --wc-bg: radial-gradient(circle at 90% 90%, #0054e9 0, #2263d5 55%, #4479e4 70%, #a3bbec 90%, #ffffff 100%);
+  --wc-fg: var(--xp-white);
+  --wc-border: 1px solid var(--xp-white);
+  --wc-radius: 3px;
+  --dot-display: none;
+  --dot-idle: var(--xp-white);
+  --dot-busy: #ffd84a;
+
+  --toolbar-bg: var(--xp-face);
+  --toolbar-border: 1px solid #aca899;
+  --toolbar-padding: 4px 6px;
+
+  --body-padding: 8px;
+  --gap: 8px;
+  --muted: #5a5a5a;
+  --accent: var(--xp-select);
+  --accent-fg: var(--xp-white);
+  --link: var(--xp-link);
+
+  --surface-bg: var(--xp-white);
+  --surface-hover: #eef3fd;
+  --surface-border: 1px solid var(--xp-group);
+  --surface-radius: 4px;
+  --surface-shadow: none;
+
+  --list-bg: var(--xp-white);
+  --list-border: 1px solid var(--xp-edge);
+  --list-radius: 0px;
+  --list-padding: 4px;
+  --list-gap: 4px;
+
+  --btn-font: var(--font-ui);
+  --btn-bg: linear-gradient(180deg, #ffffff, #ecebe6 86%, #d6d0c5);
+  --btn-fg: var(--xp-ink);
+  --btn-border: 1px solid var(--xp-btn-edge);
+  --btn-radius: 3px;
+  --btn-shadow: none;
+  --btn-shadow-active: none;
+  --btn-press-offset: none;
+  --btn-hover-bg: linear-gradient(180deg, #ffffff, #ecebe6 86%, #d6d0c5);
+  /* o botão verde do Iniciar */
+  --btn-primary-bg: radial-gradient(circle at 50% 10%, #5ec85e 0, #3c9c3c 45%, #2f8f2f 70%, #267b26 100%);
+  --btn-primary-fg: var(--xp-white);
+
+  --input-bg: var(--xp-white);
+  --input-fg: var(--xp-ink);
+  --input-border: 1px solid var(--xp-edge);
+  --input-radius: 0px;
+  --focus-ring: 1px dotted var(--xp-ink);
+  --selected-ring: inset 0 0 0 2px var(--xp-select);
+
+  --badge-bg: var(--xp-white);
+  --badge-fg: var(--xp-ink);
+  --badge-border: 1px solid var(--xp-edge);
+  --badge-radius: 2px;
+  --ok-bg: #d8f2cf;
+  --ok-fg: #1e6b1e;
+  /* amarelo dos balões de aviso */
+  --warn-bg: #ffffe1;
+  --warn-fg: var(--xp-ink);
+  --warn-text: #a05a00;
+  --err-fg: #c00000;
+
+  --icon-tile-size: 32px;
+  --icon-tile-border: 1px solid var(--xp-edge);
+  --icon-tile-radius: 3px;
+  --icon-fg: var(--xp-ink);
+
+  --statusbar-bg: var(--xp-face);
+  --statusbar-fg: var(--xp-ink);
+  --statusbar-border: 1px solid #aca899;
+  --statusbar-padding: 3px 4px;
+
+  --scrollbar-size: 17px;
+  --scrollbar-thumb: linear-gradient(90deg, #c8d6fb, #bacbf7 50%, #a9bff5);
+  --scrollbar-track: linear-gradient(90deg, #f3f1ec, #fefefb);
+  --scrollbar-border: 1px solid var(--xp-white);
+
+  --qr-frame: var(--xp-white);
+  --link-local: var(--xp-green);
+  --link-cloud: #2f7fe8;
+  --link-ring: var(--xp-white);
+  --quick-size: 28px;
+  --swatch-border: 1px solid var(--xp-edge);
+
+  --tone-sun: linear-gradient(180deg, #fff2a8, #ffd23a);
+  --tone-sky: linear-gradient(180deg, #cfe3ff, #7fb0f5);
+  --tone-mint: linear-gradient(180deg, #d9f5c8, #8fd36a);
+  --tone-peach: linear-gradient(180deg, #ffe0c2, #f7a55c);
+  --tone-lilac: linear-gradient(180deg, #e6ddff, #b29ff0);
+  --tone-pink: linear-gradient(180deg, #ffdcec, #f394bf);
+  --tone-neutral: linear-gradient(180deg, #ffffff, #ece9d8);
+
+  /* a chave vira a caixa de seleção do XP (regras no fim do arquivo) */
+  --toggle-w: 13px;
+  --toggle-h: 13px;
+  --toggle-radius: 0px;
+  --toggle-border: 1px solid #1c5180;
+  --toggle-track: linear-gradient(135deg, #dcdcd7, #ffffff);
+  --toggle-track-on: linear-gradient(135deg, #dcdcd7, #ffffff);
+  --toggle-thumb: transparent;
+
+  /* trackbar: trilho afundado de 4px; o preenchido é uma faixa verde no meio */
+  --slider-h: 24px;
+  --slider-radius: 0px;
+  --slider-border: 0;
+  --slider-track: linear-gradient(180deg, #9d9c99 0 1px, #f0efea 1px 3px, #ffffff 3px) center / 100% 4px no-repeat;
+  --slider-fill: linear-gradient(180deg, transparent 10px, var(--xp-green) 10px 14px, transparent 14px);
+  --slider-thumb: linear-gradient(180deg, #ffffff, #f0efe7 70%, #21c13a 70%, #1ea12f);
+  --slider-thumb-w: 11px;
+  --slider-thumb-h: 21px;
+  --slider-thumb-radius: 2px;
+  --slider-thumb-border: 1px solid #1c5180;
+
+  /* o botão de energia lembra o "Desligar o computador": bege desligado, verde ligado */
+  --power-size: 104px;
+  --power-bg: linear-gradient(180deg, #ffffff, #ecebe6 86%, #d6d0c5);
+  --power-fg: #c33c12;
+  --power-on-bg: radial-gradient(circle at 50% 15%, #6fd36f 0, #3c9c3c 50%, #267b26 100%);
+  --power-on-fg: var(--xp-white);
+  --power-border: 1px solid var(--xp-btn-edge);
+  --power-shadow: 1px 1px 2px rgba(0, 0, 0, 0.35);
+  --power-on-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 1px 1px 2px rgba(0, 0, 0, 0.35);
+
+  --hero-font: "Trebuchet MS", var(--font-ui);
+  --hero-size: 52px;
+  --chip-min-h: 70px;
+  --step-dot: var(--xp-white);
+  --step-dot-active: var(--xp-select);
+  --art-size: 80px;
+
+  color-scheme: light;
+}
+
+/* ---- detalhes que vão além de tokens ---- */
+
+/* a barra de título encosta no topo da moldura; título em Trebuchet com sombra */
+[data-theme="luna"] .window { border-top: 0; }
+[data-theme="luna"] .titlebar { min-height: 30px; box-sizing: border-box; }
+[data-theme="luna"] .titlebar-title {
+  font-family: "Trebuchet MS", var(--font-ui);
+  text-shadow: 1px 1px #0f1089;
+  letter-spacing: 0.01em;
+}
+
+/* botões da janela: 21×21, fechar vermelho-laranja */
+[data-theme="luna"] .wc { width: 21px; height: 21px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
+[data-theme="luna"] .wc:hover { filter: brightness(1.12); }
+[data-theme="luna"] .wc:active { filter: brightness(0.88); }
+[data-theme="luna"] .wc .glyph { width: 13px; height: 13px; }
+[data-theme="luna"] .wc[data-action="hide"] {
+  background: radial-gradient(circle at 90% 90%, #cc4600 0, #dc6527 55%, #cd7546 70%, #ffccb2 90%, #ffffff 100%);
+}
+[data-theme="luna"] .wc-pin[aria-pressed="true"] {
+  background: radial-gradient(circle at 90% 90%, #003dd7 0, #0a3fb4 55%, #2a5bc4 70%, #7e9be0 90%, #c7d6f5 100%);
+  color: var(--xp-white);
+}
+
+/* botão comum: brilho laranja no hover, azul quando focado, afunda ao clicar */
+[data-theme="luna"] .btn:hover:not(:disabled) {
+  box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+}
+[data-theme="luna"] .btn:focus-visible {
+  outline-offset: -4px;
+  box-shadow: inset -1px 1px #cee7ff, inset 1px 2px #98b8ea, inset -2px 2px #bcd4f6, inset 1px -1px #89ade4, inset 2px -2px #89ade4;
+}
+[data-theme="luna"] .btn:active:not(:disabled) {
+  background: linear-gradient(180deg, #cdcac3, #e3e3db 8%, #e5e5de 94%, #f2f2f1);
+}
+[data-theme="luna"] .btn { font-weight: 400; min-height: 23px; }
+
+/* principal = o botão Iniciar: verde, itálico, negrito, texto com sombra */
+[data-theme="luna"] .btn-primary {
+  border-color: #1e5e1e;
+  font-style: italic;
+  font-weight: 700;
+  font-family: "Trebuchet MS", var(--font-ui);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  border-radius: 3px 10px 10px 3px;
+  padding-right: 18px;
+}
+[data-theme="luna"] .btn-primary:hover:not(:disabled) { filter: brightness(1.1); box-shadow: none; }
+[data-theme="luna"] .btn-primary:active:not(:disabled) {
+  background: radial-gradient(circle at 50% 90%, #5ec85e 0, #2f8f2f 60%, #1f6a1f 100%);
+}
+
+/* botões da barra de ferramentas são lisos até o mouse passar (Explorer) */
+[data-theme="luna"] .toolbar .btn:not(.btn-primary):not([aria-pressed="true"]) { background: transparent; border-color: transparent; }
+[data-theme="luna"] .toolbar .btn:not(.btn-primary):not([aria-pressed="true"]):hover:not(:disabled) {
+  background: var(--btn-bg);
+  border-color: #cecec3;
+  box-shadow: none;
+}
+[data-theme="luna"] .toolbar .btn:not(.btn-primary):not([aria-pressed="true"]):active:not(:disabled) {
+  background: #e3e3db;
+  box-shadow: inset 1px 1px #9d9d92;
+}
+
+/* links azuis sem sublinhado, sublinham no hover */
+[data-theme="luna"] .btn-link { text-decoration: none; }
+[data-theme="luna"] .btn-link:hover { text-decoration: underline; }
+
+/* campos: borda azul-acinzentada; o select ganha o botão azul da seta */
+[data-theme="luna"] input { padding: 4px 6px; }
+[data-theme="luna"] .select-wrap select { padding: 3px 24px 3px 4px; }
+[data-theme="luna"] .select-wrap::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  width: 17px;
+  border: 1px solid #c3d3fd;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #e6eefc, #c1d3fb 60%, #a8c0f2);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+[data-theme="luna"] .select-wrap .glyph { right: 4px; width: 13px; height: 13px; color: #4d6185; z-index: 1; }
+
+/* menus: seleção azul com texto branco */
+[data-theme="luna"] .menu-item { border-radius: 0; }
+[data-theme="luna"] .menu-item:hover { background: var(--xp-select); color: var(--xp-white); }
+[data-theme="luna"] .menu-item:hover .glyph { color: var(--xp-white); }
+
+/* títulos de seção no azul dos painéis de tarefas */
+[data-theme="luna"] .section-title,
+[data-theme="luna"] .list-heading { color: #215dc6; font-weight: 700; }
+
+/* caixa de seleção: 13×13, visto verde quando marcada, brilho laranja no hover */
+[data-theme="luna"] .switch { box-sizing: border-box; }
+[data-theme="luna"] .switch:hover { box-shadow: inset -1px -1px #f8b636, inset 1px 1px #fedf9c; }
+[data-theme="luna"] .switch::after {
+  inset: 1px;
+  border: 0;
+  border-radius: 0;
+  translate: none;
+  background: transparent;
+  -webkit-mask: var(--i-check) center / 11px no-repeat;
+  mask: var(--i-check) center / 11px no-repeat;
+}
+[data-theme="luna"] .switch[aria-checked="true"]::after { background: var(--xp-green); translate: none; }
+
+/* trackbar: polegar com a pontinha verde; laranja no hover */
+[data-theme="luna"] .range::-webkit-slider-thumb { box-shadow: none; }
+[data-theme="luna"] .range:hover::-webkit-slider-thumb {
+  background: linear-gradient(180deg, #ffffff, #f0efe7 70%, #f8b636 70%, #e5a01a);
+}
+
+/* energia: o quadrado arredondado da tela "Desligar o computador" */
+[data-theme="luna"] .ctl-power { border-radius: 14px; }
+[data-theme="luna"] .ctl-power-mini { border-radius: 4px; }
+
+/* barra de status: painéis afundados */
+[data-theme="luna"] .status {
+  padding: 1px 6px;
+  box-shadow: inset 1px 1px #a7a6aa, inset -1px -1px var(--xp-white);
+}
+
+/* rolagem do XP: polegar e setas azul-lavanda com borda branca */
+[data-theme="luna"] ::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px #b5c8f6;
+}
+[data-theme="luna"] ::-webkit-scrollbar-thumb:hover { filter: brightness(1.05); background: linear-gradient(90deg, #dae4fd, #c9d7fb 50%, #b9cbf8); }
+[data-theme="luna"] ::-webkit-scrollbar-button:single-button {
+  display: block;
+  height: 17px;
+  width: 17px;
+  border: 1px solid var(--xp-white);
+  border-radius: 3px;
+  background-color: #c1d3fb;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 8px;
+}
+[data-theme="luna"] ::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 5 4 1 8 5' fill='none' stroke='%234d6185' stroke-width='2'/%3E%3C/svg%3E");
+}
+[data-theme="luna"] ::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M0 0 4 4 8 0' fill='none' stroke='%234d6185' stroke-width='2'/%3E%3C/svg%3E");
+}
+[data-theme="luna"] ::-webkit-scrollbar-button:single-button:horizontal { display: none; }
+
+/* o QR vira uma janelinha com sombra suave */
+[data-theme="luna"] .qr { box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
